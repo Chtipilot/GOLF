@@ -101,11 +101,28 @@
   }
   body.blankcard-open { overflow:hidden; }
 
+  /* Récapitulatif d'équipe : même principe plein écran que la carte vierge */
+  #teamRecapSection { display:none; }
+  #teamRecapSection.active {
+    display:block;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:#fff;
+    z-index:9999;
+    overflow:auto;
+    margin:0;
+    padding:14px;
+  }
+  body.teamrecap-open { overflow:hidden; }
+
   @media print {
     body * { visibility:hidden; }
     #blankCardSection, #blankCardSection * { visibility:visible; }
     #blankCardSection { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:auto !important; margin:0; padding:0; transform:none !important; }
     #blankCardSection .no-print { display:none !important; }
+    #teamRecapSection, #teamRecapSection * { visibility:visible; }
+    #teamRecapSection { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:auto !important; margin:0; padding:0; transform:none !important; }
+    #teamRecapSection .no-print { display:none !important; }
   }
 </style>
 
@@ -131,6 +148,7 @@
     <option value="th">ไทย</option>
   </select>
   <button class="btn btn-secondary" id="btnToggleBlankCard" style="margin-left:10px;">📋 Carte de score vierge</button>
+  <button class="btn btn-secondary" id="btnToggleTeamRecap" style="margin-left:6px;">👥 Récap équipe</button>
 </div>
 
 <div class="toolbar">
@@ -225,6 +243,7 @@
 <div id="insightsSection" style="display:none; margin-top:10px;"></div>
 <div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
 <div id="blankCardSection"></div>
+<div id="teamRecapSection"></div>
 
 </div>
 
@@ -511,7 +530,24 @@
   //                 entre crochets (ex. "[NE]", "[sun]"), invisible à l'usage mais toujours fiable,
   //                 quelle que soit la langue de l'expéditeur ou du destinataire. Repli sur
   //                 l'ancienne méthode (flèche/mot) pour les messages envoyés avant cette version.
-  const APP_VERSION = "SuarPark - V01.004.042";
+  //   V01.004.043 — Deux changements demandés par le Directeur de session : 1) le bouton technique
+  //                 "📤 Copier (presse-papier)" est masqué (le code reste actif en interne pour la
+  //                 compatibilité avec d'anciens codes déjà envoyés, mais n'est plus mis en avant,
+  //                 pour éviter toute confusion avec "📝 Copier en texte lisible") ; 2) protection
+  //                 contre la perte de données : si une carte est déjà en cours de saisie sur
+  //                 l'appareil qui reçoit (ex. le Directeur a sa propre manche en cours pendant une
+  //                 pause), "📥 Coller" demande désormais confirmation avant de la remplacer par les
+  //                 données reçues d'un joueur, au lieu de l'écraser silencieusement.
+  //   V01.004.044 — Nouveau : "👥 Récapitulatif de l'équipe", une section indépendante de la carte
+  //                 de score vierge personnelle. Nouveau bouton "👥 Recevoir la carte d'un joueur"
+  //                 (dans la carte vierge) qui ajoute/fusionne la carte reçue dans ce récapitulatif
+  //                 sans jamais toucher à la carte personnelle en cours de saisie. Chaque joueur a
+  //                 sa propre ligne ; si plusieurs messages sont reçus pour le même joueur au fil de
+  //                 la journée (ex. 9 premiers trous puis 9 derniers), les nouveaux trous remplis
+  //                 s'ajoutent aux précédents (fusion trou par trou), sans effacer ce qui était déjà
+  //                 connu. Le bouton "📥 Coller ma carte" (renommé, ex-"Coller un code reçu") reste
+  //                 réservé à la carte personnelle, inchangé.
+  const APP_VERSION = "SuarPark - V01.004.044";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -591,16 +627,31 @@
       btnHideTeeCompare: "🔴⚪ Masquer Rouge vs Blanc",
       btnShowBlankCard: "📋 Afficher la carte de score vierge",
       btnHideBlankCard: "📋 Masquer la carte de score vierge",
+      btnShowTeamRecap: "👥 Afficher le récap équipe",
+      btnHideTeamRecap: "👥 Masquer le récap équipe",
+      teamRecapTitle: "👥 Récapitulatif de l'équipe",
+      teamRecapIntro: "Cartes reçues des joueurs, regroupées ici sans jamais écraser ta propre carte en cours.",
+      blankCardBtnReceiveTeam: "👥 Recevoir la carte d'un joueur",
+      teamRecapEmpty: "Aucune carte reçue pour l'instant. Utilise \"👥 Recevoir la carte d'un joueur\" depuis la carte de score vierge.",
+      teamRecapReceiveSuccess: "Carte de {0} ajoutée au récapitulatif d'équipe !",
+      teamRecapReceiveError: "Ce texte n'a pas été reconnu comme une carte SuarPark valide.",
+      teamRecapRemove: "Retirer",
+      teamRecapRemoveConfirm: "Retirer la carte de {0} du récapitulatif ?",
+      teamRecapClearAll: "Tout effacer",
+      teamRecapClearAllConfirm: "Effacer tout le récapitulatif d'équipe ? Cette action est irréversible.",
+      teamRecapUpdatedAt: "Reçue à",
+      teamRecapBtnClose: "Fermer",
+      teamRecapBtnPrint: "🖨️ Imprimer",
       blankCardTitle: "📋 Carte de score vierge — SuarPark",
       blankCardIntro: "À imprimer ou à remplir directement à l'écran avant/pendant la manche.",
       blankCardBtnPrint: "🖨️ Imprimer",
       blankCardBtnClose: "Fermer",
       blankCardBtnExport: "📤 Copier (presse-papier)",
       blankCardBtnExportText: "📝 Copier en texte lisible",
-      blankCardBtnImport: "📥 Coller un code reçu",
+      blankCardBtnImport: "📥 Coller ma carte",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
-      blankCardExportImportNote: "« Copier » place un code technique dans le presse-papier, à coller (SMS, LINE...) pour l'envoyer. « Copier en texte lisible » fait de même avec un résumé clair, également reconnu par « Coller ». « Coller » lit automatiquement l'un ou l'autre format reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil. Si le navigateur l'autorise, « Coller » lit même directement ce presse-papier sans étape supplémentaire.",
+      blankCardExportImportNote: "« Copier en texte lisible » place un résumé clair dans le presse-papier, à coller (SMS, LINE...) pour l'envoyer. « Coller » lit automatiquement ce texte reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil. Si le navigateur l'autorise, « Coller » lit même directement ce presse-papier sans étape supplémentaire.",
       blankCardRotateHint: "Astuce : tourne ton téléphone en mode paysage pour une vue plus large de la carte.",
       blankCardLastSaved: (time) => `Dernière sauvegarde : ${time}`,
       blankCardExportCopied: "Code copié dans le presse-papier ! Envoie-le à l'autre joueur (SMS, LINE...) pour qu'il puisse l'importer sur son téléphone.",
@@ -618,6 +669,7 @@
       blankCardImportPrompt: "Colle ici le code reçu de l'autre joueur :",
       blankCardImportSuccess: "Données importées avec succès !",
       blankCardImportError: "Ce code n'est pas valide. Vérifie qu'il a été copié en entier.",
+      blankCardImportOverwriteConfirm: (player, holes) => `Ta carte actuelle (${player || 'sans nom'}, ${holes} trou${holes > 1 ? 's' : ''} rempli${holes > 1 ? 's' : ''}) va être remplacée par les données reçues. Si tu veux la garder, annule et copie-la d'abord (bouton « Copier en texte lisible »). Continuer et remplacer ?`,
       blankCardClearConfirm: "Effacer définitivement le brouillon de cette carte de score (en-tête, noms et scores) ? Cette action est irréversible.",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
@@ -708,7 +760,7 @@
         "<strong>Zoom des graphiques :</strong> dans « 📊 Graphiques », utilisez les boutons 3 mois / 6 mois / 1 an / Tout au-dessus des courbes pour restreindre la période affichée (score total et température restent synchronisés).",
         "<strong>📋 Carte de score vierge :</strong> ouvre une carte individuelle en plein écran pour saisir une manche en direct sur le parcours. Choisissez le joueur, la date (proposée par défaut), le caddie et la météo, puis le départ (⚪ WHITE / 🔴 RED — modifiable uniquement avant le premier score saisi). Le trou à jouer s'affiche en très grand avec ses cases Score et Putt, et avance automatiquement au trou suivant une fois les deux renseignés ; utilisez ‹ › pour naviguer librement. Le tableau complet des 18 trous reste éditable en dessous.",
         "<strong>Sauvegarde de la carte vierge :</strong> tout est enregistré automatiquement sur cet appareil (brouillon local) — rien n'est perdu en cas de fermeture ou de rechargement de la page.",
-        "<strong>Échanger la carte vierge entre téléphones :</strong> « 📤 Copier » place un code technique dans le presse-papier de votre téléphone à envoyer par SMS/LINE ; « 📝 Copier en texte lisible » fait de même avec un résumé clair (joueur, date, départ, caddie, météo, scores et putts trou par trou) directement lisible par le destinataire. Sur l'autre appareil, « 📥 Coller » reconnaît automatiquement l'un ou l'autre format et recharge la même carte.",
+        "<strong>Échanger la carte vierge entre téléphones :</strong> « 📝 Copier en texte lisible » place un résumé clair (joueur, date, départ, caddie, météo, scores et putts trou par trou), directement lisible par le destinataire, dans le presse-papier de votre téléphone, à envoyer par SMS/LINE. Sur l'autre appareil, « 📥 Coller » reconnaît automatiquement ce texte et recharge la même carte. Si une carte est déjà en cours de saisie sur l'appareil qui reçoit, une confirmation est demandée avant de la remplacer.",
         "<strong>Installer SuarPark comme application :</strong> sur votre téléphone, utilisez « Ajouter à l'écran d'accueil » (Android) ou « Sur l'écran d'accueil » (iPhone, via le bouton Partager de Safari). Une fois installée, vous pouvez, depuis un message reçu dans Messenger/LINE/WhatsApp, appuyer sur « Partager » puis choisir « SuarPark » dans la liste : la carte de score vierge s'ouvre et se remplit automatiquement, sans passer par « 📥 Coller ».",
         "<strong>Imprimer la carte vierge :</strong> le bouton « 🖨️ Imprimer » n'imprime que la carte, sans le reste de l'application."
       ],
@@ -794,16 +846,31 @@
       btnHideTeeCompare: "🔴⚪ Hide Red vs White",
       btnShowBlankCard: "📋 Show blank scorecard",
       btnHideBlankCard: "📋 Hide blank scorecard",
+      btnShowTeamRecap: "👥 Show team recap",
+      btnHideTeamRecap: "👥 Hide team recap",
+      teamRecapTitle: "👥 Team recap",
+      teamRecapIntro: "Cards received from players, gathered here without ever overwriting your own card in progress.",
+      blankCardBtnReceiveTeam: "👥 Receive a player's card",
+      teamRecapEmpty: "No card received yet. Use \"👥 Receive a player's card\" from the blank scorecard.",
+      teamRecapReceiveSuccess: "{0}'s card added to the team recap!",
+      teamRecapReceiveError: "This text wasn't recognized as a valid SuarPark card.",
+      teamRecapRemove: "Remove",
+      teamRecapRemoveConfirm: "Remove {0}'s card from the recap?",
+      teamRecapClearAll: "Clear all",
+      teamRecapClearAllConfirm: "Clear the whole team recap? This cannot be undone.",
+      teamRecapUpdatedAt: "Received at",
+      teamRecapBtnClose: "Close",
+      teamRecapBtnPrint: "🖨️ Print",
       blankCardTitle: "📋 Blank scorecard — SuarPark",
       blankCardIntro: "Print it or fill it in directly on screen before/during the round.",
       blankCardBtnPrint: "🖨️ Print",
       blankCardBtnClose: "Close",
       blankCardBtnExport: "📤 Copy (clipboard)",
       blankCardBtnExportText: "📝 Copy as readable text",
-      blankCardBtnImport: "📥 Paste a received code",
+      blankCardBtnImport: "📥 Paste my card",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
-      blankCardExportImportNote: "\"Copy\" puts a technical code on the clipboard, to paste (SMS, LINE...) and send it. \"Copy as readable text\" does the same with a clear summary, also recognized by \"Paste\". \"Paste\" automatically reads either format received from another player, first copied to this device's clipboard. If the browser allows it, \"Paste\" even reads that clipboard directly, with no extra step.",
+      blankCardExportImportNote: "\"Copy as readable text\" puts a clear summary on the clipboard, to paste (SMS, LINE...) and send it. \"Paste\" automatically reads this text received from another player, first copied to this device's clipboard. If the browser allows it, \"Paste\" even reads that clipboard directly, with no extra step.",
       blankCardRotateHint: "Tip: rotate your phone to landscape for a wider view of the card.",
       blankCardLastSaved: (time) => `Last saved: ${time}`,
       blankCardExportCopied: "Code copied to clipboard! Send it to the other player (SMS, LINE...) so they can import it on their phone.",
@@ -821,6 +888,7 @@
       blankCardImportPrompt: "Paste the code received from the other player here:",
       blankCardImportSuccess: "Data imported successfully!",
       blankCardImportError: "This code isn't valid. Check that it was copied in full.",
+      blankCardImportOverwriteConfirm: (player, holes) => `Your current card (${player || 'unnamed'}, ${holes} hole${holes > 1 ? 's' : ''} filled) will be replaced by the received data. If you want to keep it, cancel and copy it first (\"Copy as readable text\" button). Continue and replace?`,
       blankCardClearConfirm: "Permanently clear this scorecard's draft (header, names and scores)? This cannot be undone.",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
@@ -911,7 +979,7 @@
         "<strong>Chart zoom:</strong> in « 📊 Charts », use the 3 months / 6 months / 1 year / All buttons above the graphs to restrict the displayed period (total score and temperature stay synchronized).",
         "<strong>📋 Blank scorecard:</strong> opens a full-screen individual card for live scoring on the course. Choose the player, date (defaulted to today), caddie and weather, then the tee (⚪ WHITE / 🔴 RED — editable only before the first score is entered). The hole to play is shown very large with its Score and Putt boxes, and automatically advances to the next hole once both are filled; use ‹ › to navigate freely. The full 18-hole table below stays editable.",
         "<strong>Blank card saving:</strong> everything is saved automatically on this device (local draft) — nothing is lost if the page closes or reloads.",
-        "<strong>Sharing the blank card between phones:</strong> « 📤 Copy » puts a technical code on your phone's clipboard to send via SMS/LINE; « 📝 Copy as readable text » does the same with a clear summary (player, date, tee, caddie, weather, hole-by-hole scores and putts) directly readable by the recipient. On the other device, « 📥 Paste » automatically recognizes either format and reloads the same card.",
+        "<strong>Sharing the blank card between phones:</strong> « 📝 Copy as readable text » puts a clear summary (player, date, tee, caddie, weather, hole-by-hole scores and putts), directly readable by the recipient, on your phone's clipboard, to send via SMS/LINE. On the other device, « 📥 Paste » automatically recognizes this text and reloads the same card. If a card is already being filled in on the receiving device, a confirmation is asked before replacing it.",
         "<strong>Installing SuarPark as an app:</strong> on your phone, use \"Add to Home screen\" (Android) or \"Add to Home Screen\" (iPhone, via Safari's Share button). Once installed, from a message received in Messenger/LINE/WhatsApp, you can tap \"Share\" and choose \"SuarPark\" from the list: the blank scorecard opens and fills in automatically, without going through « 📥 Paste ».",
         "<strong>Printing the blank card:</strong> the « 🖨️ Print » button only prints the card, without the rest of the app."
       ],
@@ -979,16 +1047,31 @@
       btnHideTeeCompare: "🔴⚪ Rot vs. Weiß ausblenden",
       btnShowBlankCard: "📋 Leere Scorekarte anzeigen",
       btnHideBlankCard: "📋 Leere Scorekarte ausblenden",
+      btnShowTeamRecap: "👥 Team-Übersicht anzeigen",
+      btnHideTeamRecap: "👥 Team-Übersicht ausblenden",
+      teamRecapTitle: "👥 Team-Übersicht",
+      teamRecapIntro: "Von Spielern erhaltene Karten, hier gesammelt, ohne je die eigene laufende Karte zu überschreiben.",
+      blankCardBtnReceiveTeam: "👥 Karte eines Spielers empfangen",
+      teamRecapEmpty: "Noch keine Karte empfangen. \"👥 Karte eines Spielers empfangen\" auf der leeren Scorekarte verwenden.",
+      teamRecapReceiveSuccess: "Karte von {0} zur Team-Übersicht hinzugefügt!",
+      teamRecapReceiveError: "Dieser Text wurde nicht als gültige SuarPark-Karte erkannt.",
+      teamRecapRemove: "Entfernen",
+      teamRecapRemoveConfirm: "Karte von {0} aus der Übersicht entfernen?",
+      teamRecapClearAll: "Alles löschen",
+      teamRecapClearAllConfirm: "Die gesamte Team-Übersicht löschen? Dies kann nicht rückgängig gemacht werden.",
+      teamRecapUpdatedAt: "Empfangen um",
+      teamRecapBtnClose: "Schließen",
+      teamRecapBtnPrint: "🖨️ Drucken",
       blankCardTitle: "📋 Leere Scorekarte — SuarPark",
       blankCardIntro: "Zum Ausdrucken oder direkt am Bildschirm vor/während der Runde ausfüllen.",
       blankCardBtnPrint: "🖨️ Drucken",
       blankCardBtnClose: "Schließen",
       blankCardBtnExport: "📤 Kopieren (Zwischenablage)",
       blankCardBtnExportText: "📝 Als lesbaren Text kopieren",
-      blankCardBtnImport: "📥 Erhaltenen Code einfügen",
+      blankCardBtnImport: "📥 Meine Karte einfügen",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
-      blankCardExportImportNote: "«Kopieren» legt einen technischen Code in die Zwischenablage, zum Einfügen (SMS, LINE...) und Versenden. «Als lesbaren Text kopieren» tut dasselbe mit einer klaren Zusammenfassung, die «Einfügen» ebenfalls erkennt. «Einfügen» liest automatisch eines der beiden Formate, das von einem anderen Spieler zuvor in die Zwischenablage dieses Geräts kopiert wurde. Falls der Browser es erlaubt, liest «Einfügen» die Zwischenablage sogar direkt, ganz ohne zusätzlichen Schritt.",
+      blankCardExportImportNote: "«Als lesbaren Text kopieren» legt eine klare Zusammenfassung in die Zwischenablage, zum Einfügen (SMS, LINE...) und Versenden. «Einfügen» liest diesen Text automatisch, der von einem anderen Spieler zuvor in die Zwischenablage dieses Geräts kopiert wurde. Falls der Browser es erlaubt, liest «Einfügen» die Zwischenablage sogar direkt, ganz ohne zusätzlichen Schritt.",
       blankCardRotateHint: "Tipp: Drehe dein Handy ins Querformat für eine breitere Ansicht der Karte.",
       blankCardLastSaved: (time) => `Zuletzt gespeichert: ${time}`,
       blankCardExportCopied: "Code in die Zwischenablage kopiert! Sende ihn an den anderen Spieler (SMS, LINE...), damit er ihn auf seinem Handy importieren kann.",
@@ -1006,6 +1089,7 @@
       blankCardImportPrompt: "Füge hier den vom anderen Spieler erhaltenen Code ein:",
       blankCardImportSuccess: "Daten erfolgreich importiert!",
       blankCardImportError: "Dieser Code ist ungültig. Prüfe, ob er vollständig kopiert wurde.",
+      blankCardImportOverwriteConfirm: (player, holes) => `Deine aktuelle Karte (${player || 'ohne Namen'}, ${holes} Loch/Löcher ausgefüllt) wird durch die empfangenen Daten ersetzt. Um sie zu behalten, abbrechen und zuerst kopieren („Als lesbaren Text kopieren"). Fortfahren und ersetzen?`,
       blankCardClearConfirm: "Diesen Kartenentwurf endgültig löschen (Kopfzeile, Namen und Scores)? Dies kann nicht rückgängig gemacht werden.",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
@@ -1096,7 +1180,7 @@
         "<strong>Diagramm-Zoom:</strong> unter « 📊 Diagramme » die Schaltflächen 3 Monate / 6 Monate / 1 Jahr / Alle über den Kurven verwenden, um den angezeigten Zeitraum einzugrenzen (Gesamtergebnis und Temperatur bleiben synchron).",
         "<strong>📋 Leere Scorekarte:</strong> öffnet eine individuelle Vollbildkarte für die Live-Eingabe auf dem Platz. Spieler, Datum (standardmäßig heute), Caddie und Wetter wählen, dann den Abschlag (⚪ WHITE / 🔴 RED — nur änderbar, bevor der erste Score eingegeben wurde). Das zu spielende Loch wird sehr groß mit Score- und Putt-Feldern angezeigt und springt automatisch zum nächsten Loch, sobald beide ausgefüllt sind; mit ‹ › frei navigieren. Die vollständige 18-Loch-Tabelle darunter bleibt bearbeitbar.",
         "<strong>Speicherung der leeren Karte:</strong> alles wird automatisch auf diesem Gerät gespeichert (lokaler Entwurf) — nichts geht beim Schließen oder Neuladen der Seite verloren.",
-        "<strong>Leere Karte zwischen Handys austauschen:</strong> « 📤 Kopieren » legt einen technischen Code in die Zwischenablage des eigenen Handys, der per SMS/LINE verschickt werden kann; « 📝 Als lesbaren Text kopieren » tut dasselbe mit einer klaren Zusammenfassung (Spieler, Datum, Abschlag, Caddie, Wetter, Score und Putts pro Loch), die für den Empfänger direkt lesbar ist. Auf dem anderen Gerät erkennt « 📥 Einfügen » automatisch eines der beiden Formate und lädt dieselbe Karte.",
+        "<strong>Leere Karte zwischen Handys austauschen:</strong> « 📝 Als lesbaren Text kopieren » legt eine klare Zusammenfassung (Spieler, Datum, Abschlag, Caddie, Wetter, Score und Putts pro Loch), die für den Empfänger direkt lesbar ist, in die Zwischenablage des eigenen Handys, zum Versenden per SMS/LINE. Auf dem anderen Gerät erkennt « 📥 Einfügen » automatisch diesen Text und lädt dieselbe Karte. Ist auf dem empfangenden Gerät bereits eine Karte in Bearbeitung, wird vor dem Ersetzen eine Bestätigung verlangt.",
         "<strong>SuarPark als App installieren:</strong> auf dem Handy „Zum Startbildschirm hinzufügen“ (Android) bzw. „Zum Home-Bildschirm“ (iPhone, über die Teilen-Schaltfläche von Safari) verwenden. Nach der Installation kann man bei einer in Messenger/LINE/WhatsApp empfangenen Nachricht auf „Teilen“ tippen und „SuarPark“ aus der Liste wählen: die leere Scorekarte öffnet sich und wird automatisch ausgefüllt, ohne über « 📥 Einfügen » zu gehen.",
         "<strong>Leere Karte drucken:</strong> die Schaltfläche « 🖨️ Drucken » druckt nur die Karte, ohne den Rest der App."
       ],
@@ -1164,16 +1248,31 @@
       btnHideTeeCompare: "🔴⚪ ซ่อนเปรียบเทียบ แดง vs ขาว",
       btnShowBlankCard: "📋 แสดงการ์ดคะแนนเปล่า",
       btnHideBlankCard: "📋 ซ่อนการ์ดคะแนนเปล่า",
+      btnShowTeamRecap: "👥 แสดงสรุปทีม",
+      btnHideTeamRecap: "👥 ซ่อนสรุปทีม",
+      teamRecapTitle: "👥 สรุปทีม",
+      teamRecapIntro: "การ์ดที่ได้รับจากผู้เล่น รวบรวมไว้ที่นี่ โดยไม่เขียนทับการ์ดของคุณเองที่กำลังกรอกอยู่",
+      blankCardBtnReceiveTeam: "👥 รับการ์ดของผู้เล่น",
+      teamRecapEmpty: "ยังไม่มีการ์ดที่ได้รับ ใช้ \"👥 รับการ์ดของผู้เล่น\" จากการ์ดคะแนนเปล่า",
+      teamRecapReceiveSuccess: "เพิ่มการ์ดของ {0} ในสรุปทีมแล้ว!",
+      teamRecapReceiveError: "ไม่รู้จักข้อความนี้ว่าเป็นการ์ด SuarPark ที่ถูกต้อง",
+      teamRecapRemove: "ลบ",
+      teamRecapRemoveConfirm: "ลบการ์ดของ {0} ออกจากสรุปทีม?",
+      teamRecapClearAll: "ล้างทั้งหมด",
+      teamRecapClearAllConfirm: "ล้างสรุปทีมทั้งหมด? การกระทำนี้ไม่สามารถย้อนกลับได้",
+      teamRecapUpdatedAt: "ได้รับเมื่อ",
+      teamRecapBtnClose: "ปิด",
+      teamRecapBtnPrint: "🖨️ พิมพ์",
       blankCardTitle: "📋 การ์ดคะแนนเปล่า — SuarPark",
       blankCardIntro: "พิมพ์หรือกรอกโดยตรงบนหน้าจอ ก่อน/ระหว่างรอบการเล่น",
       blankCardBtnPrint: "🖨️ พิมพ์",
       blankCardBtnClose: "ปิด",
       blankCardBtnExport: "📤 คัดลอก (คลิปบอร์ด)",
       blankCardBtnExportText: "📝 คัดลอกเป็นข้อความอ่านได้",
-      blankCardBtnImport: "📥 วางโค้ดที่ได้รับ",
+      blankCardBtnImport: "📥 วางการ์ดของฉัน",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
-      blankCardExportImportNote: "«คัดลอก» จะวางโค้ดเทคนิคไว้ในคลิปบอร์ด เพื่อวาง (SMS, LINE...) และส่งต่อ «คัดลอกเป็นข้อความอ่านได้» ก็ทำแบบเดียวกันแต่เป็นข้อความสรุปที่อ่านง่าย ซึ่ง «วาง» ก็จดจำได้เช่นกัน «วาง» จะอ่านรูปแบบใดก็ได้จากทั้งสองแบบที่ได้รับจากผู้เล่นอีกคน ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว หากเบราว์เซอร์อนุญาต «วาง» จะอ่านคลิปบอร์ดนั้นให้อัตโนมัติโดยไม่ต้องทำขั้นตอนเพิ่มเติม",
+      blankCardExportImportNote: "«คัดลอกเป็นข้อความอ่านได้» จะวางข้อความสรุปที่อ่านง่ายไว้ในคลิปบอร์ด เพื่อวาง (SMS, LINE...) และส่งต่อ «วาง» จะอ่านข้อความนี้ที่ได้รับจากผู้เล่นอีกคนโดยอัตโนมัติ ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว หากเบราว์เซอร์อนุญาต «วาง» จะอ่านคลิปบอร์ดนั้นให้อัตโนมัติโดยไม่ต้องทำขั้นตอนเพิ่มเติม",
       blankCardRotateHint: "เคล็ดลับ: หมุนโทรศัพท์เป็นแนวนอนเพื่อดูการ์ดในมุมมองที่กว้างขึ้น",
       blankCardLastSaved: (time) => `บันทึกล่าสุด: ${time}`,
       blankCardExportCopied: "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว! ส่งให้ผู้เล่นอีกคน (SMS, LINE...) เพื่อนำเข้าในโทรศัพท์ของเขา",
@@ -1191,6 +1290,7 @@
       blankCardImportPrompt: "วางโค้ดที่ได้รับจากผู้เล่นอีกคนที่นี่:",
       blankCardImportSuccess: "นำเข้าข้อมูลสำเร็จ!",
       blankCardImportError: "โค้ดนี้ไม่ถูกต้อง ตรวจสอบว่าคัดลอกครบถ้วน",
+      blankCardImportOverwriteConfirm: (player, holes) => `การ์ดปัจจุบันของคุณ (${player || 'ไม่มีชื่อ'}, กรอกแล้ว ${holes} หลุม) จะถูกแทนที่ด้วยข้อมูลที่ได้รับ หากต้องการเก็บไว้ ให้ยกเลิกแล้วคัดลอกก่อน (ปุ่ม "คัดลอกเป็นข้อความอ่านได้") ดำเนินการต่อและแทนที่หรือไม่?`,
       blankCardClearConfirm: "ล้างร่างการ์ดคะแนนนี้อย่างถาวร (หัวข้อ ชื่อ และคะแนน) ใช่หรือไม่ ไม่สามารถย้อนกลับได้",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
@@ -1281,7 +1381,7 @@
         "<strong>ซูมกราฟ:</strong> ใน « 📊 กราฟ » ใช้ปุ่ม 3 เดือน / 6 เดือน / 1 ปี / ทั้งหมด เหนือกราฟเพื่อจำกัดช่วงเวลาที่แสดง (สกอร์รวมและอุณหภูมิจะซิงค์กัน)",
         "<strong>📋 การ์ดคะแนนเปล่า:</strong> เปิดการ์ดรายบุคคลแบบเต็มหน้าจอสำหรับกรอกสกอร์สดขณะเล่นในสนาม เลือกผู้เล่น วันที่ (ตั้งค่าเริ่มต้นเป็นวันนี้) แคดดี้ และสภาพอากาศ จากนั้นเลือกทีออก (⚪ WHITE / 🔴 RED — แก้ไขได้เฉพาะก่อนกรอกสกอร์แรกเท่านั้น) หลุมที่ต้องเล่นจะแสดงตัวใหญ่มากพร้อมช่องสกอร์และพัตต์ และจะเลื่อนไปหลุมถัดไปอัตโนมัติเมื่อกรอกครบทั้งสองช่อง ใช้ ‹ › เพื่อเลื่อนไปมาได้อย่างอิสระ ตารางครบ 18 หลุมด้านล่างยังคงแก้ไขได้",
         "<strong>การบันทึกการ์ดเปล่า:</strong> ทุกอย่างถูกบันทึกอัตโนมัติบนอุปกรณ์นี้ (ร่างในเครื่อง) — ไม่มีข้อมูลสูญหายแม้ปิดหรือโหลดหน้าใหม่",
-        "<strong>แลกเปลี่ยนการ์ดเปล่าระหว่างโทรศัพท์:</strong> « 📤 คัดลอก » จะวางโค้ดเทคนิคไว้ในคลิปบอร์ดของโทรศัพท์คุณเพื่อส่งทาง SMS/LINE « 📝 คัดลอกเป็นข้อความอ่านได้ » ก็ทำแบบเดียวกันแต่เป็นข้อความสรุปที่อ่านง่าย (ผู้เล่น วันที่ ทีออก แคดดี้ สภาพอากาศ สกอร์และพัตต์รายหลุม) ที่ผู้รับอ่านได้ทันที บนอีกเครื่อง « 📥 วาง » จะจดจำรูปแบบใดก็ได้จากทั้งสองแบบโดยอัตโนมัติและโหลดการ์ดเดียวกัน",
+        "<strong>แลกเปลี่ยนการ์ดเปล่าระหว่างโทรศัพท์:</strong> « 📝 คัดลอกเป็นข้อความอ่านได้ » จะวางข้อความสรุปที่อ่านง่าย (ผู้เล่น วันที่ ทีออก แคดดี้ สภาพอากาศ สกอร์และพัตต์รายหลุม) ที่ผู้รับอ่านได้ทันที ไว้ในคลิปบอร์ดของโทรศัพท์คุณ เพื่อส่งทาง SMS/LINE บนอีกเครื่อง « 📥 วาง » จะจดจำข้อความนี้โดยอัตโนมัติและโหลดการ์ดเดียวกัน หากมีการ์ดที่กำลังกรอกอยู่แล้วบนเครื่องที่รับ ระบบจะขอการยืนยันก่อนแทนที่",
         "<strong>ติดตั้ง SuarPark เป็นแอป:</strong> บนโทรศัพท์ ใช้ \"เพิ่มไปยังหน้าจอหลัก\" (Android) หรือ \"เพิ่มไปยังหน้าจอโฮม\" (iPhone ผ่านปุ่มแชร์ของ Safari) เมื่อติดตั้งแล้ว จากข้อความที่ได้รับใน Messenger/LINE/WhatsApp สามารถแตะ \"แชร์\" แล้วเลือก \"SuarPark\" จากรายการ: การ์ดคะแนนเปล่าจะเปิดขึ้นและกรอกข้อมูลให้อัตโนมัติ โดยไม่ต้องผ่าน « 📥 วาง »",
         "<strong>พิมพ์การ์ดเปล่า:</strong> ปุ่ม « 🖨️ พิมพ์ » จะพิมพ์เฉพาะการ์ดเท่านั้น ไม่รวมส่วนอื่นของแอป"
       ],
@@ -2864,7 +2964,7 @@
   // Applique un texte reçu (code technique ou texte lisible) à la carte vierge.
   // Retourne true si les données ont pu être reconnues et chargées, false sinon.
   function blankCardApplyImportedText(trimmed){
-    if (!trimmed) return false;
+    if (!trimmed) return 'invalid';
     let draft = null;
     try {
       // Les emails et certaines apps insèrent parfois des retours à la ligne ou espaces à
@@ -2878,7 +2978,23 @@
     if (!draft){
       draft = blankCardParseReadableText(trimmed);
     }
-    if (!draft || !draft.scores) return false;
+    if (!draft || !draft.scores) return 'invalid';
+
+    // Protection contre la perte de données : si une carte est déjà en cours de saisie sur
+    // cet appareil (au moins un trou rempli), on demande confirmation avant de la remplacer.
+    // Cas typique : le Directeur de session a sa propre carte en cours (pause déjeuner...) et
+    // reçoit celle d'un joueur — sans cette vérification, sa carte disparaîtrait en silence.
+    const current = loadBlankCardDraft();
+    const currentFilledHoles = current.scores.filter(s => s !== "").length;
+    if (currentFilledHoles > 0){
+      const currentPlayer = current.header.playerName === BLANKCARD_OTHER_VALUE
+        ? current.header.playerNameOther
+        : current.header.playerName;
+      if (!window.confirm(t('blankCardImportOverwriteConfirm', currentPlayer, currentFilledHoles))){
+        return 'cancelled';
+      }
+    }
+
     try {
       const empty = blankCardEmptyDraft();
       const merged = {
@@ -2888,9 +3004,9 @@
       };
       saveBlankCardDraft(merged);
       renderBlankCard();
-      return true;
+      return 'success';
     } catch(e){
-      return false;
+      return 'invalid';
     }
   }
 
@@ -2899,11 +3015,13 @@
   function blankCardImportManual(){
     const code = window.prompt(t('blankCardImportPrompt'), "");
     if (!code) return;
-    if (blankCardApplyImportedText(code.trim())){
+    const result = blankCardApplyImportedText(code.trim());
+    if (result === 'success'){
       window.alert(t('blankCardImportSuccess'));
-    } else {
+    } else if (result === 'invalid'){
       window.alert(t('blankCardImportError'));
     }
+    // 'cancelled' : l'utilisateur a choisi de ne pas remplacer sa carte en cours, rien à afficher.
   }
 
   function blankCardImport(){
@@ -2913,11 +3031,17 @@
     if (navigator.clipboard && navigator.clipboard.readText){
       navigator.clipboard.readText().then(clip => {
         const trimmed = (clip || '').trim();
-        if (trimmed && blankCardApplyImportedText(trimmed)){
+        if (!trimmed){
+          blankCardImportManual();
+          return;
+        }
+        const result = blankCardApplyImportedText(trimmed);
+        if (result === 'success'){
           window.alert(t('blankCardImportSuccess'));
-        } else {
+        } else if (result === 'invalid'){
           blankCardImportManual();
         }
+        // 'cancelled' : rien à faire, l'utilisateur a choisi de garder sa carte en cours.
       }).catch(() => blankCardImportManual());
     } else {
       blankCardImportManual();
@@ -2928,6 +3052,196 @@
     if (!window.confirm(t('blankCardClearConfirm'))) return;
     localStorage.removeItem(BLANKCARD_DRAFT_KEY);
     renderBlankCard();
+  }
+
+  // ============================================================
+  // Récapitulatif d'équipe : reçoit les cartes des joueurs sans jamais écraser la carte
+  // personnelle en cours (celle du Directeur de session). Chaque joueur a une entrée
+  // propre, fusionnée trou par trou à chaque nouvelle réception (les nouveaux trous remplis
+  // s'ajoutent, les trous déjà connus sont mis à jour si une nouvelle valeur est fournie).
+  // ============================================================
+
+  const TEAM_RECAP_KEY = "suarpark-team-recap";
+
+  function loadTeamRecap(){
+    try {
+      const raw = localStorage.getItem(TEAM_RECAP_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e){ return {}; }
+  }
+
+  function saveTeamRecap(data){
+    try { localStorage.setItem(TEAM_RECAP_KEY, JSON.stringify(data)); }
+    catch(e){ /* stockage indisponible : on ignore silencieusement */ }
+  }
+
+  // Clé stable par joueur : le nom de la liste s'il en fait partie, sinon le nom libre tapé
+  // (préfixé pour éviter toute collision avec un nom de la liste officielle).
+  function teamRecapKeyFromHeader(header){
+    if (!header) return null;
+    if (header.playerName && header.playerName !== BLANKCARD_OTHER_VALUE) return header.playerName;
+    if (header.playerNameOther) return "AUTRE:" + header.playerNameOther.trim().toUpperCase();
+    return null;
+  }
+
+  function teamRecapDisplayName(header){
+    if (!header) return "?";
+    if (header.playerName && header.playerName !== BLANKCARD_OTHER_VALUE) return header.playerName;
+    return header.playerNameOther || "?";
+  }
+
+  // Fusionne une carte nouvellement reçue dans une entrée existante (ou en crée une) :
+  // les champs d'en-tête (départ, caddie, météo) prennent la dernière valeur non vide reçue ;
+  // pour les scores/putts, trou par trou, une nouvelle valeur non vide remplace l'ancienne,
+  // une case vide dans le nouveau message ne touche jamais à une valeur déjà connue.
+  function mergeTeamRecapEntry(existing, incomingDraft){
+    const base = existing || {header: {}, scores: Array(18).fill(""), putts: Array(18).fill("")};
+    const mergedHeader = Object.assign({}, base.header);
+    BLANKCARD_HEADER_FIELDS.forEach(f => {
+      const v = incomingDraft.header ? incomingDraft.header[f] : "";
+      if (v !== "" && v !== undefined && v !== null) mergedHeader[f] = v;
+    });
+    const mergedScores = base.scores.slice();
+    const mergedPutts = base.putts.slice();
+    for (let i = 0; i < 18; i++){
+      const s = incomingDraft.scores ? incomingDraft.scores[i] : "";
+      if (s !== "" && s !== undefined) mergedScores[i] = s;
+      const p = incomingDraft.putts ? incomingDraft.putts[i] : "";
+      if (p !== "" && p !== undefined) mergedPutts[i] = p;
+    }
+    return {header: mergedHeader, scores: mergedScores, putts: mergedPutts, updatedAt: new Date().toISOString()};
+  }
+
+  // Reçoit la carte d'un joueur (texte lisible ou code technique) et l'ajoute/fusionne dans
+  // le récapitulatif d'équipe — n'affecte jamais la carte personnelle en cours de saisie.
+  function teamRecapApplyImportedText(trimmed){
+    if (!trimmed) return 'invalid';
+    let draft = null;
+    try {
+      const cleaned = trimmed.replace(/\s+/g, '');
+      const parsed = JSON.parse(decodeURIComponent(escape(atob(cleaned))));
+      if (parsed && parsed.scores) draft = parsed;
+    } catch(e){ /* pas le format technique : on essaie le texte lisible ci-dessous */ }
+    if (!draft) draft = blankCardParseReadableText(trimmed);
+    if (!draft || !draft.scores) return {status: 'invalid'};
+
+    const key = teamRecapKeyFromHeader(draft.header);
+    if (!key) return {status: 'invalid'};
+
+    const data = loadTeamRecap();
+    data[key] = mergeTeamRecapEntry(data[key], draft);
+    saveTeamRecap(data);
+    return {status: 'success', name: teamRecapDisplayName(draft.header)};
+  }
+
+  function teamRecapReceiveManual(){
+    const code = window.prompt(t('blankCardImportPrompt'), "");
+    if (!code) return;
+    const result = teamRecapApplyImportedText(code.trim());
+    if (result.status === 'success'){
+      window.alert(t('teamRecapReceiveSuccess', result.name));
+      renderTeamRecap();
+    } else {
+      window.alert(t('teamRecapReceiveError'));
+    }
+  }
+
+  function blankCardReceiveTeamCard(){
+    if (navigator.clipboard && navigator.clipboard.readText){
+      navigator.clipboard.readText().then(clip => {
+        const trimmed = (clip || '').trim();
+        if (!trimmed){ teamRecapReceiveManual(); return; }
+        const result = teamRecapApplyImportedText(trimmed);
+        if (result.status === 'success'){
+          window.alert(t('teamRecapReceiveSuccess', result.name));
+          renderTeamRecap();
+        } else {
+          teamRecapReceiveManual();
+        }
+      }).catch(() => teamRecapReceiveManual());
+    } else {
+      teamRecapReceiveManual();
+    }
+  }
+
+  function teamRecapRemove(key){
+    const data = loadTeamRecap();
+    const entry = data[key];
+    if (!entry) return;
+    if (!window.confirm(t('teamRecapRemoveConfirm', teamRecapDisplayName(entry.header)))) return;
+    delete data[key];
+    saveTeamRecap(data);
+    renderTeamRecap();
+  }
+
+  function teamRecapClearAll(){
+    if (!window.confirm(t('teamRecapClearAllConfirm'))) return;
+    localStorage.removeItem(TEAM_RECAP_KEY);
+    renderTeamRecap();
+  }
+
+  function renderTeamRecap(){
+    const section = document.getElementById('teamRecapSection');
+    if (!section) return;
+    const data = loadTeamRecap();
+    const keys = Object.keys(data).sort((a,b) => teamRecapDisplayName(data[a].header).localeCompare(teamRecapDisplayName(data[b].header)));
+
+    let rowsHtml = '';
+    if (keys.length === 0){
+      rowsHtml = `<p class="sub" style="padding:12px 0;">${t('teamRecapEmpty')}</p>`;
+    } else {
+      const headerRow = `<tr><th>${t('blankCardTextLabelScore')}</th>` + Array.from({length: 18}, (_,i) => `<th>${i+1}</th>`).join('') + `<th>OUT</th><th>IN</th><th>TOT</th></tr>`;
+      const bodyRows = keys.map(key => {
+        const entry = data[key];
+        const name = teamRecapDisplayName(entry.header);
+        const {out, inn, tot} = computeOutInTot(entry.scores);
+        const cells = entry.scores.map((s,h) => {
+          if (s === "") return `<td>–</td>`;
+          const c = scoreColor(s, h);
+          return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`;
+        }).join('');
+        const teeIcon = entry.header.tee === 'red' ? '🔴' : entry.header.tee === 'white' ? '⚪' : '';
+        const updated = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US') : '';
+        return `<tr>
+          <td style="text-align:left; font-weight:bold; white-space:nowrap;">
+            ${teeIcon} ${name}
+            <button class="btn btn-danger no-print" style="font-size:10px; padding:2px 6px; margin-left:6px;" onclick="window.teamRecapRemove('${key.replace(/'/g,"\\'")}')">${t('teamRecapRemove')}</button>
+            <div class="sub no-print" style="font-size:10px; color:#999;">${t('teamRecapUpdatedAt')} ${updated}</div>
+          </td>
+          ${cells}
+          <td style="font-weight:bold;">${out || ''}</td><td style="font-weight:bold;">${inn || ''}</td><td style="font-weight:bold;">${tot || ''}</td>
+        </tr>`;
+      }).join('');
+      rowsHtml = `<div style="overflow-x:auto;"><table class="scorecard-table"><thead>${headerRow}</thead><tbody>${bodyRows}</tbody></table></div>`;
+    }
+
+    section.innerHTML = `
+      <div class="toolbar no-print" style="margin-bottom:8px;">
+        <button class="btn btn-secondary" id="btnTeamRecapClose">✕ ${t('teamRecapBtnClose')}</button>
+        <button class="btn btn-secondary" id="btnTeamRecapPrint">${t('teamRecapBtnPrint')}</button>
+        <button class="btn btn-danger" id="btnTeamRecapClearAll">${t('teamRecapClearAll')}</button>
+      </div>
+      <h2>${t('teamRecapTitle')}</h2>
+      <p class="sub no-print" style="margin-top:2px;">${t('teamRecapIntro')}</p>
+      ${rowsHtml}
+    `;
+
+    document.getElementById('btnTeamRecapClose').addEventListener('click', () => teamRecapSetVisible(false));
+    document.getElementById('btnTeamRecapPrint').addEventListener('click', () => window.print());
+    document.getElementById('btnTeamRecapClearAll').addEventListener('click', teamRecapClearAll);
+  }
+
+  // Exposée globalement : les boutons "Retirer" sont générés dynamiquement en innerHTML.
+  window.teamRecapRemove = teamRecapRemove;
+
+  let teamRecapVisible = false;
+  function teamRecapSetVisible(visible){
+    teamRecapVisible = visible;
+    const section = document.getElementById('teamRecapSection');
+    section.classList.toggle('active', visible);
+    document.body.classList.toggle('teamrecap-open', visible);
+    document.getElementById('btnToggleTeamRecap').textContent = visible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
+    if (visible) renderTeamRecap();
   }
 
   function blankCardComputeTotals(){
@@ -3252,12 +3566,14 @@
       <div class="toolbar no-print">
         <button class="btn btn-secondary" id="btnBlankCardClose">✕ ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
-        <button class="btn btn-secondary" id="btnBlankCardExport">${t('blankCardBtnExport')}</button>
+        <button class="btn btn-secondary" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
         <button class="btn btn-secondary" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
         <button class="btn btn-secondary" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
+        <button class="btn btn-secondary" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔗 ${t('blankCardExportImportNote')}</p>
+      <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">👥 ${t('teamRecapIntro')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔄 ${t('blankCardRotateHint')}</p>
 
       <div class="blankcard-header-row" style="margin-top:10px;">
@@ -3359,6 +3675,7 @@
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
     document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
+    document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
     document.getElementById('btnBlankCardClear').addEventListener('click', blankCardClear);
     document.getElementById('btnBlankCardTeeWhite').addEventListener('click', () => blankCardSetTee('white'));
     document.getElementById('btnBlankCardTeeRed').addEventListener('click', () => blankCardSetTee('red'));
@@ -3472,6 +3789,9 @@
     document.getElementById('btnToggleBlankCard').addEventListener('click', () => {
       setBlankCardVisible(!blankCardVisible);
     });
+    document.getElementById('btnToggleTeamRecap').addEventListener('click', () => {
+      teamRecapSetVisible(!teamRecapVisible);
+    });
     document.getElementById('btnToggleCaddies').addEventListener('click', () => {
       caddiesVisible = !caddiesVisible;
       document.getElementById('caddiesSection').style.display = caddiesVisible ? 'block' : 'none';
@@ -3494,9 +3814,14 @@
       const combined = [text, title, url].filter(Boolean).join('\n').trim();
       if (!combined) return;
 
-      const applied = blankCardApplyImportedText(combined);
+      const result = blankCardApplyImportedText(combined);
       setBlankCardVisible(true);
-      window.alert(applied ? t('blankCardImportSuccess') : t('blankCardImportError'));
+      if (result === 'success'){
+        window.alert(t('blankCardImportSuccess'));
+      } else if (result === 'invalid'){
+        window.alert(t('blankCardImportError'));
+      }
+      // 'cancelled' : l'utilisateur a choisi de garder sa carte en cours, rien à afficher.
 
       // Nettoie l'URL pour ne pas retraiter le même partage à un futur rechargement
       const cleanUrl = window.location.pathname + window.location.hash;
