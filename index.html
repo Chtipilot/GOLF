@@ -420,7 +420,20 @@
   //                 entouré d'un rond noir lorsque le score = PAR, et d'un double rond noir pour
   //                 un EAGLE (ou mieux). Appliqué à l'historique, l'éclectique, la carte principale
   //                 et la carte de score vierge (tableau des 18 trous et grand panneau tactile).
-  const APP_VERSION = "SuarPark - V01.004.027";
+  //   V01.004.028 — Carte de score vierge : nouveau bouton "📝 Copier en texte lisible" à côté du
+  //                 bouton technique "📤 Copier". Il copie un résumé lisible (joueur, date, départ,
+  //                 caddie, météo, scores trou par trou, totaux, putts) directement utilisable dans
+  //                 un SMS/LINE/WhatsApp, sans passer par le code technique de réimportation.
+  //   V01.004.029 — Carte de score vierge : le bouton "📥 Coller" reconnaît désormais aussi bien le
+  //                 code technique que le texte lisible (le format est détecté automatiquement).
+  //                 Le texte lisible inclut maintenant les putts trou par trou (en plus des
+  //                 totaux), pour permettre une réimportation complète et fidèle de la carte,
+  //                 quel que soit le format transmis par SMS/LINE/WhatsApp.
+  //   V01.004.030 — Carte de score vierge : le bouton "📥 Coller" tente désormais de lire le
+  //                 presse-papier automatiquement (si le navigateur l'autorise), pour éviter
+  //                 l'étape de collage manuel dans le champ proposé. En cas de refus, d'absence
+  //                 de support, ou de contenu non reconnu, la saisie manuelle reste proposée.
+  const APP_VERSION = "SuarPark - V01.004.030";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -505,14 +518,25 @@
       blankCardBtnPrint: "🖨️ Imprimer",
       blankCardBtnClose: "Fermer",
       blankCardBtnExport: "📤 Copier (presse-papier)",
+      blankCardBtnExportText: "📝 Copier en texte lisible",
       blankCardBtnImport: "📥 Coller un code reçu",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
-      blankCardExportImportNote: "« Copier » place un code dans le presse-papier de ce téléphone, à coller (SMS, LINE...) pour l'envoyer. « Coller » lit un code reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil.",
+      blankCardExportImportNote: "« Copier » place un code technique dans le presse-papier, à coller (SMS, LINE...) pour l'envoyer. « Copier en texte lisible » fait de même avec un résumé clair, également reconnu par « Coller ». « Coller » lit automatiquement l'un ou l'autre format reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil. Si le navigateur l'autorise, « Coller » lit même directement ce presse-papier sans étape supplémentaire.",
       blankCardRotateHint: "Astuce : tourne ton téléphone en mode paysage pour une vue plus large de la carte.",
       blankCardLastSaved: (time) => `Dernière sauvegarde : ${time}`,
       blankCardExportCopied: "Code copié dans le presse-papier ! Envoie-le à l'autre joueur (SMS, LINE...) pour qu'il puisse l'importer sur son téléphone.",
       blankCardExportFallbackTitle: "Copie ce code et envoie-le à l'autre joueur :",
+      blankCardExportTextCopied: "Texte copié dans le presse-papier ! Colle-le directement dans un SMS, LINE, WhatsApp...",
+      blankCardExportTextFallbackTitle: "Copie ce texte et envoie-le :",
+      blankCardTextLabelTee: "Départ",
+      blankCardTextLabelCaddie: "Caddie",
+      blankCardTextLabelWeather: "Météo",
+      blankCardTextLabelScore: "Score",
+      blankCardTextLabelTotal: "Total",
+      blankCardTextLabelPutts: "Putts",
+      blankCardTextLabelTotalPutts: "Total putts",
+      blankCardTextLabelPar: "Par",
       blankCardImportPrompt: "Colle ici le code reçu de l'autre joueur :",
       blankCardImportSuccess: "Données importées avec succès !",
       blankCardImportError: "Ce code n'est pas valide. Vérifie qu'il a été copié en entier.",
@@ -606,7 +630,7 @@
         "<strong>Zoom des graphiques :</strong> dans « 📊 Graphiques », utilisez les boutons 3 mois / 6 mois / 1 an / Tout au-dessus des courbes pour restreindre la période affichée (score total et température restent synchronisés).",
         "<strong>📋 Carte de score vierge :</strong> ouvre une carte individuelle en plein écran pour saisir une manche en direct sur le parcours. Choisissez le joueur, la date (proposée par défaut), le caddie et la météo, puis le départ (⚪ WHITE / 🔴 RED — modifiable uniquement avant le premier score saisi). Le trou à jouer s'affiche en très grand avec ses cases Score et Putt, et avance automatiquement au trou suivant une fois les deux renseignés ; utilisez ‹ › pour naviguer librement. Le tableau complet des 18 trous reste éditable en dessous.",
         "<strong>Sauvegarde de la carte vierge :</strong> tout est enregistré automatiquement sur cet appareil (brouillon local) — rien n'est perdu en cas de fermeture ou de rechargement de la page.",
-        "<strong>Échanger la carte vierge entre téléphones :</strong> « 📤 Copier » place un code dans le presse-papier de votre téléphone à envoyer par SMS/LINE ; sur l'autre appareil, « 📥 Coller » lit ce code depuis son presse-papier pour recharger la même carte.",
+        "<strong>Échanger la carte vierge entre téléphones :</strong> « 📤 Copier » place un code technique dans le presse-papier de votre téléphone à envoyer par SMS/LINE ; « 📝 Copier en texte lisible » fait de même avec un résumé clair (joueur, date, départ, caddie, météo, scores et putts trou par trou) directement lisible par le destinataire. Sur l'autre appareil, « 📥 Coller » reconnaît automatiquement l'un ou l'autre format et recharge la même carte.",
         "<strong>Imprimer la carte vierge :</strong> le bouton « 🖨️ Imprimer » n'imprime que la carte, sans le reste de l'application."
       ],
       btnShowCaddies: "🎽 Afficher les caddies",
@@ -696,14 +720,25 @@
       blankCardBtnPrint: "🖨️ Print",
       blankCardBtnClose: "Close",
       blankCardBtnExport: "📤 Copy (clipboard)",
+      blankCardBtnExportText: "📝 Copy as readable text",
       blankCardBtnImport: "📥 Paste a received code",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
-      blankCardExportImportNote: "\"Copy\" puts a code on this phone's clipboard, to paste (SMS, LINE...) and send it. \"Paste\" reads a code received from another player, first copied to this device's clipboard.",
+      blankCardExportImportNote: "\"Copy\" puts a technical code on the clipboard, to paste (SMS, LINE...) and send it. \"Copy as readable text\" does the same with a clear summary, also recognized by \"Paste\". \"Paste\" automatically reads either format received from another player, first copied to this device's clipboard. If the browser allows it, \"Paste\" even reads that clipboard directly, with no extra step.",
       blankCardRotateHint: "Tip: rotate your phone to landscape for a wider view of the card.",
       blankCardLastSaved: (time) => `Last saved: ${time}`,
       blankCardExportCopied: "Code copied to clipboard! Send it to the other player (SMS, LINE...) so they can import it on their phone.",
       blankCardExportFallbackTitle: "Copy this code and send it to the other player:",
+      blankCardExportTextCopied: "Text copied to clipboard! Paste it directly into a text message, LINE, WhatsApp...",
+      blankCardExportTextFallbackTitle: "Copy this text and send it:",
+      blankCardTextLabelTee: "Tee",
+      blankCardTextLabelCaddie: "Caddie",
+      blankCardTextLabelWeather: "Weather",
+      blankCardTextLabelScore: "Score",
+      blankCardTextLabelTotal: "Total",
+      blankCardTextLabelPutts: "Putts",
+      blankCardTextLabelTotalPutts: "Total putts",
+      blankCardTextLabelPar: "Par",
       blankCardImportPrompt: "Paste the code received from the other player here:",
       blankCardImportSuccess: "Data imported successfully!",
       blankCardImportError: "This code isn't valid. Check that it was copied in full.",
@@ -797,7 +832,7 @@
         "<strong>Chart zoom:</strong> in « 📊 Charts », use the 3 months / 6 months / 1 year / All buttons above the graphs to restrict the displayed period (total score and temperature stay synchronized).",
         "<strong>📋 Blank scorecard:</strong> opens a full-screen individual card for live scoring on the course. Choose the player, date (defaulted to today), caddie and weather, then the tee (⚪ WHITE / 🔴 RED — editable only before the first score is entered). The hole to play is shown very large with its Score and Putt boxes, and automatically advances to the next hole once both are filled; use ‹ › to navigate freely. The full 18-hole table below stays editable.",
         "<strong>Blank card saving:</strong> everything is saved automatically on this device (local draft) — nothing is lost if the page closes or reloads.",
-        "<strong>Sharing the blank card between phones:</strong> « 📤 Copy » puts a code on your phone's clipboard to send via SMS/LINE; on the other device, « 📥 Paste » reads that code from its clipboard to reload the same card.",
+        "<strong>Sharing the blank card between phones:</strong> « 📤 Copy » puts a technical code on your phone's clipboard to send via SMS/LINE; « 📝 Copy as readable text » does the same with a clear summary (player, date, tee, caddie, weather, hole-by-hole scores and putts) directly readable by the recipient. On the other device, « 📥 Paste » automatically recognizes either format and reloads the same card.",
         "<strong>Printing the blank card:</strong> the « 🖨️ Print » button only prints the card, without the rest of the app."
       ],
       storageWarning: "⚠️ Insufficient storage space or private browsing detected on this phone: the full backup (history + 10 caddies) might fail. Consider exporting to Excel regularly.",
@@ -869,14 +904,25 @@
       blankCardBtnPrint: "🖨️ Drucken",
       blankCardBtnClose: "Schließen",
       blankCardBtnExport: "📤 Kopieren (Zwischenablage)",
+      blankCardBtnExportText: "📝 Als lesbaren Text kopieren",
       blankCardBtnImport: "📥 Erhaltenen Code einfügen",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
-      blankCardExportImportNote: "«Kopieren» legt einen Code in die Zwischenablage dieses Handys, zum Einfügen (SMS, LINE...) und Versenden. «Einfügen» liest einen Code, der von einem anderen Spieler empfangen und zuvor in die Zwischenablage dieses Geräts kopiert wurde.",
+      blankCardExportImportNote: "«Kopieren» legt einen technischen Code in die Zwischenablage, zum Einfügen (SMS, LINE...) und Versenden. «Als lesbaren Text kopieren» tut dasselbe mit einer klaren Zusammenfassung, die «Einfügen» ebenfalls erkennt. «Einfügen» liest automatisch eines der beiden Formate, das von einem anderen Spieler zuvor in die Zwischenablage dieses Geräts kopiert wurde. Falls der Browser es erlaubt, liest «Einfügen» die Zwischenablage sogar direkt, ganz ohne zusätzlichen Schritt.",
       blankCardRotateHint: "Tipp: Drehe dein Handy ins Querformat für eine breitere Ansicht der Karte.",
       blankCardLastSaved: (time) => `Zuletzt gespeichert: ${time}`,
       blankCardExportCopied: "Code in die Zwischenablage kopiert! Sende ihn an den anderen Spieler (SMS, LINE...), damit er ihn auf seinem Handy importieren kann.",
       blankCardExportFallbackTitle: "Kopiere diesen Code und sende ihn an den anderen Spieler:",
+      blankCardExportTextCopied: "Text in die Zwischenablage kopiert! Füge ihn direkt in eine SMS, LINE, WhatsApp... ein.",
+      blankCardExportTextFallbackTitle: "Kopiere diesen Text und sende ihn:",
+      blankCardTextLabelTee: "Abschlag",
+      blankCardTextLabelCaddie: "Caddie",
+      blankCardTextLabelWeather: "Wetter",
+      blankCardTextLabelScore: "Score",
+      blankCardTextLabelTotal: "Gesamt",
+      blankCardTextLabelPutts: "Putts",
+      blankCardTextLabelTotalPutts: "Putts gesamt",
+      blankCardTextLabelPar: "Par",
       blankCardImportPrompt: "Füge hier den vom anderen Spieler erhaltenen Code ein:",
       blankCardImportSuccess: "Daten erfolgreich importiert!",
       blankCardImportError: "Dieser Code ist ungültig. Prüfe, ob er vollständig kopiert wurde.",
@@ -970,7 +1016,7 @@
         "<strong>Diagramm-Zoom:</strong> unter « 📊 Diagramme » die Schaltflächen 3 Monate / 6 Monate / 1 Jahr / Alle über den Kurven verwenden, um den angezeigten Zeitraum einzugrenzen (Gesamtergebnis und Temperatur bleiben synchron).",
         "<strong>📋 Leere Scorekarte:</strong> öffnet eine individuelle Vollbildkarte für die Live-Eingabe auf dem Platz. Spieler, Datum (standardmäßig heute), Caddie und Wetter wählen, dann den Abschlag (⚪ WHITE / 🔴 RED — nur änderbar, bevor der erste Score eingegeben wurde). Das zu spielende Loch wird sehr groß mit Score- und Putt-Feldern angezeigt und springt automatisch zum nächsten Loch, sobald beide ausgefüllt sind; mit ‹ › frei navigieren. Die vollständige 18-Loch-Tabelle darunter bleibt bearbeitbar.",
         "<strong>Speicherung der leeren Karte:</strong> alles wird automatisch auf diesem Gerät gespeichert (lokaler Entwurf) — nichts geht beim Schließen oder Neuladen der Seite verloren.",
-        "<strong>Leere Karte zwischen Handys austauschen:</strong> « 📤 Kopieren » legt einen Code in die Zwischenablage des eigenen Handys, der per SMS/LINE verschickt werden kann; auf dem anderen Gerät liest « 📥 Einfügen » diesen Code aus der Zwischenablage, um dieselbe Karte zu laden.",
+        "<strong>Leere Karte zwischen Handys austauschen:</strong> « 📤 Kopieren » legt einen technischen Code in die Zwischenablage des eigenen Handys, der per SMS/LINE verschickt werden kann; « 📝 Als lesbaren Text kopieren » tut dasselbe mit einer klaren Zusammenfassung (Spieler, Datum, Abschlag, Caddie, Wetter, Score und Putts pro Loch), die für den Empfänger direkt lesbar ist. Auf dem anderen Gerät erkennt « 📥 Einfügen » automatisch eines der beiden Formate und lädt dieselbe Karte.",
         "<strong>Leere Karte drucken:</strong> die Schaltfläche « 🖨️ Drucken » druckt nur die Karte, ohne den Rest der App."
       ],
       storageWarning: "⚠️ Unzureichender Speicherplatz oder privates Surfen auf diesem Telefon erkannt: Die vollständige Sicherung (Verlauf + 10 Caddies) könnte fehlschlagen. Exportieren Sie regelmäßig nach Excel.",
@@ -1042,14 +1088,25 @@
       blankCardBtnPrint: "🖨️ พิมพ์",
       blankCardBtnClose: "ปิด",
       blankCardBtnExport: "📤 คัดลอก (คลิปบอร์ด)",
+      blankCardBtnExportText: "📝 คัดลอกเป็นข้อความอ่านได้",
       blankCardBtnImport: "📥 วางโค้ดที่ได้รับ",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
-      blankCardExportImportNote: "«คัดลอก» จะวางโค้ดไว้ในคลิปบอร์ดของโทรศัพท์นี้ เพื่อวาง (SMS, LINE...) และส่งต่อ «วาง» จะอ่านโค้ดที่ได้รับจากผู้เล่นอีกคน ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว",
+      blankCardExportImportNote: "«คัดลอก» จะวางโค้ดเทคนิคไว้ในคลิปบอร์ด เพื่อวาง (SMS, LINE...) และส่งต่อ «คัดลอกเป็นข้อความอ่านได้» ก็ทำแบบเดียวกันแต่เป็นข้อความสรุปที่อ่านง่าย ซึ่ง «วาง» ก็จดจำได้เช่นกัน «วาง» จะอ่านรูปแบบใดก็ได้จากทั้งสองแบบที่ได้รับจากผู้เล่นอีกคน ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว หากเบราว์เซอร์อนุญาต «วาง» จะอ่านคลิปบอร์ดนั้นให้อัตโนมัติโดยไม่ต้องทำขั้นตอนเพิ่มเติม",
       blankCardRotateHint: "เคล็ดลับ: หมุนโทรศัพท์เป็นแนวนอนเพื่อดูการ์ดในมุมมองที่กว้างขึ้น",
       blankCardLastSaved: (time) => `บันทึกล่าสุด: ${time}`,
       blankCardExportCopied: "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว! ส่งให้ผู้เล่นอีกคน (SMS, LINE...) เพื่อนำเข้าในโทรศัพท์ของเขา",
       blankCardExportFallbackTitle: "คัดลอกโค้ดนี้และส่งให้ผู้เล่นอีกคน:",
+      blankCardExportTextCopied: "คัดลอกข้อความไปยังคลิปบอร์ดแล้ว! วางลงใน SMS, LINE, WhatsApp ได้โดยตรง",
+      blankCardExportTextFallbackTitle: "คัดลอกข้อความนี้และส่งต่อ:",
+      blankCardTextLabelTee: "ทีออก",
+      blankCardTextLabelCaddie: "แคดดี้",
+      blankCardTextLabelWeather: "สภาพอากาศ",
+      blankCardTextLabelScore: "สกอร์",
+      blankCardTextLabelTotal: "รวม",
+      blankCardTextLabelPutts: "พัตต์",
+      blankCardTextLabelTotalPutts: "รวมพัตต์",
+      blankCardTextLabelPar: "พาร์",
       blankCardImportPrompt: "วางโค้ดที่ได้รับจากผู้เล่นอีกคนที่นี่:",
       blankCardImportSuccess: "นำเข้าข้อมูลสำเร็จ!",
       blankCardImportError: "โค้ดนี้ไม่ถูกต้อง ตรวจสอบว่าคัดลอกครบถ้วน",
@@ -1143,7 +1200,7 @@
         "<strong>ซูมกราฟ:</strong> ใน « 📊 กราฟ » ใช้ปุ่ม 3 เดือน / 6 เดือน / 1 ปี / ทั้งหมด เหนือกราฟเพื่อจำกัดช่วงเวลาที่แสดง (สกอร์รวมและอุณหภูมิจะซิงค์กัน)",
         "<strong>📋 การ์ดคะแนนเปล่า:</strong> เปิดการ์ดรายบุคคลแบบเต็มหน้าจอสำหรับกรอกสกอร์สดขณะเล่นในสนาม เลือกผู้เล่น วันที่ (ตั้งค่าเริ่มต้นเป็นวันนี้) แคดดี้ และสภาพอากาศ จากนั้นเลือกทีออก (⚪ WHITE / 🔴 RED — แก้ไขได้เฉพาะก่อนกรอกสกอร์แรกเท่านั้น) หลุมที่ต้องเล่นจะแสดงตัวใหญ่มากพร้อมช่องสกอร์และพัตต์ และจะเลื่อนไปหลุมถัดไปอัตโนมัติเมื่อกรอกครบทั้งสองช่อง ใช้ ‹ › เพื่อเลื่อนไปมาได้อย่างอิสระ ตารางครบ 18 หลุมด้านล่างยังคงแก้ไขได้",
         "<strong>การบันทึกการ์ดเปล่า:</strong> ทุกอย่างถูกบันทึกอัตโนมัติบนอุปกรณ์นี้ (ร่างในเครื่อง) — ไม่มีข้อมูลสูญหายแม้ปิดหรือโหลดหน้าใหม่",
-        "<strong>แลกเปลี่ยนการ์ดเปล่าระหว่างโทรศัพท์:</strong> « 📤 คัดลอก » จะวางโค้ดไว้ในคลิปบอร์ดของโทรศัพท์คุณเพื่อส่งทาง SMS/LINE บนอีกเครื่อง « 📥 วาง » จะอ่านโค้ดนั้นจากคลิปบอร์ดเพื่อโหลดการ์ดเดียวกัน",
+        "<strong>แลกเปลี่ยนการ์ดเปล่าระหว่างโทรศัพท์:</strong> « 📤 คัดลอก » จะวางโค้ดเทคนิคไว้ในคลิปบอร์ดของโทรศัพท์คุณเพื่อส่งทาง SMS/LINE « 📝 คัดลอกเป็นข้อความอ่านได้ » ก็ทำแบบเดียวกันแต่เป็นข้อความสรุปที่อ่านง่าย (ผู้เล่น วันที่ ทีออก แคดดี้ สภาพอากาศ สกอร์และพัตต์รายหลุม) ที่ผู้รับอ่านได้ทันที บนอีกเครื่อง « 📥 วาง » จะจดจำรูปแบบใดก็ได้จากทั้งสองแบบโดยอัตโนมัติและโหลดการ์ดเดียวกัน",
         "<strong>พิมพ์การ์ดเปล่า:</strong> ปุ่ม « 🖨️ พิมพ์ » จะพิมพ์เฉพาะการ์ดเท่านั้น ไม่รวมส่วนอื่นของแอป"
       ],
       btnShowCaddies: "🎽 แสดงแคดดี้",
@@ -2502,12 +2559,163 @@
     }
   }
 
-  function blankCardImport(){
-    const code = window.prompt(t('blankCardImportPrompt'), "");
-    if (!code) return;
+  function blankCardExportText(){
+    const draft = collectBlankCardDraftFromDOM();
+    const section = document.getElementById('blankCardSection');
+    const h = draft.header;
+
+    const playerName = h.playerName === BLANKCARD_OTHER_VALUE ? (h.playerNameOther || '?') : (h.playerName || '?');
+
+    let caddieText = '';
+    if (h.caddieNumber === BLANKCARD_OTHER_VALUE){
+      caddieText = [h.caddieOtherNumber, h.caddieOtherName].filter(Boolean).join('_');
+    } else if (h.caddieNumber){
+      caddieText = caddieDisplayText(h.caddieNumber);
+    }
+
+    const teeLabel = h.tee === 'red' ? '🔴 RED' : h.tee === 'white' ? '⚪ WHITE' : '';
+
+    const windDirSel = section.querySelector('[data-field="weatherWindDir"]');
+    const condSel = section.querySelector('[data-field="weatherCondition"]');
+    const windDirText = (windDirSel && windDirSel.selectedIndex >= 0) ? windDirSel.options[windDirSel.selectedIndex].text : '';
+    const condText = (condSel && condSel.selectedIndex >= 0) ? condSel.options[condSel.selectedIndex].text : '';
+    const weatherParts = [];
+    if (h.weatherTemp !== "") weatherParts.push(`${h.weatherTemp}°C`);
+    if (h.weatherWind !== "") weatherParts.push(`${h.weatherWind} km/h${windDirText ? ' ' + windDirText : ''}`);
+    if (condText) weatherParts.push(condText);
+
+    const scoresOut = draft.scores.slice(0,9).map(s => s || '–').join(' ');
+    const scoresIn = draft.scores.slice(9,18).map(s => s || '–').join(' ');
+    const puttsOut = draft.putts.slice(0,9).map(s => s || '–').join(' ');
+    const puttsIn = draft.putts.slice(9,18).map(s => s || '–').join(' ');
+    const {out, inn, tot} = computeOutInTot(draft.scores);
+    const {out: pOut, inn: pIn, tot: pTot} = computeOutInTot(draft.putts);
+    const parTotal = PAR.reduce((a,b) => a+b, 0);
+
+    const lines = [];
+    lines.push(`⛳ SuarPark — ${playerName}${h.date ? ' — ' + h.date : ''}`);
+    const line2 = [];
+    if (teeLabel) line2.push(`${t('blankCardTextLabelTee')} : ${teeLabel}`);
+    if (caddieText) line2.push(`${t('blankCardTextLabelCaddie')} : ${caddieText}`);
+    if (line2.length) lines.push(line2.join(' — '));
+    if (weatherParts.length) lines.push(`${t('blankCardTextLabelWeather')} : ${weatherParts.join(' · ')}`);
+    lines.push(`${t('blankCardTextLabelScore')} : ${scoresOut} | ${scoresIn}`);
+    lines.push(`${t('blankCardTextLabelTotal')} : ${out || 0} + ${inn || 0} = ${tot || 0}  (${t('blankCardTextLabelPar')} ${parTotal})`);
+    if (pOut !== 0 || pIn !== 0){
+      lines.push(`${t('blankCardTextLabelPutts')} : ${puttsOut} | ${puttsIn}`);
+      lines.push(`${t('blankCardTextLabelTotalPutts')} : ${pOut} + ${pIn} = ${pTot}`);
+    }
+
+    const text = lines.join('\n');
+    const finish = () => window.alert(t('blankCardExportTextCopied'));
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(finish).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), text));
+    } else {
+      window.prompt(t('blankCardExportTextFallbackTitle'), text);
+    }
+  }
+
+  // Reconnaît et relit le format "texte lisible" produit par blankCardExportText(),
+  // indépendamment de la langue (labels traduits) : on s'appuie sur des repères stables
+  // (émojis, séparateur "—", motif date JJ/MM/AAAA, lignes contenant "|" dans l'ordre
+  // Score puis Putts). Retourne un draft {header, scores, putts} ou null si non reconnu.
+  function blankCardParseReadableText(text){
+    if (!text || text.indexOf('SuarPark') === -1) return null;
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) return null;
+
+    const empty = blankCardEmptyDraft();
+    const header = Object.assign({}, empty.header);
+
+    // Ligne 1 : "⛳ SuarPark — Nom [— JJ/MM/AAAA]"
+    const firstLine = lines[0].replace(/^⛳?\s*SuarPark\s*—?\s*/, '');
+    const dateMatch = firstLine.match(/(\d{2}\/\d{2}\/\d{4})\s*$/);
+    let namePart = firstLine;
+    if (dateMatch){
+      header.date = dateMatch[1];
+      namePart = firstLine.slice(0, firstLine.length - dateMatch[0].length);
+    }
+    namePart = namePart.replace(/—\s*$/, '').trim();
+    if (namePart){
+      if (state.players.includes(namePart)){
+        header.playerName = namePart;
+      } else {
+        header.playerName = BLANKCARD_OTHER_VALUE;
+        header.playerNameOther = namePart;
+      }
+    }
+
+    // Départ (tee) : repéré par l'émoji
+    if (text.indexOf('🔴') !== -1) header.tee = 'red';
+    else if (text.indexOf('⚪') !== -1) header.tee = 'white';
+
+    // Caddie : motif "numéro_nom" (ex. "19_BIBI")
+    const caddieMatch = text.match(/(\d{1,4})_(\S+)/);
+    if (caddieMatch){
+      const num = caddieMatch[1];
+      const knownCaddie = (state.caddies || []).find(c => c.number === num);
+      if (knownCaddie){
+        header.caddieNumber = num;
+      } else {
+        header.caddieNumber = BLANKCARD_OTHER_VALUE;
+        header.caddieOtherNumber = num;
+        header.caddieOtherName = caddieMatch[2];
+      }
+    }
+
+    // Météo : température, vent, direction (flèche), condition (émoji)
+    const tempMatch = text.match(/(-?\d+(?:[.,]\d+)?)\s*°C/);
+    if (tempMatch) header.weatherTemp = tempMatch[1].replace(',', '.');
+    const windMatch = text.match(/(\d+(?:[.,]\d+)?)\s*km\/h/);
+    if (windMatch) header.weatherWind = windMatch[1].replace(',', '.');
+    const dirArrows = {'↑':'N','↗':'NE','→':'E','↘':'SE','↓':'S','↙':'SW','←':'W','↖':'NW'};
+    for (const arrow in dirArrows){
+      if (text.indexOf(arrow) !== -1){ header.weatherWindDir = dirArrows[arrow]; break; }
+    }
+    const condEmojis = {'☀️':'sun','🌤️':'partly_cloudy','☁️':'cloudy','🌥️':'overcast','🌦️':'rain_shower','🌧️':'rain','⛈️':'storm'};
+    for (const emoji in condEmojis){
+      if (text.indexOf(emoji) !== -1){ header.weatherCondition = condEmojis[emoji]; break; }
+    }
+
+    // Lignes de scores/putts trou par trou : toutes les lignes contenant "|",
+    // dans l'ordre où elles sont générées (Score en premier, Putts ensuite).
+    function parsePipeLine(line){
+      let core = line.replace(/\(.*$/, '');
+      const colonIdx = core.indexOf(':');
+      if (colonIdx !== -1) core = core.slice(colonIdx + 1);
+      const parts = core.split('|');
+      if (parts.length !== 2) return null;
+      const parseHalf = s => s.trim().split(/\s+/).map(v => (v === '–' || v === '-' || v === '') ? '' : v);
+      const out = parseHalf(parts[0]);
+      const inn = parseHalf(parts[1]);
+      if (out.length !== 9 || inn.length !== 9) return null;
+      return out.concat(inn);
+    }
+
+    const pipeLines = lines.filter(l => l.indexOf('|') !== -1);
+    let scores = empty.scores, putts = empty.putts;
+    if (pipeLines[0]){ const p = parsePipeLine(pipeLines[0]); if (p) scores = p; }
+    if (pipeLines[1]){ const p = parsePipeLine(pipeLines[1]); if (p) putts = p; }
+
+    if (scores === empty.scores && namePart === "" && !dateMatch) return null; // rien d'exploitable
+
+    return {header, scores, putts};
+  }
+
+  // Applique un texte reçu (code technique ou texte lisible) à la carte vierge.
+  // Retourne true si les données ont pu être reconnues et chargées, false sinon.
+  function blankCardApplyImportedText(trimmed){
+    if (!trimmed) return false;
+    let draft = null;
     try {
-      const draft = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
-      if (!draft || !draft.scores) throw new Error('format invalide');
+      const parsed = JSON.parse(decodeURIComponent(escape(atob(trimmed))));
+      if (parsed && parsed.scores) draft = parsed;
+    } catch(e){ /* pas le format technique : on essaie le texte lisible ci-dessous */ }
+    if (!draft){
+      draft = blankCardParseReadableText(trimmed);
+    }
+    if (!draft || !draft.scores) return false;
+    try {
       const empty = blankCardEmptyDraft();
       const merged = {
         header: Object.assign(empty.header, draft.header || {}),
@@ -2516,9 +2724,39 @@
       };
       saveBlankCardDraft(merged);
       renderBlankCard();
-      window.alert(t('blankCardImportSuccess'));
+      return true;
     } catch(e){
+      return false;
+    }
+  }
+
+  // Demande manuellement le texte à coller (repli si la lecture automatique du
+  // presse-papier n'est pas disponible, refusée par l'utilisateur, ou vide/non reconnue).
+  function blankCardImportManual(){
+    const code = window.prompt(t('blankCardImportPrompt'), "");
+    if (!code) return;
+    if (blankCardApplyImportedText(code.trim())){
+      window.alert(t('blankCardImportSuccess'));
+    } else {
       window.alert(t('blankCardImportError'));
+    }
+  }
+
+  function blankCardImport(){
+    // Tentative de lecture automatique du presse-papier (gain d'une étape) ; si le
+    // navigateur ne le permet pas, ou si le contenu n'est pas reconnu, on retombe sur
+    // la saisie manuelle (coller dans le champ proposé).
+    if (navigator.clipboard && navigator.clipboard.readText){
+      navigator.clipboard.readText().then(clip => {
+        const trimmed = (clip || '').trim();
+        if (trimmed && blankCardApplyImportedText(trimmed)){
+          window.alert(t('blankCardImportSuccess'));
+        } else {
+          blankCardImportManual();
+        }
+      }).catch(() => blankCardImportManual());
+    } else {
+      blankCardImportManual();
     }
   }
 
@@ -2840,6 +3078,7 @@
         <button class="btn btn-secondary" id="btnBlankCardClose">✕ ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
         <button class="btn btn-secondary" id="btnBlankCardExport">${t('blankCardBtnExport')}</button>
+        <button class="btn btn-secondary" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
         <button class="btn btn-secondary" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
@@ -2943,6 +3182,7 @@
     document.getElementById('btnBlankCardClose').addEventListener('click', () => setBlankCardVisible(false));
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
+    document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
     document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
     document.getElementById('btnBlankCardClear').addEventListener('click', blankCardClear);
     document.getElementById('btnBlankCardTeeWhite').addEventListener('click', () => blankCardSetTee('white'));
