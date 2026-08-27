@@ -12,6 +12,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SuarPark">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body style="margin:0; padding:12px; background:#ffffff;">
 <div id="app" style="width:100%; max-width:100%; overflow-x:hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing:border-box; color:#1a1a1a;">
@@ -433,7 +435,57 @@
   //                 presse-papier automatiquement (si le navigateur l'autorise), pour éviter
   //                 l'étape de collage manuel dans le champ proposé. En cas de refus, d'absence
   //                 de support, ou de contenu non reconnu, la saisie manuelle reste proposée.
-  const APP_VERSION = "SuarPark - V01.004.030";
+  //   V01.004.031 — SuarPark devient installable en PWA (manifest.json + icônes) avec réception de
+  //                 partage natif (Web Share Target) : une fois l'app installée sur l'écran
+  //                 d'accueil, on peut appuyer sur "Partager" depuis Messenger/LINE/WhatsApp sur un
+  //                 message reçu d'un joueur, choisir "SuarPark" dans le menu de partage du
+  //                 téléphone, et la carte de score vierge s'ouvre et se remplit automatiquement
+  //                 (sans passer par le copier/coller manuel). Nécessite d'ajouter les fichiers
+  //                 manifest.json, icon-192.png, icon-512.png, icon-192-maskable.png et
+  //                 icon-512-maskable.png dans le même dossier que index.html sur le dépôt GitHub.
+  //   V01.004.032 — Correction suite à un test réel (transmission via AOL/Android) : certaines apps
+  //                 tierces dégradent l'émoji ⚪ en simple caractère "○" lors du transit. Le
+  //                 reconnaisseur du texte lisible se base désormais aussi sur le mot "WHITE"/"RED"
+  //                 (toujours présent, lui, dans le texte) en secours de l'émoji pour identifier le
+  //                 départ. Même principe de secours ajouté pour la direction du vent (code N/NE/E...
+  //                 déjà présent à côté de la flèche).
+  //   V01.004.033 — Deux corrections suite à un nouveau test réel : 1) la ligne "⛳ SuarPark — ..."
+  //                 est désormais recherchée n'importe où dans le texte reçu (plus seulement en
+  //                 première ligne), pour tolérer une phrase d'intro ajoutée avant ou une signature
+  //                 après (ex. mail personnalisé) ; 2) la reconnaissance de la direction du vent
+  //                 gère maintenant aussi les abréviations françaises SO/O/NO, qui sont en réalité
+  //                 celles réellement affichées par l'app pour Sud-Ouest/Ouest/Nord-Ouest, quelle
+  //                 que soit la langue de l'interface (et non SW/W/NW comme supposé en V01.004.032).
+  //   V01.004.034 — Correction de données (signalée par le Directeur de session) : les manches de
+  //                 LOUIS du 16/04/2026 et du 22/07/2026 étaient jouées en départ WHITE, pas RED
+  //                 (elles suivaient la règle par défaut faute d'exception enregistrée). Ajout de
+  //                 ces deux dates dans TEE_EXCEPTIONS, comme déjà fait pour SANDY sur les mêmes
+  //                 dates. Confirmation par ailleurs que le caddie n°19 est bien "BIBI" (et non
+  //                 "MIMI") dans toutes les données actuelles — correction déjà en place depuis la
+  //                 V01.004.023, rien à modifier de ce côté.
+  //   V01.004.035 — Le texte lisible de la carte de score vierge est désormais entouré de balises
+  //                 [SuarPark]...[/SuarPark] au moment de la copie ("📝 Copier en texte lisible").
+  //                 Le reconnaisseur ("📥 Coller") isole strictement leur contenu quand elles sont
+  //                 présentes, ce qui élimine tout risque de confusion avec du texte ajouté autour
+  //                 (phrase d'intro, signature, citation d'un fil de discussion...). Repli sur
+  //                 l'ancienne méthode (recherche dans tout le texte) si les balises sont absentes,
+  //                 pour rester compatible avec des messages déjà envoyés avant cet ajout.
+  //   V01.004.036 — Annulation de la correction de données ajoutée en V01.004.034 (exceptions de
+  //                 départ WHITE pour LOUIS les 16/04/2026 et 22/07/2026) : il s'agissait en fait
+  //                 d'un message de test dans le cadre du protocole de test de transmission, pas
+  //                 d'une véritable correction à appliquer aux données réelles. TEE_EXCEPTIONS
+  //                 revient à son état d'avant cette date.
+  //   V01.004.037 — Les balises encadrant le texte lisible passent de "[SuarPark]...[/SuarPark]" à
+  //                 "SuarPark_début:" ... "SuarPark_Fin." — plus lisibles en clair pour un humain
+  //                 qui recevrait le message. Reconnaissance tolérante à l'accent, à la ponctuation
+  //                 et à la casse ("suarpark_debut", "SUARPARK_FIN"...). Les anciennes balises
+  //                 [SuarPark]/[/SuarPark] restent également reconnues, pour la compatibilité avec
+  //                 des messages déjà envoyés.
+  //   V01.004.038 — Le texte copié est désormais encadré visuellement par une ligne de signes "="
+  //                 (caractères ASCII simples, insensibles aux dégradations de transmission
+  //                 observées avec certains émojis) avant et après le bloc SuarPark_début/Fin, pour
+  //                 le signaler clairement d'un coup d'œil dans une conversation Messenger/LINE.
+  const APP_VERSION = "SuarPark - V01.004.038";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -631,6 +683,7 @@
         "<strong>📋 Carte de score vierge :</strong> ouvre une carte individuelle en plein écran pour saisir une manche en direct sur le parcours. Choisissez le joueur, la date (proposée par défaut), le caddie et la météo, puis le départ (⚪ WHITE / 🔴 RED — modifiable uniquement avant le premier score saisi). Le trou à jouer s'affiche en très grand avec ses cases Score et Putt, et avance automatiquement au trou suivant une fois les deux renseignés ; utilisez ‹ › pour naviguer librement. Le tableau complet des 18 trous reste éditable en dessous.",
         "<strong>Sauvegarde de la carte vierge :</strong> tout est enregistré automatiquement sur cet appareil (brouillon local) — rien n'est perdu en cas de fermeture ou de rechargement de la page.",
         "<strong>Échanger la carte vierge entre téléphones :</strong> « 📤 Copier » place un code technique dans le presse-papier de votre téléphone à envoyer par SMS/LINE ; « 📝 Copier en texte lisible » fait de même avec un résumé clair (joueur, date, départ, caddie, météo, scores et putts trou par trou) directement lisible par le destinataire. Sur l'autre appareil, « 📥 Coller » reconnaît automatiquement l'un ou l'autre format et recharge la même carte.",
+        "<strong>Installer SuarPark comme application :</strong> sur votre téléphone, utilisez « Ajouter à l'écran d'accueil » (Android) ou « Sur l'écran d'accueil » (iPhone, via le bouton Partager de Safari). Une fois installée, vous pouvez, depuis un message reçu dans Messenger/LINE/WhatsApp, appuyer sur « Partager » puis choisir « SuarPark » dans la liste : la carte de score vierge s'ouvre et se remplit automatiquement, sans passer par « 📥 Coller ».",
         "<strong>Imprimer la carte vierge :</strong> le bouton « 🖨️ Imprimer » n'imprime que la carte, sans le reste de l'application."
       ],
       btnShowCaddies: "🎽 Afficher les caddies",
@@ -833,6 +886,7 @@
         "<strong>📋 Blank scorecard:</strong> opens a full-screen individual card for live scoring on the course. Choose the player, date (defaulted to today), caddie and weather, then the tee (⚪ WHITE / 🔴 RED — editable only before the first score is entered). The hole to play is shown very large with its Score and Putt boxes, and automatically advances to the next hole once both are filled; use ‹ › to navigate freely. The full 18-hole table below stays editable.",
         "<strong>Blank card saving:</strong> everything is saved automatically on this device (local draft) — nothing is lost if the page closes or reloads.",
         "<strong>Sharing the blank card between phones:</strong> « 📤 Copy » puts a technical code on your phone's clipboard to send via SMS/LINE; « 📝 Copy as readable text » does the same with a clear summary (player, date, tee, caddie, weather, hole-by-hole scores and putts) directly readable by the recipient. On the other device, « 📥 Paste » automatically recognizes either format and reloads the same card.",
+        "<strong>Installing SuarPark as an app:</strong> on your phone, use \"Add to Home screen\" (Android) or \"Add to Home Screen\" (iPhone, via Safari's Share button). Once installed, from a message received in Messenger/LINE/WhatsApp, you can tap \"Share\" and choose \"SuarPark\" from the list: the blank scorecard opens and fills in automatically, without going through « 📥 Paste ».",
         "<strong>Printing the blank card:</strong> the « 🖨️ Print » button only prints the card, without the rest of the app."
       ],
       storageWarning: "⚠️ Insufficient storage space or private browsing detected on this phone: the full backup (history + 10 caddies) might fail. Consider exporting to Excel regularly.",
@@ -1017,6 +1071,7 @@
         "<strong>📋 Leere Scorekarte:</strong> öffnet eine individuelle Vollbildkarte für die Live-Eingabe auf dem Platz. Spieler, Datum (standardmäßig heute), Caddie und Wetter wählen, dann den Abschlag (⚪ WHITE / 🔴 RED — nur änderbar, bevor der erste Score eingegeben wurde). Das zu spielende Loch wird sehr groß mit Score- und Putt-Feldern angezeigt und springt automatisch zum nächsten Loch, sobald beide ausgefüllt sind; mit ‹ › frei navigieren. Die vollständige 18-Loch-Tabelle darunter bleibt bearbeitbar.",
         "<strong>Speicherung der leeren Karte:</strong> alles wird automatisch auf diesem Gerät gespeichert (lokaler Entwurf) — nichts geht beim Schließen oder Neuladen der Seite verloren.",
         "<strong>Leere Karte zwischen Handys austauschen:</strong> « 📤 Kopieren » legt einen technischen Code in die Zwischenablage des eigenen Handys, der per SMS/LINE verschickt werden kann; « 📝 Als lesbaren Text kopieren » tut dasselbe mit einer klaren Zusammenfassung (Spieler, Datum, Abschlag, Caddie, Wetter, Score und Putts pro Loch), die für den Empfänger direkt lesbar ist. Auf dem anderen Gerät erkennt « 📥 Einfügen » automatisch eines der beiden Formate und lädt dieselbe Karte.",
+        "<strong>SuarPark als App installieren:</strong> auf dem Handy „Zum Startbildschirm hinzufügen“ (Android) bzw. „Zum Home-Bildschirm“ (iPhone, über die Teilen-Schaltfläche von Safari) verwenden. Nach der Installation kann man bei einer in Messenger/LINE/WhatsApp empfangenen Nachricht auf „Teilen“ tippen und „SuarPark“ aus der Liste wählen: die leere Scorekarte öffnet sich und wird automatisch ausgefüllt, ohne über « 📥 Einfügen » zu gehen.",
         "<strong>Leere Karte drucken:</strong> die Schaltfläche « 🖨️ Drucken » druckt nur die Karte, ohne den Rest der App."
       ],
       storageWarning: "⚠️ Unzureichender Speicherplatz oder privates Surfen auf diesem Telefon erkannt: Die vollständige Sicherung (Verlauf + 10 Caddies) könnte fehlschlagen. Exportieren Sie regelmäßig nach Excel.",
@@ -1201,6 +1256,7 @@
         "<strong>📋 การ์ดคะแนนเปล่า:</strong> เปิดการ์ดรายบุคคลแบบเต็มหน้าจอสำหรับกรอกสกอร์สดขณะเล่นในสนาม เลือกผู้เล่น วันที่ (ตั้งค่าเริ่มต้นเป็นวันนี้) แคดดี้ และสภาพอากาศ จากนั้นเลือกทีออก (⚪ WHITE / 🔴 RED — แก้ไขได้เฉพาะก่อนกรอกสกอร์แรกเท่านั้น) หลุมที่ต้องเล่นจะแสดงตัวใหญ่มากพร้อมช่องสกอร์และพัตต์ และจะเลื่อนไปหลุมถัดไปอัตโนมัติเมื่อกรอกครบทั้งสองช่อง ใช้ ‹ › เพื่อเลื่อนไปมาได้อย่างอิสระ ตารางครบ 18 หลุมด้านล่างยังคงแก้ไขได้",
         "<strong>การบันทึกการ์ดเปล่า:</strong> ทุกอย่างถูกบันทึกอัตโนมัติบนอุปกรณ์นี้ (ร่างในเครื่อง) — ไม่มีข้อมูลสูญหายแม้ปิดหรือโหลดหน้าใหม่",
         "<strong>แลกเปลี่ยนการ์ดเปล่าระหว่างโทรศัพท์:</strong> « 📤 คัดลอก » จะวางโค้ดเทคนิคไว้ในคลิปบอร์ดของโทรศัพท์คุณเพื่อส่งทาง SMS/LINE « 📝 คัดลอกเป็นข้อความอ่านได้ » ก็ทำแบบเดียวกันแต่เป็นข้อความสรุปที่อ่านง่าย (ผู้เล่น วันที่ ทีออก แคดดี้ สภาพอากาศ สกอร์และพัตต์รายหลุม) ที่ผู้รับอ่านได้ทันที บนอีกเครื่อง « 📥 วาง » จะจดจำรูปแบบใดก็ได้จากทั้งสองแบบโดยอัตโนมัติและโหลดการ์ดเดียวกัน",
+        "<strong>ติดตั้ง SuarPark เป็นแอป:</strong> บนโทรศัพท์ ใช้ \"เพิ่มไปยังหน้าจอหลัก\" (Android) หรือ \"เพิ่มไปยังหน้าจอโฮม\" (iPhone ผ่านปุ่มแชร์ของ Safari) เมื่อติดตั้งแล้ว จากข้อความที่ได้รับใน Messenger/LINE/WhatsApp สามารถแตะ \"แชร์\" แล้วเลือก \"SuarPark\" จากรายการ: การ์ดคะแนนเปล่าจะเปิดขึ้นและกรอกข้อมูลให้อัตโนมัติ โดยไม่ต้องผ่าน « 📥 วาง »",
         "<strong>พิมพ์การ์ดเปล่า:</strong> ปุ่ม « 🖨️ พิมพ์ » จะพิมพ์เฉพาะการ์ดเท่านั้น ไม่รวมส่วนอื่นของแอป"
       ],
       btnShowCaddies: "🎽 แสดงแคดดี้",
@@ -2593,6 +2649,9 @@
     const parTotal = PAR.reduce((a,b) => a+b, 0);
 
     const lines = [];
+    const border = '='.repeat(32);
+    lines.push(border);
+    lines.push('SuarPark_début:');
     lines.push(`⛳ SuarPark — ${playerName}${h.date ? ' — ' + h.date : ''}`);
     const line2 = [];
     if (teeLabel) line2.push(`${t('blankCardTextLabelTee')} : ${teeLabel}`);
@@ -2605,6 +2664,8 @@
       lines.push(`${t('blankCardTextLabelPutts')} : ${puttsOut} | ${puttsIn}`);
       lines.push(`${t('blankCardTextLabelTotalPutts')} : ${pOut} + ${pIn} = ${pTot}`);
     }
+    lines.push('SuarPark_Fin.');
+    lines.push(border);
 
     const text = lines.join('\n');
     const finish = () => window.alert(t('blankCardExportTextCopied'));
@@ -2619,16 +2680,39 @@
   // indépendamment de la langue (labels traduits) : on s'appuie sur des repères stables
   // (émojis, séparateur "—", motif date JJ/MM/AAAA, lignes contenant "|" dans l'ordre
   // Score puis Putts). Retourne un draft {header, scores, putts} ou null si non reconnu.
-  function blankCardParseReadableText(text){
-    if (!text || text.indexOf('SuarPark') === -1) return null;
+  function blankCardParseReadableText(rawText){
+    if (!rawText) return null;
+
+    // Si les balises "SuarPark_début:" ... "SuarPark_Fin." sont présentes, on isole
+    // strictement leur contenu avant toute analyse : ça élimine d'un coup tout risque de
+    // confusion avec du texte ajouté autour (phrase d'intro, signature, citation d'un fil
+    // de discussion...). Reconnaissance tolérante à l'accent, à la ponctuation et à la
+    // casse (ex. "suarpark_debut", "SUARPARK_FIN:") pour rester robuste en cas de
+    // retranscription manuelle. Repli sur l'ancienne méthode (recherche dans tout le texte)
+    // si les balises sont absentes, pour rester compatible avec des messages envoyés avant
+    // leur ajout (ou avec les anciennes balises [SuarPark]...[/SuarPark]).
+    let text = rawText;
+    const startRe = /\[SuarPark\]|SuarPark[_\s]*d[ée]but\s*:?/i;
+    const endRe = /\[\/SuarPark\]|SuarPark[_\s]*Fin\s*\.?/i;
+    const startMatch = startRe.exec(rawText);
+    const endMatch = endRe.exec(rawText);
+    if (startMatch && endMatch && endMatch.index > startMatch.index + startMatch[0].length){
+      text = rawText.slice(startMatch.index + startMatch[0].length, endMatch.index);
+    }
+
+    if (text.indexOf('SuarPark') === -1) return null;
     const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     if (lines.length === 0) return null;
 
     const empty = blankCardEmptyDraft();
     const header = Object.assign({}, empty.header);
 
-    // Ligne 1 : "⛳ SuarPark — Nom [— JJ/MM/AAAA]"
-    const firstLine = lines[0].replace(/^⛳?\s*SuarPark\s*—?\s*/, '');
+    // Ligne titre "⛳ SuarPark — Nom [— JJ/MM/AAAA]" : recherchée n'importe où dans le
+    // texte (pas forcément en première ligne), pour tolérer une phrase d'intro ajoutée
+    // avant (ex. mail personnalisé, transfert avec commentaire) ou une signature après.
+    const titleLineIdx = lines.findIndex(l => l.indexOf('SuarPark') !== -1);
+    const titleLine = titleLineIdx !== -1 ? lines[titleLineIdx] : '';
+    const firstLine = titleLine.replace(/^.*?⛳?\s*SuarPark\s*—?\s*/, '');
     const dateMatch = firstLine.match(/(\d{2}\/\d{2}\/\d{4})\s*$/);
     let namePart = firstLine;
     if (dateMatch){
@@ -2645,9 +2729,13 @@
       }
     }
 
-    // Départ (tee) : repéré par l'émoji
-    if (text.indexOf('🔴') !== -1) header.tee = 'red';
-    else if (text.indexOf('⚪') !== -1) header.tee = 'white';
+    // Départ (tee) : repéré par l'émoji, avec repli sur le mot "WHITE"/"RED" au cas où
+    // l'émoji ait été dégradé/perdu par une app tierce (observé via AOL/Android : ⚪ → ○).
+    if (text.indexOf('🔴') !== -1 || /\bRED\b/i.test(text)){
+      header.tee = 'red';
+    } else if (text.indexOf('⚪') !== -1 || /\bWHITE\b/i.test(text)){
+      header.tee = 'white';
+    }
 
     // Caddie : motif "numéro_nom" (ex. "19_BIBI")
     const caddieMatch = text.match(/(\d{1,4})_(\S+)/);
@@ -2671,6 +2759,15 @@
     const dirArrows = {'↑':'N','↗':'NE','→':'E','↘':'SE','↓':'S','↙':'SW','←':'W','↖':'NW'};
     for (const arrow in dirArrows){
       if (text.indexOf(arrow) !== -1){ header.weatherWindDir = dirArrows[arrow]; break; }
+    }
+    if (!header.weatherWindDir){
+      // Repli si la flèche a été dégradée/perdue par une app tierce : le code
+      // (N, NE, E...) est toujours écrit juste à côté dans le texte d'origine. Attention :
+      // l'app affiche SO/O/NO (abréviations françaises) pour SW/W/NW, quelle que soit la
+      // langue de l'interface — on reconnaît donc les deux formes, la française en priorité.
+      const dirCodeMap = {NE:'NE', NW:'NW', SE:'SE', SW:'SW', SO:'SW', NO:'NW', N:'N', E:'E', S:'S', W:'W', O:'W'};
+      const dirCodeMatch = text.match(/km\/h\s*(?:[↑↗→↘↓↙←↖]\s*)?\b(NE|NW|SE|SW|SO|NO|N|E|S|W|O)\b/);
+      if (dirCodeMatch) header.weatherWindDir = dirCodeMap[dirCodeMatch[1]];
     }
     const condEmojis = {'☀️':'sun','🌤️':'partly_cloudy','☁️':'cloudy','🌥️':'overcast','🌦️':'rain_shower','🌧️':'rain','⛈️':'storm'};
     for (const emoji in condEmojis){
@@ -3303,6 +3400,30 @@
       document.getElementById('btnToggleCaddies').textContent = caddiesVisible ? t('btnHideCaddies') : t('btnShowCaddies');
       if (caddiesVisible) renderCaddies();
     });
+
+    handleIncomingSharedText();
+  }
+
+  // Reçoit un texte partagé depuis une autre app (via le Web Share Target de la PWA
+  // installée) : "Partager" un message SuarPark reçu dans Messenger/LINE/WhatsApp vers
+  // SuarPark ouvre directement l'app avec la carte vierge déjà remplie.
+  function handleIncomingSharedText(){
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const text = params.get('shared_text') || '';
+      const title = params.get('shared_title') || '';
+      const url = params.get('shared_url') || '';
+      const combined = [text, title, url].filter(Boolean).join('\n').trim();
+      if (!combined) return;
+
+      const applied = blankCardApplyImportedText(combined);
+      setBlankCardVisible(true);
+      window.alert(applied ? t('blankCardImportSuccess') : t('blankCardImportError'));
+
+      // Nettoie l'URL pour ne pas retraiter le même partage à un futur rechargement
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+    } catch(e){ /* partage non exploitable : on ignore silencieusement */ }
   }
 
   init();
