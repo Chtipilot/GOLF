@@ -80,6 +80,11 @@
   #app .blankcard-score-input { width:100%; border:1px solid #b8c4c1; border-radius:3px; background:#fff; text-align:center; font-size:12px; padding:4px 0; -moz-appearance:textfield; }
   #app .blankcard-score-input:focus { outline:none; border-color:#1a3c34; background:#fff3cd; }
 
+  /* Marquage façon carte de score papier : rond noir = par, double rond noir = eagle (ou mieux) */
+  #app .score-ring-par { border-radius:50% !important; border:2px solid #000000 !important; }
+  #app .score-ring-eagle { border-radius:50% !important; border:2px solid #000000 !important; box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #000000 !important; }
+  #app .score-mark-badge { display:inline-flex; align-items:center; justify-content:center; width:1.9em; height:1.9em; line-height:1; box-sizing:border-box; }
+
   /* Carte de score vierge : mode plein écran, seule à l'affichage */
   #blankCardSection { display:none; }
   #blankCardSection.active {
@@ -407,7 +412,15 @@
   //                 score saisi, le bouton et la ligne de distances du départ non joué sont
   //                 désormais masqués (au lieu d'être simplement grisés), pour ne plus afficher de
   //                 référence au parcours non utilisé pour la manche en cours.
-  const APP_VERSION = "SuarPark - V01.004.025";
+  //   V01.004.026 — Correction : le masquage de la ligne/bouton du départ non joué ne se
+  //                 déclenchait pas lors d'une saisie via le grand panneau tactile (Score/Putt du
+  //                 trou en cours), qui est le mode de saisie principal sur le parcours. Le
+  //                 masquage se met désormais à jour aussi depuis ce panneau.
+  //   V01.004.027 — Ajout d'un marquage façon carte de score papier : le chiffre est désormais
+  //                 entouré d'un rond noir lorsque le score = PAR, et d'un double rond noir pour
+  //                 un EAGLE (ou mieux). Appliqué à l'historique, l'éclectique, la carte principale
+  //                 et la carte de score vierge (tableau des 18 trous et grand panneau tactile).
+  const APP_VERSION = "SuarPark - V01.004.027";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1442,6 +1455,39 @@
     return {bg:'#DC3545', fg:'#ffffff'};                    // > 2 au-dessus du par : rouge
   }
 
+  // Marquage façon carte de score papier : rond noir autour du chiffre pour un PAR,
+  // double rond noir pour un EAGLE (ou mieux, ex. albatros).
+  function scoreMarkKind(score, holeIdx){
+    if (score === "" || score === null || score === undefined || isNaN(Number(score))) return null;
+    const diff = Number(score) - PAR[holeIdx];
+    if (diff <= -2) return 'eagle';
+    if (diff === 0) return 'par';
+    return null;
+  }
+
+  function scoreRingClass(kind){
+    if (kind === 'eagle') return 'score-ring-eagle';
+    if (kind === 'par') return 'score-ring-par';
+    return '';
+  }
+
+  // Pour l'affichage statique (historique, éclectique) : entoure le chiffre d'un badge rond.
+  function scoreDisplayHTML(score, holeIdx){
+    const kind = scoreMarkKind(score, holeIdx);
+    const ringClass = scoreRingClass(kind);
+    if (!ringClass) return String(score);
+    return `<span class="score-mark-badge ${ringClass}">${score}</span>`;
+  }
+
+  // Pour les champs <input> (carte principale, carte de score vierge) : applique/retire les
+  // classes de cerclage directement sur l'input en fonction du score saisi.
+  function applyScoreRing(inp, score, holeIdx){
+    if (!inp) return;
+    inp.classList.remove('score-ring-par', 'score-ring-eagle');
+    const ringClass = scoreRingClass(scoreMarkKind(score, holeIdx));
+    if (ringClass) inp.classList.add(ringClass);
+  }
+
   function caddieDisplayText(num){
     if (!num) return '';
     const c = (state.caddies || []).find(c => c.number === String(num));
@@ -1790,6 +1836,7 @@
         const {bg} = scoreColor(inp.value, h);
         inp.style.background = bg;
       }
+      applyScoreRing(inp, inp.value, h);
     });
     const {out, inn, tot} = computeOutInTot(scores);
     document.getElementById(`out-${name}`).textContent = out;
@@ -1858,7 +1905,7 @@
         const caddieTag = caddieNum ? ` <span style="font-weight:normal; color:#888; font-size:9px;">/${caddieDisplayText(caddieNum)}</span>` : '';
         rows += `<tr id="row-${name}-${i}" style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
           <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:nowrap;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}</td>
-          ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${s}</td>`; }).join("")}
+          ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
           <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
           <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
           <td style="font-weight:bold; background:#e8f0ee;">${tot}</td>
@@ -1914,7 +1961,7 @@
       const {out, inn, tot} = computeOutInTot(best);
       rows += `<tr style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
         <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${name}</td>
-        ${best.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${s}</td>`; }).join("")}
+        ${best.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
         <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
         <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
         <td style="font-weight:bold; background:#e8f0ee;">${tot}</td>
@@ -2494,6 +2541,7 @@
         const {bg} = scoreColor(inp.value, h);
         inp.style.background = bg;
       }
+      applyScoreRing(inp, inp.value, h);
     });
     const {out, inn, tot} = computeOutInTot(scores);
     const outEl = document.getElementById('bcOut');
@@ -2695,13 +2743,16 @@
     const bigPutt = document.getElementById('bcBigPutt');
     if (bigScore) bigScore.value = scores[blankCardFocusHole] || "";
     if (bigPutt) bigPutt.value = putts[blankCardFocusHole] || "";
+    applyScoreRing(bigScore, bigScore ? bigScore.value : "", blankCardFocusHole);
 
     bigScore.addEventListener('input', () => {
       const h = blankCardFocusHole;
       const target = document.getElementById(`bcScore-${h}`);
       if (target) target.value = bigScore.value;
+      applyScoreRing(bigScore, bigScore.value, h);
       blankCardComputeTotals();
       persistBlankCardDraft();
+      blankCardUpdateTeeButtons();
       blankCardMaybeAdvance(h);
     });
     bigScore.addEventListener('change', () => blankCardCheckParSound(blankCardFocusHole, bigScore.value));
@@ -2711,6 +2762,7 @@
       if (target) target.value = bigPutt.value;
       blankCardComputeTotals();
       persistBlankCardDraft();
+      blankCardUpdateTeeButtons();
       blankCardMaybeAdvance(h);
     });
     document.getElementById('btnBcPrevHole').addEventListener('click', () => {
