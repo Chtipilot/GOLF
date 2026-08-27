@@ -78,10 +78,39 @@
   #app .blankcard-name-input { border:none; border-bottom:1px dotted #999; background:transparent; font-size:11px; width:100%; text-align:left; padding:2px 2px; }
   #app .blankcard-name-input:focus { outline:none; border-bottom:1px solid #1a3c34; background:#fff3cd; }
 
+  /* Carte de score vierge : mode plein écran, seule à l'affichage */
+  #blankCardSection { display:none; }
+  #blankCardSection.active {
+    display:block;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:#fff;
+    z-index:9999;
+    overflow:auto;
+    margin:0;
+    padding:14px;
+  }
+  body.blankcard-open { overflow:hidden; }
+
+  /* Force l'affichage en mode paysage même si le téléphone reste en portrait */
+  @media (orientation: portrait) {
+    #blankCardSection.active {
+      width:100vh;
+      height:100vw;
+      transform:rotate(-90deg);
+      transform-origin:left top;
+      position:fixed;
+      top:100%;
+      left:0;
+      overflow-x:hidden;
+      overflow-y:auto;
+    }
+  }
+
   @media print {
     body * { visibility:hidden; }
     #blankCardSection, #blankCardSection * { visibility:visible; }
-    #blankCardSection { position:absolute; top:0; left:0; width:100%; margin:0; padding:0; }
+    #blankCardSection { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:auto !important; margin:0; padding:0; transform:none !important; }
     #blankCardSection .no-print { display:none !important; }
   }
 </style>
@@ -201,7 +230,7 @@
 <div id="statsSection" style="display:none; margin-top:10px;"></div>
 <div id="insightsSection" style="display:none; margin-top:10px;"></div>
 <div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
-<div id="blankCardSection" style="display:none; margin-top:10px;"></div>
+<div id="blankCardSection"></div>
 
 </div>
 
@@ -305,7 +334,16 @@
   //                 Black/Blue masqués par défaut (togglables) et White/Red visibles, 6 lignes de
   //                 score vierges avec calcul auto OUT/IN/Total, plan du parcours en image, bouton
   //                 Imprimer dédié) ; ajout des distances BLACK et BLUE (DIST_BLACK, DIST_BLUE)
-  const APP_VERSION = "SuarPark - V01.004.005";
+  //   V01.004.006 — Carte de score vierge : affichage désormais en plein écran, seule (le reste de
+  //                 l'app est masqué derrière), avec rotation forcée en mode paysage même si le
+  //                 téléphone reste en position portrait ; ajout d'un bouton "✕ Fermer" dédié
+  //   V01.004.007 — Carte de score vierge : devient une véritable carte électronique avec sauvegarde
+  //                 automatique du brouillon en cours (en-têtes + noms + scores) dans le stockage
+  //                 local de l'appareil (localStorage), pour ne rien perdre en cas de fermeture ou
+  //                 rechargement de la page pendant la partie ; ajout d'un échange manuel de données
+  //                 entre appareils via un code exporté/importé (copier-coller, ex. SMS/LINE) ;
+  //                 ajout d'un bouton "🗑️ Effacer" pour réinitialiser le brouillon
+  const APP_VERSION = "SuarPark - V01.004.007";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -388,6 +426,18 @@
       blankCardTitle: "📋 Carte de score vierge — SuarPark",
       blankCardIntro: "À imprimer ou à remplir directement à l'écran avant/pendant la manche.",
       blankCardBtnPrint: "🖨️ Imprimer",
+      blankCardBtnClose: "Fermer",
+      blankCardBtnExport: "📤 Copier les données",
+      blankCardBtnImport: "📥 Coller les données",
+      blankCardBtnClear: "🗑️ Effacer",
+      blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
+      blankCardLastSaved: (time) => `Dernière sauvegarde : ${time}`,
+      blankCardExportCopied: "Code copié dans le presse-papier ! Envoie-le à l'autre joueur (SMS, LINE...) pour qu'il puisse l'importer sur son téléphone.",
+      blankCardExportFallbackTitle: "Copie ce code et envoie-le à l'autre joueur :",
+      blankCardImportPrompt: "Colle ici le code reçu de l'autre joueur :",
+      blankCardImportSuccess: "Données importées avec succès !",
+      blankCardImportError: "Ce code n'est pas valide. Vérifie qu'il a été copié en entier.",
+      blankCardClearConfirm: "Effacer définitivement le brouillon de cette carte de score (en-tête, noms et scores) ? Cette action est irréversible.",
       blankCardBtnShowTees: "⚫🔵 Afficher Black/Blue",
       blankCardBtnHideTees: "⚫🔵 Masquer Black/Blue",
       blankCardPlayerName: "Player's Name :",
@@ -551,6 +601,18 @@
       blankCardTitle: "📋 Blank scorecard — SuarPark",
       blankCardIntro: "Print it or fill it in directly on screen before/during the round.",
       blankCardBtnPrint: "🖨️ Print",
+      blankCardBtnClose: "Close",
+      blankCardBtnExport: "📤 Copy data",
+      blankCardBtnImport: "📥 Paste data",
+      blankCardBtnClear: "🗑️ Clear",
+      blankCardAutosaveNote: "Draft automatically saved on this device.",
+      blankCardLastSaved: (time) => `Last saved: ${time}`,
+      blankCardExportCopied: "Code copied to clipboard! Send it to the other player (SMS, LINE...) so they can import it on their phone.",
+      blankCardExportFallbackTitle: "Copy this code and send it to the other player:",
+      blankCardImportPrompt: "Paste the code received from the other player here:",
+      blankCardImportSuccess: "Data imported successfully!",
+      blankCardImportError: "This code isn't valid. Check that it was copied in full.",
+      blankCardClearConfirm: "Permanently clear this scorecard's draft (header, names and scores)? This cannot be undone.",
       blankCardBtnShowTees: "⚫🔵 Show Black/Blue",
       blankCardBtnHideTees: "⚫🔵 Hide Black/Blue",
       blankCardPlayerName: "Player's Name :",
@@ -696,6 +758,18 @@
       blankCardTitle: "📋 Leere Scorekarte — SuarPark",
       blankCardIntro: "Zum Ausdrucken oder direkt am Bildschirm vor/während der Runde ausfüllen.",
       blankCardBtnPrint: "🖨️ Drucken",
+      blankCardBtnClose: "Schließen",
+      blankCardBtnExport: "📤 Daten kopieren",
+      blankCardBtnImport: "📥 Daten einfügen",
+      blankCardBtnClear: "🗑️ Löschen",
+      blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
+      blankCardLastSaved: (time) => `Zuletzt gespeichert: ${time}`,
+      blankCardExportCopied: "Code in die Zwischenablage kopiert! Sende ihn an den anderen Spieler (SMS, LINE...), damit er ihn auf seinem Handy importieren kann.",
+      blankCardExportFallbackTitle: "Kopiere diesen Code und sende ihn an den anderen Spieler:",
+      blankCardImportPrompt: "Füge hier den vom anderen Spieler erhaltenen Code ein:",
+      blankCardImportSuccess: "Daten erfolgreich importiert!",
+      blankCardImportError: "Dieser Code ist ungültig. Prüfe, ob er vollständig kopiert wurde.",
+      blankCardClearConfirm: "Diesen Kartenentwurf endgültig löschen (Kopfzeile, Namen und Scores)? Dies kann nicht rückgängig gemacht werden.",
       blankCardBtnShowTees: "⚫🔵 Black/Blue anzeigen",
       blankCardBtnHideTees: "⚫🔵 Black/Blue ausblenden",
       blankCardPlayerName: "Player's Name :",
@@ -841,6 +915,18 @@
       blankCardTitle: "📋 การ์ดคะแนนเปล่า — SuarPark",
       blankCardIntro: "พิมพ์หรือกรอกโดยตรงบนหน้าจอ ก่อน/ระหว่างรอบการเล่น",
       blankCardBtnPrint: "🖨️ พิมพ์",
+      blankCardBtnClose: "ปิด",
+      blankCardBtnExport: "📤 คัดลอกข้อมูล",
+      blankCardBtnImport: "📥 วางข้อมูล",
+      blankCardBtnClear: "🗑️ ล้างข้อมูล",
+      blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
+      blankCardLastSaved: (time) => `บันทึกล่าสุด: ${time}`,
+      blankCardExportCopied: "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว! ส่งให้ผู้เล่นอีกคน (SMS, LINE...) เพื่อนำเข้าในโทรศัพท์ของเขา",
+      blankCardExportFallbackTitle: "คัดลอกโค้ดนี้และส่งให้ผู้เล่นอีกคน:",
+      blankCardImportPrompt: "วางโค้ดที่ได้รับจากผู้เล่นอีกคนที่นี่:",
+      blankCardImportSuccess: "นำเข้าข้อมูลสำเร็จ!",
+      blankCardImportError: "โค้ดนี้ไม่ถูกต้อง ตรวจสอบว่าคัดลอกครบถ้วน",
+      blankCardClearConfirm: "ล้างร่างการ์ดคะแนนนี้อย่างถาวร (หัวข้อ ชื่อ และคะแนน) ใช่หรือไม่ ไม่สามารถย้อนกลับได้",
       blankCardBtnShowTees: "⚫🔵 แสดง Black/Blue",
       blankCardBtnHideTees: "⚫🔵 ซ่อน Black/Blue",
       blankCardPlayerName: "Player's Name :",
@@ -2134,6 +2220,116 @@
   }
 
   const BLANKCARD_ROWS = 6; // nombre de lignes de score vierges (joueurs) proposées
+  const BLANKCARD_DRAFT_KEY = "suarpark-blankcard-draft";
+  const BLANKCARD_HEADER_FIELDS = ["playerName","date","time","hcp","group","playerSignature","markerSignature"];
+
+  function blankCardEmptyDraft(){
+    return {
+      header: Object.fromEntries(BLANKCARD_HEADER_FIELDS.map(f => [f, ""])),
+      showBlackBlue: false,
+      rows: Array.from({length: BLANKCARD_ROWS}, () => ({name: "", scores: Array(18).fill("")}))
+    };
+  }
+
+  function loadBlankCardDraft(){
+    try {
+      const raw = localStorage.getItem(BLANKCARD_DRAFT_KEY);
+      if (!raw) return blankCardEmptyDraft();
+      const parsed = JSON.parse(raw);
+      const empty = blankCardEmptyDraft();
+      return {
+        header: Object.assign(empty.header, parsed.header || {}),
+        showBlackBlue: !!parsed.showBlackBlue,
+        rows: (parsed.rows && parsed.rows.length === BLANKCARD_ROWS) ? parsed.rows : empty.rows
+      };
+    } catch(e){ return blankCardEmptyDraft(); }
+  }
+
+  function saveBlankCardDraft(draft){
+    try {
+      localStorage.setItem(BLANKCARD_DRAFT_KEY, JSON.stringify(draft));
+      const stamp = document.getElementById('blankCardSaveStamp');
+      if (stamp) stamp.textContent = t('blankCardLastSaved', new Date().toLocaleTimeString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'}));
+    } catch(e){ /* stockage indisponible (navigation privée, quota...) : on ignore silencieusement */ }
+  }
+
+  function collectBlankCardDraftFromDOM(){
+    const section = document.getElementById('blankCardSection');
+    const header = {};
+    BLANKCARD_HEADER_FIELDS.forEach(f => {
+      const el = section.querySelector(`[data-field="${f}"]`);
+      header[f] = el ? el.value : "";
+    });
+    const rows = [];
+    for (let r = 0; r < BLANKCARD_ROWS; r++){
+      const nameEl = section.querySelector(`input[data-blankrow="${r}"][data-blanktype="name"]`);
+      const scores = Array(18).fill("");
+      section.querySelectorAll(`input[data-blankrow="${r}"][data-blanktype="score"]`).forEach(inp => {
+        scores[Number(inp.dataset.hole)] = inp.value;
+      });
+      rows.push({name: nameEl ? nameEl.value : "", scores});
+    }
+    return {header, showBlackBlue: blankCardShowBlackBlue, rows};
+  }
+
+  function persistBlankCardDraft(){
+    saveBlankCardDraft(collectBlankCardDraftFromDOM());
+  }
+
+  function applyBlankCardDraftToDOM(draft){
+    const section = document.getElementById('blankCardSection');
+    BLANKCARD_HEADER_FIELDS.forEach(f => {
+      const el = section.querySelector(`[data-field="${f}"]`);
+      if (el) el.value = draft.header[f] || "";
+    });
+    draft.rows.forEach((row, r) => {
+      const nameEl = section.querySelector(`input[data-blankrow="${r}"][data-blanktype="name"]`);
+      if (nameEl) nameEl.value = row.name || "";
+      section.querySelectorAll(`input[data-blankrow="${r}"][data-blanktype="score"]`).forEach(inp => {
+        inp.value = row.scores[Number(inp.dataset.hole)] || "";
+      });
+      blankCardComputeRow(r);
+    });
+  }
+
+  function blankCardExport(){
+    const draft = collectBlankCardDraftFromDOM();
+    const code = btoa(unescape(encodeURIComponent(JSON.stringify(draft))));
+    const finish = () => window.alert(t('blankCardExportCopied'));
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).then(finish).catch(() => window.prompt(t('blankCardExportFallbackTitle'), code));
+    } else {
+      window.prompt(t('blankCardExportFallbackTitle'), code);
+    }
+  }
+
+  function blankCardImport(){
+    const code = window.prompt(t('blankCardImportPrompt'), "");
+    if (!code) return;
+    try {
+      const draft = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+      if (!draft || !draft.rows) throw new Error('format invalide');
+      const empty = blankCardEmptyDraft();
+      const merged = {
+        header: Object.assign(empty.header, draft.header || {}),
+        showBlackBlue: !!draft.showBlackBlue,
+        rows: (draft.rows.length === BLANKCARD_ROWS) ? draft.rows : empty.rows
+      };
+      saveBlankCardDraft(merged);
+      blankCardShowBlackBlue = merged.showBlackBlue;
+      renderBlankCard();
+      window.alert(t('blankCardImportSuccess'));
+    } catch(e){
+      window.alert(t('blankCardImportError'));
+    }
+  }
+
+  function blankCardClear(){
+    if (!window.confirm(t('blankCardClearConfirm'))) return;
+    localStorage.removeItem(BLANKCARD_DRAFT_KEY);
+    blankCardShowBlackBlue = false;
+    renderBlankCard();
+  }
 
   function blankCardComputeRow(rowIdx){
     const inputs = document.querySelectorAll(`input[data-blankrow="${rowIdx}"][data-blanktype="score"]`);
@@ -2158,12 +2354,23 @@
     </tr>`;
   }
 
+  function setBlankCardVisible(visible){
+    blankCardVisible = visible;
+    const section = document.getElementById('blankCardSection');
+    section.classList.toggle('active', blankCardVisible);
+    document.body.classList.toggle('blankcard-open', blankCardVisible);
+    document.getElementById('btnToggleBlankCard').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
+    if (blankCardVisible) renderBlankCard();
+  }
+
   function renderBlankCard(){
     const container = document.getElementById('blankCardSection');
     if (!container) return;
 
+    const draft = loadBlankCardDraft();
+    blankCardShowBlackBlue = draft.showBlackBlue;
+
     const hideClass = blankCardShowBlackBlue ? '' : 'no-print-hide';
-    const hideStyle = blankCardShowBlackBlue ? '' : 'display:none;';
 
     const idxRow = `<tr style="background:#e8f0ee; color:#1a3c34; font-weight:bold;">
       <th>HCP</th>${IDX.map(i=>`<th>${i}</th>`).join("")}<th colspan="3"></th>
@@ -2186,25 +2393,30 @@
     container.innerHTML = `
       <h3>${t('blankCardTitle')}</h3>
       <p class="sub" style="margin-top:2px;">${t('blankCardIntro')}</p>
+      <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">💾 ${t('blankCardAutosaveNote')} <span id="blankCardSaveStamp"></span></p>
       <div class="toolbar no-print">
+        <button class="btn btn-secondary" id="btnBlankCardClose">✕ ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
         <button class="btn btn-secondary" id="btnBlankCardTees">${blankCardShowBlackBlue ? t('blankCardBtnHideTees') : t('blankCardBtnShowTees')}</button>
+        <button class="btn btn-secondary" id="btnBlankCardExport">${t('blankCardBtnExport')}</button>
+        <button class="btn btn-secondary" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
+        <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
 
       <div class="blankcard-header-row" style="margin-top:10px;">
-        <div class="blankcard-header-cell" style="flex-basis:100%;"><label>${t('blankCardPlayerName')}</label><input type="text" class="blankcard-field"></div>
+        <div class="blankcard-header-cell" style="flex-basis:100%;"><label>${t('blankCardPlayerName')}</label><input type="text" class="blankcard-field" data-field="playerName"></div>
       </div>
       <div class="blankcard-header-row">
-        <div class="blankcard-header-cell"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field"></div>
-        <div class="blankcard-header-cell"><label>${t('blankCardTime')}</label><input type="text" class="blankcard-field"></div>
-        <div class="blankcard-header-cell"><label>${t('blankCardHCP')}</label><input type="text" class="blankcard-field"></div>
+        <div class="blankcard-header-cell"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
+        <div class="blankcard-header-cell"><label>${t('blankCardTime')}</label><input type="text" class="blankcard-field" data-field="time"></div>
+        <div class="blankcard-header-cell"><label>${t('blankCardHCP')}</label><input type="text" class="blankcard-field" data-field="hcp"></div>
       </div>
       <div class="blankcard-header-row">
-        <div class="blankcard-header-cell" style="flex-basis:48%;"><label>${t('blankCardGroup')}</label><input type="text" class="blankcard-field"></div>
-        <div class="blankcard-header-cell" style="flex-basis:48%;"><label>${t('blankCardPlayerSignature')}</label><input type="text" class="blankcard-field"></div>
+        <div class="blankcard-header-cell" style="flex-basis:48%;"><label>${t('blankCardGroup')}</label><input type="text" class="blankcard-field" data-field="group"></div>
+        <div class="blankcard-header-cell" style="flex-basis:48%;"><label>${t('blankCardPlayerSignature')}</label><input type="text" class="blankcard-field" data-field="playerSignature"></div>
       </div>
       <div class="blankcard-header-row" style="margin-bottom:10px;">
-        <div class="blankcard-header-cell" style="flex-basis:100%;"><label>${t('blankCardMarkerSignature')}</label><input type="text" class="blankcard-field"></div>
+        <div class="blankcard-header-cell" style="flex-basis:100%;"><label>${t('blankCardMarkerSignature')}</label><input type="text" class="blankcard-field" data-field="markerSignature"></div>
       </div>
 
       <div style="overflow-x:auto;">
@@ -2224,7 +2436,7 @@
             ${parHeaderRowDark()}
             ${idxRow}
           </thead>
-          <tbody id="blankCardTeeRows" style="${''}">
+          <tbody id="blankCardTeeRows">
             ${blankCardTeeRow('BLACK', DIST_BLACK, '#3a3a3a', '#fff', hideClass)}
             ${blankCardTeeRow('BLUE', DIST_BLUE, '#3b3b7a', '#fff', hideClass)}
             ${blankCardTeeRow('WHITE', DIST_WHITE, '#ffffff', '#1a1a1a')}
@@ -2243,14 +2455,33 @@
       </div>
     `;
 
+    applyBlankCardDraftToDOM(draft);
+
+    document.getElementById('btnBlankCardClose').addEventListener('click', () => setBlankCardVisible(false));
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
     document.getElementById('btnBlankCardTees').addEventListener('click', () => {
       blankCardShowBlackBlue = !blankCardShowBlackBlue;
+      persistBlankCardDraft();
       renderBlankCard();
     });
-    document.querySelectorAll('#blankCardSection input[data-blanktype="score"]').forEach(inp => {
-      inp.addEventListener('input', () => blankCardComputeRow(Number(inp.dataset.blankrow)));
+    document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
+    document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
+    document.getElementById('btnBlankCardClear').addEventListener('click', blankCardClear);
+
+    container.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
+      inp.addEventListener('input', () => { blankCardComputeRow(Number(inp.dataset.blankrow)); persistBlankCardDraft(); });
     });
+    container.querySelectorAll('input[data-blanktype="name"]').forEach(inp => {
+      inp.addEventListener('input', persistBlankCardDraft);
+    });
+    container.querySelectorAll('[data-field]').forEach(inp => {
+      inp.addEventListener('input', persistBlankCardDraft);
+    });
+
+    if (draft.header && Object.values(draft.header).some(v => v) || draft.rows.some(r => r.name || r.scores.some(s => s))){
+      const stamp = document.getElementById('blankCardSaveStamp');
+      if (stamp) stamp.textContent = t('blankCardLastSaved', new Date().toLocaleTimeString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'}));
+    }
   }
 
   function init(){
@@ -2315,10 +2546,7 @@
       if (teeCompareVisible) renderTeeCompare();
     });
     document.getElementById('btnToggleBlankCard').addEventListener('click', () => {
-      blankCardVisible = !blankCardVisible;
-      document.getElementById('blankCardSection').style.display = blankCardVisible ? 'block' : 'none';
-      document.getElementById('btnToggleBlankCard').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
-      if (blankCardVisible) renderBlankCard();
+      setBlankCardVisible(!blankCardVisible);
     });
     document.getElementById('btnToggleCaddies').addEventListener('click', () => {
       caddiesVisible = !caddiesVisible;
