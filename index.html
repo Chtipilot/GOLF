@@ -28,6 +28,10 @@
   #app .btn-secondary:hover { background:#d5e4e0; }
   #app .btn-danger { background:#b23a3a; }
   #app .btn-danger:hover { background:#8f2e2e; }
+  /* Boutons de transmission (copier/coller/recevoir) : nettement distincts visuellement du
+     reste, pour que l'action "envoyer/recevoir une carte" saute aux yeux dans la barre. */
+  #app .btn-transfer { background:#1a73e8; color:#fff; border:2px solid #0d47a1; }
+  #app .btn-transfer:hover { background:#1558b0; }
   #app input[type=number] { width:100%; border:none; text-align:center; font-size:inherit; padding:2px 0; background:transparent; -moz-appearance:textfield; }
   #app input[type=number]:focus { background:#fff3cd; outline:1px solid #1a3c34; }
   #app input[type=number]::-webkit-outer-spin-button,
@@ -554,7 +558,14 @@
   //                 récapitulatif). Les lignes sont désormais classées par ordre de classement golf
   //                 classique (meilleur score, le plus bas, en tête), avec un numéro de rang ; les
   //                 joueurs sans aucun trou rempli apparaissent en bas, sans rang, triés par nom.
-  const APP_VERSION = "SuarPark - V01.004.045";
+  //   V01.004.046 — Deux améliorations d'ergonomie demandées : 1) nouveau bouton "👥 Récapitulatif
+  //                 de l'équipe" directement dans la carte de score vierge, pour y accéder sans
+  //                 revenir en haut de page ; 2) les boutons de transmission (Copier en texte
+  //                 lisible, Coller ma carte, Recevoir la carte d'un joueur) sont désormais
+  //                 nettement distincts visuellement du reste (couleur bleue dédiée + bordure,
+  //                 regroupés sous un intitulé "📡 Transmission"), pour qu'ils sautent aux yeux par
+  //                 rapport aux boutons de gestion de la carte (Fermer, Imprimer, Effacer).
+  const APP_VERSION = "SuarPark - V01.004.046";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -650,6 +661,7 @@
       teamRecapBtnClose: "Fermer",
       teamRecapBtnPrint: "🖨️ Imprimer",
       teamRecapYou: "Toi",
+      blankCardTransferLabel: "Transmission (envoyer / recevoir une carte)",
       blankCardTitle: "📋 Carte de score vierge — SuarPark",
       blankCardIntro: "À imprimer ou à remplir directement à l'écran avant/pendant la manche.",
       blankCardBtnPrint: "🖨️ Imprimer",
@@ -870,6 +882,7 @@
       teamRecapBtnClose: "Close",
       teamRecapBtnPrint: "🖨️ Print",
       teamRecapYou: "You",
+      blankCardTransferLabel: "Transfer (send / receive a card)",
       blankCardTitle: "📋 Blank scorecard — SuarPark",
       blankCardIntro: "Print it or fill it in directly on screen before/during the round.",
       blankCardBtnPrint: "🖨️ Print",
@@ -1072,6 +1085,7 @@
       teamRecapBtnClose: "Schließen",
       teamRecapBtnPrint: "🖨️ Drucken",
       teamRecapYou: "Du",
+      blankCardTransferLabel: "Übertragung (Karte senden / empfangen)",
       blankCardTitle: "📋 Leere Scorekarte — SuarPark",
       blankCardIntro: "Zum Ausdrucken oder direkt am Bildschirm vor/während der Runde ausfüllen.",
       blankCardBtnPrint: "🖨️ Drucken",
@@ -1274,6 +1288,7 @@
       teamRecapBtnClose: "ปิด",
       teamRecapBtnPrint: "🖨️ พิมพ์",
       teamRecapYou: "คุณ",
+      blankCardTransferLabel: "การส่งข้อมูล (ส่ง / รับการ์ด)",
       blankCardTitle: "📋 การ์ดคะแนนเปล่า — SuarPark",
       blankCardIntro: "พิมพ์หรือกรอกโดยตรงบนหน้าจอ ก่อน/ระหว่างรอบการเล่น",
       blankCardBtnPrint: "🖨️ พิมพ์",
@@ -3621,11 +3636,15 @@
       <div class="toolbar no-print">
         <button class="btn btn-secondary" id="btnBlankCardClose">✕ ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
-        <button class="btn btn-secondary" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
-        <button class="btn btn-secondary" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
-        <button class="btn btn-secondary" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
-        <button class="btn btn-secondary" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
+        <button class="btn btn-secondary" id="btnToggleTeamRecapFromCard">👥 ${t('teamRecapTitle')}</button>
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
+      </div>
+      <p class="sub no-print" style="margin-top:6px; margin-bottom:2px; font-size:11px; font-weight:bold; color:#0d47a1;">📡 ${t('blankCardTransferLabel')}</p>
+      <div class="toolbar no-print">
+        <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
+        <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
+        <button class="btn btn-transfer" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
+        <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
       </div>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔗 ${t('blankCardExportImportNote')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">👥 ${t('teamRecapIntro')}</p>
@@ -3731,6 +3750,9 @@
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
     document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
+    document.getElementById('btnToggleTeamRecapFromCard').addEventListener('click', () => {
+      teamRecapSetVisible(!teamRecapVisible);
+    });
     document.getElementById('btnBlankCardClear').addEventListener('click', blankCardClear);
     document.getElementById('btnBlankCardTeeWhite').addEventListener('click', () => blankCardSetTee('white'));
     document.getElementById('btnBlankCardTeeRed').addEventListener('click', () => blankCardSetTee('red'));
