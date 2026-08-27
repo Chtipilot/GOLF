@@ -492,7 +492,11 @@
   //                 L'avancement cherche désormais d'abord le prochain trou vide en avançant depuis
   //                 le trou en cours, et ne revient chercher un trou resté vide plus tôt dans la
   //                 carte qu'une fois tous les trous suivants remplis (rattrapage).
-  const APP_VERSION = "SuarPark - V01.004.039";
+  //   V01.004.040 — Correction suite à un test réel : un caddie "Autre" saisi avec seulement un
+  //                 numéro (sans nom) produit un texte "Caddie : 9" sans le tiret bas normalement
+  //                 attendu ("numéro_nom") — ce cas légitime n'était donc pas reconnu par "📥
+  //                 Coller". Ajout d'un repli qui reconnaît aussi "Caddie : numéro" seul.
+  const APP_VERSION = "SuarPark - V01.004.040";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2744,7 +2748,8 @@
       header.tee = 'white';
     }
 
-    // Caddie : motif "numéro_nom" (ex. "19_BIBI")
+    // Caddie : motif "numéro_nom" (ex. "19_BIBI") ; repli sur "Caddie : numéro" seul,
+    // sans nom, quand un caddie "Autre" a été saisi avec juste un numéro (cas légitime).
     const caddieMatch = text.match(/(\d{1,4})_(\S+)/);
     if (caddieMatch){
       const num = caddieMatch[1];
@@ -2755,6 +2760,18 @@
         header.caddieNumber = BLANKCARD_OTHER_VALUE;
         header.caddieOtherNumber = num;
         header.caddieOtherName = caddieMatch[2];
+      }
+    } else {
+      const bareCaddieMatch = text.match(/(?:Caddie|แคดดี้)\s*:\s*(\d{1,4})\b/i);
+      if (bareCaddieMatch){
+        const num = bareCaddieMatch[1];
+        const knownCaddie = (state.caddies || []).find(c => c.number === num);
+        if (knownCaddie){
+          header.caddieNumber = num;
+        } else {
+          header.caddieNumber = BLANKCARD_OTHER_VALUE;
+          header.caddieOtherNumber = num;
+        }
       }
     }
 
