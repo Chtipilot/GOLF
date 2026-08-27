@@ -398,7 +398,11 @@
   //   V01.004.018 — Carte de score vierge : le son de victoire est allongé à environ 5 secondes
   //                 (motif montant + reprise scintillante + accord final tenu qui s'estompe), au
   //                 lieu du petit arpège de 0,3 seconde initial
-  const APP_VERSION = "SuarPark - V01.004.018";
+  //   V01.004.019 — Carte de score vierge : panneau du trou en cours réajusté pour la saisie tactile
+  //                 — texte Par/HCP/Distance agrandi (22px, gras), et les cases Score/Putt sont
+  //                 désormais aussi grosses que possible (130px de haut, chiffres à 64px) pour une
+  //                 saisie facile au gros doigt sur le parcours
+  const APP_VERSION = "SuarPark - V01.004.019";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2562,17 +2566,17 @@
           </div>
           <button type="button" id="btnBcNextHole" class="btn btn-secondary no-print" style="font-size:22px; padding:4px 16px;" ${holeIdx===17?'disabled':''}>›</button>
         </div>
-        <div style="margin-top:6px; font-size:13px; opacity:.9;">
+        <div style="margin-top:8px; font-size:22px; font-weight:bold; opacity:.95;">
           Par ${PAR[holeIdx]} · HCP ${IDX[holeIdx]} · ${distLabel}
         </div>
-        <div style="display:flex; gap:14px; justify-content:center; margin-top:14px;">
-          <div>
-            <div style="font-size:12px; opacity:.85;">${t('blankCardScoreRowLabel')}</div>
-            <input type="number" min="1" max="20" id="bcBigScore" style="width:90px; height:70px; font-size:40px; text-align:center; border-radius:8px; border:none; background:#ffffff; color:#1a3c34; font-weight:bold; -webkit-text-fill-color:#1a3c34;">
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:16px;">
+          <div style="flex:1; max-width:180px;">
+            <div style="font-size:14px; opacity:.85;">${t('blankCardScoreRowLabel')}</div>
+            <input type="number" min="1" max="20" id="bcBigScore" style="width:100%; height:130px; font-size:64px; text-align:center; border-radius:12px; border:none; background:#ffffff; color:#1a3c34; font-weight:bold; -webkit-text-fill-color:#1a3c34;">
           </div>
-          <div>
-            <div style="font-size:12px; opacity:.85;">${t('blankCardPuttRowLabel')}</div>
-            <input type="number" min="0" max="10" id="bcBigPutt" style="width:90px; height:70px; font-size:40px; text-align:center; border-radius:8px; border:none; background:#ffffff; color:#1a3c34; font-weight:bold; -webkit-text-fill-color:#1a3c34;">
+          <div style="flex:1; max-width:180px;">
+            <div style="font-size:14px; opacity:.85;">${t('blankCardPuttRowLabel')}</div>
+            <input type="number" min="0" max="10" id="bcBigPutt" style="width:100%; height:130px; font-size:64px; text-align:center; border-radius:12px; border:none; background:#ffffff; color:#1a3c34; font-weight:bold; -webkit-text-fill-color:#1a3c34;">
           </div>
         </div>
       </div>`;
