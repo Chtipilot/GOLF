@@ -496,7 +496,22 @@
   //                 numéro (sans nom) produit un texte "Caddie : 9" sans le tiret bas normalement
   //                 attendu ("numéro_nom") — ce cas légitime n'était donc pas reconnu par "📥
   //                 Coller". Ajout d'un repli qui reconnaît aussi "Caddie : numéro" seul.
-  const APP_VERSION = "SuarPark - V01.004.040";
+  //   V01.004.041 — Correction suite à un test réel : le code technique ("📤 Copier"), très long et
+  //                 sans espaces, peut être coupé par des retours à la ligne insérés par certains
+  //                 emails/apps pour respecter une largeur de ligne (ex. AOL) — même un copier-
+  //                 coller parfait du message reçu pouvait alors être rejeté ("Ce code n'est pas
+  //                 valide"). "📥 Coller un code reçu" retire désormais tout espace/retour à la
+  //                 ligne avant de décoder le code technique, ce qui corrige ce cas.
+  //   V01.004.042 — Correction majeure suite à un test réel en thaï : la reconnaissance de la
+  //                 direction du vent et de la condition météo dans "📝 Copier en texte lisible"
+  //                 dépendait des libellés traduits, qui varient par langue et peuvent même se
+  //                 contredire d'une langue à l'autre (ex. "NO" = Nord-Ouest en français, mais
+  //                 Nord-Est en allemand), et sont illisibles en thaï (écriture non-latine) pour le
+  //                 reconnaisseur. Le texte copié inclut désormais un code technique non traduit
+  //                 entre crochets (ex. "[NE]", "[sun]"), invisible à l'usage mais toujours fiable,
+  //                 quelle que soit la langue de l'expéditeur ou du destinataire. Repli sur
+  //                 l'ancienne méthode (flèche/mot) pour les messages envoyés avant cette version.
+  const APP_VERSION = "SuarPark - V01.004.042";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2645,11 +2660,17 @@
     const windDirSel = section.querySelector('[data-field="weatherWindDir"]');
     const condSel = section.querySelector('[data-field="weatherCondition"]');
     const windDirText = (windDirSel && windDirSel.selectedIndex >= 0) ? windDirSel.options[windDirSel.selectedIndex].text : '';
+    const windDirCode = windDirSel ? windDirSel.value : '';
     const condText = (condSel && condSel.selectedIndex >= 0) ? condSel.options[condSel.selectedIndex].text : '';
+    const condCode = condSel ? condSel.value : '';
     const weatherParts = [];
     if (h.weatherTemp !== "") weatherParts.push(`${h.weatherTemp}°C`);
-    if (h.weatherWind !== "") weatherParts.push(`${h.weatherWind} km/h${windDirText ? ' ' + windDirText : ''}`);
-    if (condText) weatherParts.push(condText);
+    // Le code interne (N/NE/E...) est ajouté entre crochets, non traduit, en repère fiable :
+    // les libellés affichés varient selon la langue et peuvent même se contredire d'une langue
+    // à l'autre (ex. "NO" = Nord-Ouest en français, mais Nord-Est en allemand), et le thaï
+    // utilise une écriture non-latine totalement différente.
+    if (h.weatherWind !== "") weatherParts.push(`${h.weatherWind} km/h${windDirText ? ' ' + windDirText : ''}${windDirCode ? ' [' + windDirCode + ']' : ''}`);
+    if (condText) weatherParts.push(`${condText}${condCode ? ' [' + condCode + ']' : ''}`);
 
     const scoresOut = draft.scores.slice(0,9).map(s => s || '–').join(' ');
     const scoresIn = draft.scores.slice(9,18).map(s => s || '–').join(' ');
@@ -2775,27 +2796,44 @@
       }
     }
 
-    // Météo : température, vent, direction (flèche), condition (émoji)
+    // Météo : température, vent, direction, condition.
     const tempMatch = text.match(/(-?\d+(?:[.,]\d+)?)\s*°C/);
     if (tempMatch) header.weatherTemp = tempMatch[1].replace(',', '.');
     const windMatch = text.match(/(\d+(?:[.,]\d+)?)\s*km\/h/);
     if (windMatch) header.weatherWind = windMatch[1].replace(',', '.');
-    const dirArrows = {'↑':'N','↗':'NE','→':'E','↘':'SE','↓':'S','↙':'SW','←':'W','↖':'NW'};
-    for (const arrow in dirArrows){
-      if (text.indexOf(arrow) !== -1){ header.weatherWindDir = dirArrows[arrow]; break; }
+
+    // Priorité au code technique entre crochets (ex. "[NE]"), non traduit et sans ambiguïté :
+    // les libellés affichés (flèche, mot) varient selon la langue et peuvent même se
+    // contredire d'une langue à l'autre (ex. "NO" = Nord-Ouest en français, Nord-Est en
+    // allemand), et le thaï utilise une écriture non-latine totalement différente. Repli sur
+    // la flèche/le mot pour les messages envoyés avant l'ajout de ce code (compatibilité).
+    const VALID_WIND_DIRS = ['N','NE','E','SE','S','SW','W','NW'];
+    const dirBracketMatch = text.match(/\[(N|NE|E|SE|S|SW|W|NW)\]/);
+    if (dirBracketMatch && VALID_WIND_DIRS.includes(dirBracketMatch[1])){
+      header.weatherWindDir = dirBracketMatch[1];
+    } else {
+      const dirArrows = {'↑':'N','↗':'NE','→':'E','↘':'SE','↓':'S','↙':'SW','←':'W','↖':'NW'};
+      for (const arrow in dirArrows){
+        if (text.indexOf(arrow) !== -1){ header.weatherWindDir = dirArrows[arrow]; break; }
+      }
+      if (!header.weatherWindDir){
+        // Repli supplémentaire (messages français/anglais anciens, sans code entre crochets) :
+        // l'app affichait SO/O/NO (abréviations françaises) pour SW/W/NW.
+        const dirCodeMap = {NE:'NE', NW:'NW', SE:'SE', SW:'SW', SO:'SW', NO:'NW', N:'N', E:'E', S:'S', W:'W', O:'W'};
+        const dirCodeMatch = text.match(/km\/h\s*(?:[↑↗→↘↓↙←↖]\s*)?\b(NE|NW|SE|SW|SO|NO|N|E|S|W|O)\b/);
+        if (dirCodeMatch) header.weatherWindDir = dirCodeMap[dirCodeMatch[1]];
+      }
     }
-    if (!header.weatherWindDir){
-      // Repli si la flèche a été dégradée/perdue par une app tierce : le code
-      // (N, NE, E...) est toujours écrit juste à côté dans le texte d'origine. Attention :
-      // l'app affiche SO/O/NO (abréviations françaises) pour SW/W/NW, quelle que soit la
-      // langue de l'interface — on reconnaît donc les deux formes, la française en priorité.
-      const dirCodeMap = {NE:'NE', NW:'NW', SE:'SE', SW:'SW', SO:'SW', NO:'NW', N:'N', E:'E', S:'S', W:'W', O:'W'};
-      const dirCodeMatch = text.match(/km\/h\s*(?:[↑↗→↘↓↙←↖]\s*)?\b(NE|NW|SE|SW|SO|NO|N|E|S|W|O)\b/);
-      if (dirCodeMatch) header.weatherWindDir = dirCodeMap[dirCodeMatch[1]];
-    }
-    const condEmojis = {'☀️':'sun','🌤️':'partly_cloudy','☁️':'cloudy','🌥️':'overcast','🌦️':'rain_shower','🌧️':'rain','⛈️':'storm'};
-    for (const emoji in condEmojis){
-      if (text.indexOf(emoji) !== -1){ header.weatherCondition = condEmojis[emoji]; break; }
+
+    const VALID_CONDITIONS = ['sun','partly_cloudy','cloudy','overcast','rain_shower','rain','storm'];
+    const condBracketMatch = text.match(/\[(sun|partly_cloudy|cloudy|overcast|rain_shower|rain|storm)\]/);
+    if (condBracketMatch && VALID_CONDITIONS.includes(condBracketMatch[1])){
+      header.weatherCondition = condBracketMatch[1];
+    } else {
+      const condEmojis = {'☀️':'sun','🌤️':'partly_cloudy','☁️':'cloudy','🌥️':'overcast','🌦️':'rain_shower','🌧️':'rain','⛈️':'storm'};
+      for (const emoji in condEmojis){
+        if (text.indexOf(emoji) !== -1){ header.weatherCondition = condEmojis[emoji]; break; }
+      }
     }
 
     // Lignes de scores/putts trou par trou : toutes les lignes contenant "|",
@@ -2829,7 +2867,12 @@
     if (!trimmed) return false;
     let draft = null;
     try {
-      const parsed = JSON.parse(decodeURIComponent(escape(atob(trimmed))));
+      // Les emails et certaines apps insèrent parfois des retours à la ligne ou espaces à
+      // l'intérieur d'un très long code technique (pas d'espace normalement dans du base64),
+      // pour respecter une largeur de ligne maximale. On les retire avant de décoder, sinon
+      // un copier-coller pourtant complet et correct peut être rejeté à tort.
+      const cleaned = trimmed.replace(/\s+/g, '');
+      const parsed = JSON.parse(decodeURIComponent(escape(atob(cleaned))));
       if (parsed && parsed.scores) draft = parsed;
     } catch(e){ /* pas le format technique : on essaie le texte lisible ci-dessous */ }
     if (!draft){
