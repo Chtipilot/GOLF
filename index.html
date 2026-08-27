@@ -281,7 +281,9 @@
   //                 caddie 41 ; 3e putt du trou 3 corrigé de 11 à 1, erreur de saisie) ; météo
   //                 26/08/2026 ajoutée (34°C, vent 15 km/h SO, peu nuageux) ; correction rétroactive
   //                 des départs de SANDY (16/04 et 22/07/2026 étaient en réalité en Blanc, pas Rouge)
-  const APP_VERSION = "SuarPark - V01.004.003";
+  //   V01.004.004 — Faits marquants : les cartes "Vainqueur du jour (score)" et "Vainqueur du jour
+  //                 (putts)" sont désormais affichées en 1ère et 2e position de la liste
+  const APP_VERSION = "SuarPark - V01.004.004";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1928,21 +1930,8 @@
 
     let html = `<h3>${t('insightsTitle')}</h3><p class="sub" style="margin-top:2px;">${t('insightsIntro')}</p>`;
 
-    if (best) html += card(t('insightBestRoundEver'), `${best.name} — ${best.tot} (${best.date})`, colorFor(best.name));
-    if (worst) html += card(t('insightWorstRoundEver'), `${worst.name} — ${worst.tot} (${worst.date})`, colorFor(worst.name));
-    if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
-    if (biggestImprovement && biggestImprovement.improvement > 0) html += card(t('insightBiggestImprovement'), t('insightImprovementDesc', biggestImprovement.name, biggestImprovement.from, biggestImprovement.to), colorFor(biggestImprovement.name));
-    if (holeCounts[hardestHole] > 0) html += card(t('insightHardestHole'), t('insightHoleDesc', hardestHole+1, PAR[hardestHole], holeAvgs[hardestHole].toFixed(1)), '#DC3545');
-    if (holeCounts[easiestHole] > 0) html += card(t('insightEasiestHole'), t('insightHoleDesc', easiestHole+1, PAR[easiestHole], holeAvgs[easiestHole].toFixed(1)), '#28a745');
-    if (hotStreak) html += card(t('insightHotStreak'), t('insightHotStreakDesc', hotStreak.name, hotStreak.avg), colorFor(hotStreak.name));
-    if (mostRounds) html += card(t('insightMostRounds'), t('insightMostRoundsDesc', mostRounds.name, mostRounds.count), colorFor(mostRounds.name));
-
-    // Coût total en bahts : total équipe d'abord, puis détail par joueur (green fee + golfcar + caddie : 1000 ฿, 800 ฿ les lundis/mercredis)
-    const teamCostTotal = players.reduce((sum, name) => sum + computeCostBaht(name), 0);
-    const costLines = players.map(name => `${name} : ${computeCostBaht(name).toLocaleString('fr-FR')} ฿`).join(' · ');
-    html += card(t('costTotalTitle'), t('costTotalDesc', teamCostTotal.toLocaleString('fr-FR'), costLines), '#B8860B');
-
     // Vainqueur du jour (score et putts) : sur la date la plus récente parmi toutes les manches enregistrées
+    // Affiché en premier (score) et deuxième (putts) dans la liste des faits marquants.
     let latestDate = null;
     players.forEach(name => {
       state.history[name].forEach(([date]) => {
@@ -1965,6 +1954,20 @@
       if (dayScoreWinner) html += card(t('insightDayWinnerScore'), t('insightDayWinnerScoreDesc', dayScoreWinner.name, dayScoreWinner.tot, latestDate), colorFor(dayScoreWinner.name));
       if (dayPuttsWinner) html += card(t('insightDayWinnerPutts'), t('insightDayWinnerPuttsDesc', dayPuttsWinner.name, dayPuttsWinner.tot, latestDate), colorFor(dayPuttsWinner.name));
     }
+
+    if (best) html += card(t('insightBestRoundEver'), `${best.name} — ${best.tot} (${best.date})`, colorFor(best.name));
+    if (worst) html += card(t('insightWorstRoundEver'), `${worst.name} — ${worst.tot} (${worst.date})`, colorFor(worst.name));
+    if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
+    if (biggestImprovement && biggestImprovement.improvement > 0) html += card(t('insightBiggestImprovement'), t('insightImprovementDesc', biggestImprovement.name, biggestImprovement.from, biggestImprovement.to), colorFor(biggestImprovement.name));
+    if (holeCounts[hardestHole] > 0) html += card(t('insightHardestHole'), t('insightHoleDesc', hardestHole+1, PAR[hardestHole], holeAvgs[hardestHole].toFixed(1)), '#DC3545');
+    if (holeCounts[easiestHole] > 0) html += card(t('insightEasiestHole'), t('insightHoleDesc', easiestHole+1, PAR[easiestHole], holeAvgs[easiestHole].toFixed(1)), '#28a745');
+    if (hotStreak) html += card(t('insightHotStreak'), t('insightHotStreakDesc', hotStreak.name, hotStreak.avg), colorFor(hotStreak.name));
+    if (mostRounds) html += card(t('insightMostRounds'), t('insightMostRoundsDesc', mostRounds.name, mostRounds.count), colorFor(mostRounds.name));
+
+    // Coût total en bahts : total équipe d'abord, puis détail par joueur (green fee + golfcar + caddie : 1000 ฿, 800 ฿ les lundis/mercredis)
+    const teamCostTotal = players.reduce((sum, name) => sum + computeCostBaht(name), 0);
+    const costLines = players.map(name => `${name} : ${computeCostBaht(name).toLocaleString('fr-FR')} ฿`).join(' · ');
+    html += card(t('costTotalTitle'), t('costTotalDesc', teamCostTotal.toLocaleString('fr-FR'), costLines), '#B8860B');
 
     html += card(t('insightTeamTotal'), t('insightTeamTotalDesc', totalRounds), '#1a3c34');
 
