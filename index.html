@@ -485,7 +485,14 @@
   //                 (caractères ASCII simples, insensibles aux dégradations de transmission
   //                 observées avec certains émojis) avant et après le bloc SuarPark_début/Fin, pour
   //                 le signaler clairement d'un coup d'œil dans une conversation Messenger/LINE.
-  const APP_VERSION = "SuarPark - V01.004.038";
+  //   V01.004.039 — Correction : carte de score vierge, panneau tactile du trou en cours. Après
+  //                 avoir saisi Score + Putt, l'avancement automatique proposait le premier trou
+  //                 vide depuis le trou 1 — donc si la carte était démarrée à un autre trou que le
+  //                 1 (ex. trou 10), le trou suivant proposé était erroné (ex. 2 au lieu de 11).
+  //                 L'avancement cherche désormais d'abord le prochain trou vide en avançant depuis
+  //                 le trou en cours, et ne revient chercher un trou resté vide plus tôt dans la
+  //                 carte qu'une fois tous les trous suivants remplis (rattrapage).
+  const APP_VERSION = "SuarPark - V01.004.039";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2914,6 +2921,17 @@
     return 17;
   }
 
+  // Trou vide suivant après le trou h (utilisé pour l'avancement automatique après saisie) :
+  // cherche d'abord en avançant (h+1 → 17), pour proposer naturellement le trou suivant
+  // même si la carte a été commencée en cours de route (ex. départ au trou 10). Si tous les
+  // trous suivants sont déjà remplis, revient chercher un trou resté vide plus tôt dans la
+  // carte (0 → h-1), pour permettre de rattraper des trous sautés.
+  function blankCardNextHoleAfter(scores, h){
+    for (let i = h + 1; i < 18; i++){ if (!scores[i]) return i; }
+    for (let i = 0; i < h; i++){ if (!scores[i]) return i; }
+    return 17;
+  }
+
   function blankCardReadScoresPutts(){
     const section = document.getElementById('blankCardSection');
     const scores = Array(18).fill("");
@@ -3061,7 +3079,7 @@
     if (h !== blankCardFocusHole) return;
     const {scores, putts} = blankCardReadScoresPutts();
     if (scores[h] !== "" && putts[h] !== ""){
-      const next = blankCardFirstEmptyHole(scores);
+      const next = blankCardNextHoleAfter(scores, h);
       if (next !== blankCardFocusHole){
         blankCardFocusHole = next;
         blankCardRefreshBigPanel();
