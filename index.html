@@ -352,7 +352,14 @@
   //   V01.004.009 — Carte de score vierge : les 5 premières lignes de score sont désormais
   //                 pré-remplies par défaut avec les joueurs de l'équipe (ALAN, LOUIS, MARCUS,
   //                 PATRICK, SANDY), 6e ligne laissée vide pour un invité ; noms restent modifiables
-  const APP_VERSION = "SuarPark - V01.004.009";
+  //   V01.004.010 — Carte de score vierge : refonte en carte INDIVIDUELLE (un seul joueur à la fois).
+  //                 "Player's Name" devient une liste déroulante (ALAN/LOUIS/MARCUS/PATRICK/SANDY +
+  //                 option "Autre" avec nom libre pour un invité) au lieu de 6 lignes collectives.
+  //                 Le tableau affiche désormais une ligne "Score" (18 trous, coloration par rapport
+  //                 au par) et juste en dessous une ligne "↳ Putt" (18 trous), chacune avec son
+  //                 propre total Out/In/Tot calculé automatiquement. Export/Import de code inchangés,
+  //                 pour l'échange de cette carte individuelle avec d'autres joueurs.
+  const APP_VERSION = "SuarPark - V01.004.010";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -457,6 +464,11 @@
       blankCardPlayerSignature: "Player's Signature :",
       blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "Plan du parcours",
+      blankCardChoosePlayer: "-- Choisir --",
+      blankCardOtherPlayer: "Autre (invité)",
+      blankCardOtherPlayerName: "Nom de l'invité :",
+      blankCardScoreRowLabel: "Score",
+      blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Comparaison Rouge / Blanc",
       teeCompareSubtitle: "Statistiques par joueur, selon le départ réellement joué (voir le repère de couleur ⚪/🔴 dans le tableau ou l'historique).",
       teeCompareRounds: "Manches",
@@ -632,6 +644,11 @@
       blankCardPlayerSignature: "Player's Signature :",
       blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "Course layout",
+      blankCardChoosePlayer: "-- Choose --",
+      blankCardOtherPlayer: "Other (guest)",
+      blankCardOtherPlayerName: "Guest name:",
+      blankCardScoreRowLabel: "Score",
+      blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Red / White comparison",
       teeCompareSubtitle: "Per-player stats, by tee actually played (see the ⚪/🔴 color marker in the table or in history).",
       teeCompareRounds: "Rounds",
@@ -789,6 +806,11 @@
       blankCardPlayerSignature: "Player's Signature :",
       blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "Platzplan",
+      blankCardChoosePlayer: "-- Auswählen --",
+      blankCardOtherPlayer: "Andere (Gast)",
+      blankCardOtherPlayerName: "Name des Gastes:",
+      blankCardScoreRowLabel: "Score",
+      blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Vergleich Rot / Weiß",
       teeCompareSubtitle: "Statistik pro Spieler, nach tatsächlich gespieltem Abschlag (siehe Farbmarkierung ⚪/🔴 in der Tabelle oder im Verlauf).",
       teeCompareRounds: "Runden",
@@ -946,6 +968,11 @@
       blankCardPlayerSignature: "Player's Signature :",
       blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "แผนผังสนาม",
+      blankCardChoosePlayer: "-- เลือก --",
+      blankCardOtherPlayer: "อื่นๆ (แขก)",
+      blankCardOtherPlayerName: "ชื่อแขก:",
+      blankCardScoreRowLabel: "สกอร์",
+      blankCardPuttRowLabel: "↳ พัตต์",
       teeCompareTitle: "🔴⚪ เปรียบเทียบ ทีแดง / ทีขาว",
       teeCompareSubtitle: "สถิติต่อผู้เล่น ตามทีออกที่เล่นจริง (ดูสัญลักษณ์สี ⚪/🔴 ในตารางหรือในประวัติ)",
       teeCompareRounds: "จำนวนรอบ",
@@ -2228,16 +2255,16 @@
       </div>`;
   }
 
-  const BLANKCARD_ROWS = 6; // nombre de lignes de score vierges (joueurs) proposées
   const BLANKCARD_DRAFT_KEY = "suarpark-blankcard-draft";
-  const BLANKCARD_HEADER_FIELDS = ["playerName","date","time","hcp","group","playerSignature","markerSignature"];
-  const BLANKCARD_DEFAULT_NAMES = ["ALAN","LOUIS","MARCUS","PATRICK","SANDY"]; // 6e ligne laissée vide (invité)
+  const BLANKCARD_HEADER_FIELDS = ["playerName","playerNameOther","date","time","hcp","group","playerSignature","markerSignature"];
+  const BLANKCARD_OTHER_VALUE = "__OTHER__";
 
   function blankCardEmptyDraft(){
     return {
       header: Object.fromEntries(BLANKCARD_HEADER_FIELDS.map(f => [f, ""])),
       showBlackBlue: false,
-      rows: Array.from({length: BLANKCARD_ROWS}, (_, i) => ({name: BLANKCARD_DEFAULT_NAMES[i] || "", scores: Array(18).fill("")}))
+      scores: Array(18).fill(""),
+      putts: Array(18).fill("")
     };
   }
 
@@ -2250,7 +2277,8 @@
       return {
         header: Object.assign(empty.header, parsed.header || {}),
         showBlackBlue: !!parsed.showBlackBlue,
-        rows: (parsed.rows && parsed.rows.length === BLANKCARD_ROWS) ? parsed.rows : empty.rows
+        scores: (parsed.scores && parsed.scores.length === 18) ? parsed.scores : empty.scores,
+        putts: (parsed.putts && parsed.putts.length === 18) ? parsed.putts : empty.putts
       };
     } catch(e){ return blankCardEmptyDraft(); }
   }
@@ -2270,16 +2298,11 @@
       const el = section.querySelector(`[data-field="${f}"]`);
       header[f] = el ? el.value : "";
     });
-    const rows = [];
-    for (let r = 0; r < BLANKCARD_ROWS; r++){
-      const nameEl = section.querySelector(`input[data-blankrow="${r}"][data-blanktype="name"]`);
-      const scores = Array(18).fill("");
-      section.querySelectorAll(`input[data-blankrow="${r}"][data-blanktype="score"]`).forEach(inp => {
-        scores[Number(inp.dataset.hole)] = inp.value;
-      });
-      rows.push({name: nameEl ? nameEl.value : "", scores});
-    }
-    return {header, showBlackBlue: blankCardShowBlackBlue, rows};
+    const scores = Array(18).fill("");
+    section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => { scores[Number(inp.dataset.hole)] = inp.value; });
+    const putts = Array(18).fill("");
+    section.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => { putts[Number(inp.dataset.hole)] = inp.value; });
+    return {header, showBlackBlue: blankCardShowBlackBlue, scores, putts};
   }
 
   function persistBlankCardDraft(){
@@ -2292,14 +2315,22 @@
       const el = section.querySelector(`[data-field="${f}"]`);
       if (el) el.value = draft.header[f] || "";
     });
-    draft.rows.forEach((row, r) => {
-      const nameEl = section.querySelector(`input[data-blankrow="${r}"][data-blanktype="name"]`);
-      if (nameEl) nameEl.value = row.name || "";
-      section.querySelectorAll(`input[data-blankrow="${r}"][data-blanktype="score"]`).forEach(inp => {
-        inp.value = row.scores[Number(inp.dataset.hole)] || "";
-      });
-      blankCardComputeRow(r);
+    blankCardUpdateOtherNameVisibility();
+    section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
+      inp.value = draft.scores[Number(inp.dataset.hole)] || "";
     });
+    section.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => {
+      inp.value = draft.putts[Number(inp.dataset.hole)] || "";
+    });
+    blankCardComputeTotals();
+  }
+
+  function blankCardUpdateOtherNameVisibility(){
+    const section = document.getElementById('blankCardSection');
+    const select = section.querySelector('[data-field="playerName"]');
+    const otherWrap = document.getElementById('blankCardOtherNameWrap');
+    if (!select || !otherWrap) return;
+    otherWrap.style.display = select.value === BLANKCARD_OTHER_VALUE ? 'flex' : 'none';
   }
 
   function blankCardExport(){
@@ -2318,12 +2349,13 @@
     if (!code) return;
     try {
       const draft = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
-      if (!draft || !draft.rows) throw new Error('format invalide');
+      if (!draft || !draft.scores) throw new Error('format invalide');
       const empty = blankCardEmptyDraft();
       const merged = {
         header: Object.assign(empty.header, draft.header || {}),
         showBlackBlue: !!draft.showBlackBlue,
-        rows: (draft.rows.length === BLANKCARD_ROWS) ? draft.rows : empty.rows
+        scores: (draft.scores.length === 18) ? draft.scores : empty.scores,
+        putts: (draft.putts && draft.putts.length === 18) ? draft.putts : empty.putts
       };
       saveBlankCardDraft(merged);
       blankCardShowBlackBlue = merged.showBlackBlue;
@@ -2341,17 +2373,37 @@
     renderBlankCard();
   }
 
-  function blankCardComputeRow(rowIdx){
-    const inputs = document.querySelectorAll(`input[data-blankrow="${rowIdx}"][data-blanktype="score"]`);
+  function blankCardComputeTotals(){
+    const section = document.getElementById('blankCardSection');
+    if (!section) return;
     const scores = Array(18).fill("");
-    inputs.forEach(inp => { scores[Number(inp.dataset.hole)] = inp.value; });
+    section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
+      const h = Number(inp.dataset.hole);
+      scores[h] = inp.value;
+      if (inp.value === ""){
+        inp.style.background = "";
+      } else {
+        const {bg} = scoreColor(inp.value, h);
+        inp.style.background = bg;
+      }
+    });
     const {out, inn, tot} = computeOutInTot(scores);
-    const outEl = document.getElementById(`bcOut-${rowIdx}`);
-    const inEl = document.getElementById(`bcIn-${rowIdx}`);
-    const totEl = document.getElementById(`bcTot-${rowIdx}`);
+    const outEl = document.getElementById('bcOut');
+    const inEl = document.getElementById('bcIn');
+    const totEl = document.getElementById('bcTot');
     if (outEl) outEl.textContent = out || "";
     if (inEl) inEl.textContent = inn || "";
     if (totEl) totEl.textContent = tot || "";
+
+    const putts = [];
+    section.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => putts.push(inp.value));
+    const {out: pOut, inn: pIn, tot: pTot} = computeOutInTot(putts);
+    const pOutEl = document.getElementById('bcPuttOut');
+    const pInEl = document.getElementById('bcPuttIn');
+    const pTotEl = document.getElementById('bcPuttTot');
+    if (pOutEl) pOutEl.textContent = pOut || "";
+    if (pInEl) pInEl.textContent = pIn || "";
+    if (pTotEl) pTotEl.textContent = pTot || "";
   }
 
   function blankCardTeeRow(label, dist, bg, fg, hideClass){
@@ -2386,19 +2438,33 @@
       <th>HCP</th>${IDX.map(i=>`<th>${i}</th>`).join("")}<th colspan="3"></th>
     </tr>`;
 
-    let scoreRows = "";
-    for (let r = 0; r < BLANKCARD_ROWS; r++){
-      const holeCells = Array.from({length:18}, (_,h) =>
-        `<td style="padding:2px;"><input type="number" min="1" max="20" class="blankcard-score-input" data-blankrow="${r}" data-blanktype="score" data-hole="${h}"></td>`
-      ).join("");
-      scoreRows += `<tr style="background:${r%2===0?'#ffffff':'#f4f7f6'};">
-        <td style="padding:2px;"><input type="text" class="blankcard-name-input" placeholder="${t('thPlayer')}" data-blankrow="${r}" data-blanktype="name"></td>
-        ${holeCells}
-        <td style="font-weight:bold; background:#e8f0ee;" id="bcOut-${r}"></td>
-        <td style="font-weight:bold; background:#e8f0ee;" id="bcIn-${r}"></td>
-        <td style="font-weight:bold; background:#e8f0ee;" id="bcTot-${r}"></td>
+    const scoreHoleCells = Array.from({length:18}, (_,h) =>
+      `<td style="padding:2px;"><input type="number" min="1" max="20" class="blankcard-score-input" data-blanktype="score" data-hole="${h}"></td>`
+    ).join("");
+    const puttHoleCells = Array.from({length:18}, (_,h) =>
+      `<td style="padding:2px;"><input type="number" min="0" max="10" class="blankcard-score-input" data-blanktype="putt" data-hole="${h}"></td>`
+    ).join("");
+
+    const scoreRows = `
+      <tr style="background:#ffffff;">
+        <td style="text-align:left; padding-left:4px; font-weight:bold;">${t('blankCardScoreRowLabel')}</td>
+        ${scoreHoleCells}
+        <td style="font-weight:bold; background:#e8f0ee;" id="bcOut"></td>
+        <td style="font-weight:bold; background:#e8f0ee;" id="bcIn"></td>
+        <td style="font-weight:bold; background:#e8f0ee;" id="bcTot"></td>
+      </tr>
+      <tr style="background:#f4f7f6;">
+        <td style="text-align:left; padding-left:4px; color:#666; font-size:11px;">${t('blankCardPuttRowLabel')}</td>
+        ${puttHoleCells}
+        <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttOut"></td>
+        <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttIn"></td>
+        <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttTot"></td>
       </tr>`;
-    }
+
+    const playerOptions = [`<option value="">${t('blankCardChoosePlayer')}</option>`]
+      .concat(state.players.map(p => `<option value="${p}">${p}</option>`))
+      .concat([`<option value="${BLANKCARD_OTHER_VALUE}">${t('blankCardOtherPlayer')}</option>`])
+      .join("");
 
     container.innerHTML = `
       <h3>${t('blankCardTitle')}</h3>
@@ -2414,7 +2480,14 @@
       </div>
 
       <div class="blankcard-header-row" style="margin-top:10px;">
-        <div class="blankcard-header-cell" style="flex-basis:100%;"><label>${t('blankCardPlayerName')}</label><input type="text" class="blankcard-field" data-field="playerName"></div>
+        <div class="blankcard-header-cell" style="flex-basis:48%;">
+          <label>${t('blankCardPlayerName')}</label>
+          <select class="blankcard-field" data-field="playerName" style="width:100%;">${playerOptions}</select>
+        </div>
+        <div class="blankcard-header-cell" id="blankCardOtherNameWrap" style="flex-basis:48%; display:none;">
+          <label>${t('blankCardOtherPlayerName')}</label>
+          <input type="text" class="blankcard-field" data-field="playerNameOther">
+        </div>
       </div>
       <div class="blankcard-header-row">
         <div class="blankcard-header-cell"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
@@ -2478,17 +2551,22 @@
     document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
     document.getElementById('btnBlankCardClear').addEventListener('click', blankCardClear);
 
-    container.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
-      inp.addEventListener('input', () => { blankCardComputeRow(Number(inp.dataset.blankrow)); persistBlankCardDraft(); });
+    container.querySelector('[data-field="playerName"]').addEventListener('change', () => {
+      blankCardUpdateOtherNameVisibility();
+      persistBlankCardDraft();
     });
-    container.querySelectorAll('input[data-blanktype="name"]').forEach(inp => {
-      inp.addEventListener('input', persistBlankCardDraft);
+    container.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
+      inp.addEventListener('input', () => { blankCardComputeTotals(); persistBlankCardDraft(); });
+    });
+    container.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => {
+      inp.addEventListener('input', () => { blankCardComputeTotals(); persistBlankCardDraft(); });
     });
     container.querySelectorAll('[data-field]').forEach(inp => {
       inp.addEventListener('input', persistBlankCardDraft);
     });
 
-    if (draft.header && Object.values(draft.header).some(v => v) || draft.rows.some(r => r.name || r.scores.some(s => s))){
+    const hasData = Object.values(draft.header).some(v => v) || draft.scores.some(s => s) || draft.putts.some(s => s);
+    if (hasData){
       const stamp = document.getElementById('blankCardSaveStamp');
       if (stamp) stamp.textContent = t('blankCardLastSaved', new Date().toLocaleTimeString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'}));
     }
