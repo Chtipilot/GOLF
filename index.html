@@ -565,7 +565,13 @@
   //                 nettement distincts visuellement du reste (couleur bleue dédiée + bordure,
   //                 regroupés sous un intitulé "📡 Transmission"), pour qu'ils sautent aux yeux par
   //                 rapport aux boutons de gestion de la carte (Fermer, Imprimer, Effacer).
-  const APP_VERSION = "SuarPark - V01.004.046";
+  //   V01.004.047 — Ajustements suite à retour : le bouton "👥 Récapitulatif de l'équipe" est
+  //                 déplacé au plus près du tableau de score lui-même (juste au-dessus, pleine
+  //                 largeur) et nettement agrandi (gros bouton bleu), pour être impossible à
+  //                 manquer pendant la saisie. Les 3 boutons de transmission sont désormais
+  //                 regroupés dans un vrai cadre visuel dédié (encadré avec le titre "Transmission"),
+  //                 plutôt qu'un simple intitulé au-dessus d'eux.
+  const APP_VERSION = "SuarPark - V01.004.047";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3636,16 +3642,17 @@
       <div class="toolbar no-print">
         <button class="btn btn-secondary" id="btnBlankCardClose">✕ ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
-        <button class="btn btn-secondary" id="btnToggleTeamRecapFromCard">👥 ${t('teamRecapTitle')}</button>
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
-      <p class="sub no-print" style="margin-top:6px; margin-bottom:2px; font-size:11px; font-weight:bold; color:#0d47a1;">📡 ${t('blankCardTransferLabel')}</p>
-      <div class="toolbar no-print">
-        <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
-        <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
-        <button class="btn btn-transfer" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
-        <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
-      </div>
+      <fieldset class="no-print" style="border:2px solid #0d47a1; border-radius:8px; padding:10px 12px 12px; margin-top:10px;">
+        <legend style="font-size:12px; font-weight:bold; color:#0d47a1; padding:0 6px;">📡 ${t('blankCardTransferLabel')}</legend>
+        <div class="toolbar" style="margin:0;">
+          <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
+        </div>
+      </fieldset>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔗 ${t('blankCardExportImportNote')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">👥 ${t('teamRecapIntro')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔄 ${t('blankCardRotateHint')}</p>
@@ -3689,6 +3696,8 @@
       </div>
 
       <hr style="border:none; border-top:2px solid #1a3c34; margin:16px 0 14px 0;">
+
+      <button class="btn no-print" id="btnToggleTeamRecapFromCard" style="display:block; width:100%; font-size:18px; padding:14px 10px; background:#0d47a1; border:3px solid #0a3880; margin-bottom:14px;">👥 ${t('teamRecapTitle')}</button>
 
       <h3 style="margin:0 0 4px 0; color:#1a3c34;">⛳ ${t('blankCardScorecardSectionTitle')}</h3>
 
