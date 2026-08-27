@@ -403,7 +403,11 @@
   //   V01.004.024 — Le bouton "📋 Carte de score vierge" est remonté dans la barre du haut, juste
   //                 à côté du sélecteur de langue, au lieu d'être en bas avec les autres boutons
   //                 d'affichage (Caddies, Historique, Éclectique, etc.)
-  const APP_VERSION = "SuarPark - V01.004.024";
+  //   V01.004.025 — Carte de score vierge : une fois le départ (WHITE/RED) verrouillé après le 1er
+  //                 score saisi, le bouton et la ligne de distances du départ non joué sont
+  //                 désormais masqués (au lieu d'être simplement grisés), pour ne plus afficher de
+  //                 référence au parcours non utilisé pour la manche en cours.
+  const APP_VERSION = "SuarPark - V01.004.025";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2510,10 +2514,10 @@
     if (pTotEl) pTotEl.textContent = pTot || "";
   }
 
-  function blankCardTeeRow(label, dist, bg, fg, hideClass){
+  function blankCardTeeRow(label, dist, bg, fg, rowId){
     const out = dist.slice(0,9).reduce((a,b)=>a+b,0);
     const inn = dist.slice(9,18).reduce((a,b)=>a+b,0);
-    return `<tr class="${hideClass || ''}" style="background:${bg}; color:${fg}; font-weight:bold;">
+    return `<tr${rowId ? ` id="${rowId}"` : ''} style="background:${bg}; color:${fg}; font-weight:bold;">
       <th style="background:${bg}; color:${fg};">${label}</th>
       ${dist.map(d=>`<td style="background:${bg}; color:${fg};">${d}</td>`).join("")}
       <td style="background:${bg}; color:${fg};">${out}</td><td style="background:${bg}; color:${fg};">${inn}</td><td style="background:${bg}; color:${fg};">${out+inn}</td>
@@ -2564,6 +2568,27 @@
     if (btnW){ btnW.style.background = val === 'white' ? '#1a3c34' : ''; btnW.style.color = val === 'white' ? '#fff' : ''; btnW.disabled = started; }
     if (btnR){ btnR.style.background = val === 'red' ? '#DC3545' : ''; btnR.style.color = val === 'red' ? '#fff' : ''; btnR.disabled = started; }
     if (note) note.style.display = started ? 'block' : 'none';
+
+    // Une fois le départ verrouillé (1er score saisi), on ne montre plus le bouton
+    // ni la ligne de distances du départ non joué.
+    const rowW = document.getElementById('blankCardTeeRowWhite');
+    const rowR = document.getElementById('blankCardTeeRowRed');
+    if (started && val === 'white'){
+      if (btnR) btnR.style.display = 'none';
+      if (rowR) rowR.style.display = 'none';
+      if (btnW) btnW.style.display = '';
+      if (rowW) rowW.style.display = '';
+    } else if (started && val === 'red'){
+      if (btnW) btnW.style.display = 'none';
+      if (rowW) rowW.style.display = 'none';
+      if (btnR) btnR.style.display = '';
+      if (rowR) rowR.style.display = '';
+    } else {
+      if (btnW) btnW.style.display = '';
+      if (btnR) btnR.style.display = '';
+      if (rowW) rowW.style.display = '';
+      if (rowR) rowR.style.display = '';
+    }
   }
 
   function blankCardBigPanelHTML(holeIdx, tee){
@@ -2843,8 +2868,8 @@
             ${idxRow}
           </thead>
           <tbody id="blankCardTeeRows">
-            ${blankCardTeeRow('WHITE', DIST_WHITE, '#ffffff', '#1a1a1a')}
-            ${blankCardTeeRow('RED', DIST, '#DC3545', '#fff')}
+            ${blankCardTeeRow('WHITE', DIST_WHITE, '#ffffff', '#1a1a1a', 'blankCardTeeRowWhite')}
+            ${blankCardTeeRow('RED', DIST, '#DC3545', '#fff', 'blankCardTeeRowRed')}
           </tbody>
           <tbody>${scoreRows}</tbody>
         </table>
@@ -2890,6 +2915,7 @@
       inp.addEventListener('input', () => {
         blankCardComputeTotals(); persistBlankCardDraft();
         blankCardOnHoleInput(Number(inp.dataset.hole));
+        blankCardUpdateTeeButtons();
       });
       inp.addEventListener('change', () => blankCardCheckParSound(Number(inp.dataset.hole), inp.value));
     });
@@ -2897,6 +2923,7 @@
       inp.addEventListener('input', () => {
         blankCardComputeTotals(); persistBlankCardDraft();
         blankCardOnHoleInput(Number(inp.dataset.hole));
+        blankCardUpdateTeeButtons();
       });
     });
     container.querySelectorAll('[data-field]').forEach(inp => {
