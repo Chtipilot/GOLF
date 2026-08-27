@@ -547,7 +547,14 @@
   //                 s'ajoutent aux précédents (fusion trou par trou), sans effacer ce qui était déjà
   //                 connu. Le bouton "📥 Coller ma carte" (renommé, ex-"Coller un code reçu") reste
   //                 réservé à la carte personnelle, inchangé.
-  const APP_VERSION = "SuarPark - V01.004.044";
+  //   V01.004.045 — Le récapitulatif d'équipe affiche désormais aussi la carte personnelle du
+  //                 Directeur de session (repérée par un badge "Toi"), aux côtés des cartes reçues
+  //                 des joueurs — vue d'ensemble complète, sans dupliquer les données (toujours lue
+  //                 en direct depuis la carte vierge personnelle, jamais copiée dans le
+  //                 récapitulatif). Les lignes sont désormais classées par ordre de classement golf
+  //                 classique (meilleur score, le plus bas, en tête), avec un numéro de rang ; les
+  //                 joueurs sans aucun trou rempli apparaissent en bas, sans rang, triés par nom.
+  const APP_VERSION = "SuarPark - V01.004.045";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -642,6 +649,7 @@
       teamRecapUpdatedAt: "Reçue à",
       teamRecapBtnClose: "Fermer",
       teamRecapBtnPrint: "🖨️ Imprimer",
+      teamRecapYou: "Toi",
       blankCardTitle: "📋 Carte de score vierge — SuarPark",
       blankCardIntro: "À imprimer ou à remplir directement à l'écran avant/pendant la manche.",
       blankCardBtnPrint: "🖨️ Imprimer",
@@ -861,6 +869,7 @@
       teamRecapUpdatedAt: "Received at",
       teamRecapBtnClose: "Close",
       teamRecapBtnPrint: "🖨️ Print",
+      teamRecapYou: "You",
       blankCardTitle: "📋 Blank scorecard — SuarPark",
       blankCardIntro: "Print it or fill it in directly on screen before/during the round.",
       blankCardBtnPrint: "🖨️ Print",
@@ -1062,6 +1071,7 @@
       teamRecapUpdatedAt: "Empfangen um",
       teamRecapBtnClose: "Schließen",
       teamRecapBtnPrint: "🖨️ Drucken",
+      teamRecapYou: "Du",
       blankCardTitle: "📋 Leere Scorekarte — SuarPark",
       blankCardIntro: "Zum Ausdrucken oder direkt am Bildschirm vor/während der Runde ausfüllen.",
       blankCardBtnPrint: "🖨️ Drucken",
@@ -1263,6 +1273,7 @@
       teamRecapUpdatedAt: "ได้รับเมื่อ",
       teamRecapBtnClose: "ปิด",
       teamRecapBtnPrint: "🖨️ พิมพ์",
+      teamRecapYou: "คุณ",
       blankCardTitle: "📋 การ์ดคะแนนเปล่า — SuarPark",
       blankCardIntro: "พิมพ์หรือกรอกโดยตรงบนหน้าจอ ก่อน/ระหว่างรอบการเล่น",
       blankCardBtnPrint: "🖨️ พิมพ์",
@@ -3184,29 +3195,73 @@
     const section = document.getElementById('teamRecapSection');
     if (!section) return;
     const data = loadTeamRecap();
-    const keys = Object.keys(data).sort((a,b) => teamRecapDisplayName(data[a].header).localeCompare(teamRecapDisplayName(data[b].header)));
+
+    // Construit une liste unifiée : toutes les cartes reçues + la carte personnelle en
+    // cours (celle du Directeur de session), pour avoir une vue d'ensemble complète.
+    const entries = Object.keys(data).map(key => ({
+      key,
+      header: data[key].header,
+      scores: data[key].scores,
+      putts: data[key].putts,
+      updatedAt: data[key].updatedAt,
+      isOwn: false
+    }));
+
+    const ownDraft = loadBlankCardDraft();
+    const ownHasIdentity = ownDraft.header.playerName || ownDraft.header.playerNameOther;
+    if (ownHasIdentity){
+      entries.push({
+        key: '__OWN__',
+        header: ownDraft.header,
+        scores: ownDraft.scores,
+        putts: ownDraft.putts,
+        updatedAt: null,
+        isOwn: true
+      });
+    }
+
+    // Classement golf classique : meilleur score (le plus bas) en tête. Les cartes sans
+    // aucun trou rempli (total = 0, rien à classer) sont placées après, par ordre alphabétique.
+    entries.forEach(e => { e._tot = computeOutInTot(e.scores).tot; });
+    entries.sort((a,b) => {
+      const aRanked = a._tot > 0, bRanked = b._tot > 0;
+      if (aRanked && bRanked) return a._tot - b._tot;
+      if (aRanked && !bRanked) return -1;
+      if (!aRanked && bRanked) return 1;
+      return teamRecapDisplayName(a.header).localeCompare(teamRecapDisplayName(b.header));
+    });
+
+    let rank = 0;
+    let lastTot = null;
 
     let rowsHtml = '';
-    if (keys.length === 0){
+    if (entries.length === 0){
       rowsHtml = `<p class="sub" style="padding:12px 0;">${t('teamRecapEmpty')}</p>`;
     } else {
-      const headerRow = `<tr><th>${t('blankCardTextLabelScore')}</th>` + Array.from({length: 18}, (_,i) => `<th>${i+1}</th>`).join('') + `<th>OUT</th><th>IN</th><th>TOT</th></tr>`;
-      const bodyRows = keys.map(key => {
-        const entry = data[key];
+      const headerRow = `<tr><th>#</th><th>${t('blankCardTextLabelScore')}</th>` + Array.from({length: 18}, (_,i) => `<th>${i+1}</th>`).join('') + `<th>OUT</th><th>IN</th><th>TOT</th></tr>`;
+      const bodyRows = entries.map(entry => {
         const name = teamRecapDisplayName(entry.header);
         const {out, inn, tot} = computeOutInTot(entry.scores);
+        let rankLabel = '';
+        if (tot > 0){
+          if (tot !== lastTot){ rank += 1; lastTot = tot; }
+          rankLabel = String(rank);
+        }
         const cells = entry.scores.map((s,h) => {
           if (s === "") return `<td>–</td>`;
           const c = scoreColor(s, h);
           return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`;
         }).join('');
         const teeIcon = entry.header.tee === 'red' ? '🔴' : entry.header.tee === 'white' ? '⚪' : '';
-        const updated = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US') : '';
-        return `<tr>
+        const ownTag = entry.isOwn ? ` <span style="font-size:10px; background:#1a3c34; color:#fff; padding:1px 5px; border-radius:3px;">${t('teamRecapYou')}</span>` : '';
+        const removeBtn = entry.isOwn ? '' : `<button class="btn btn-danger no-print" style="font-size:10px; padding:2px 6px; margin-left:6px;" onclick="window.teamRecapRemove('${entry.key.replace(/'/g,"\\'")}')">${t('teamRecapRemove')}</button>`;
+        const updated = entry.updatedAt ? `<div class="sub no-print" style="font-size:10px; color:#999;">${t('teamRecapUpdatedAt')} ${new Date(entry.updatedAt).toLocaleString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US')}</div>` : '';
+        return `<tr${entry.isOwn ? ' style="background:#f4f9f7;"' : ''}>
+          <td style="font-weight:bold;">${rankLabel}</td>
           <td style="text-align:left; font-weight:bold; white-space:nowrap;">
-            ${teeIcon} ${name}
-            <button class="btn btn-danger no-print" style="font-size:10px; padding:2px 6px; margin-left:6px;" onclick="window.teamRecapRemove('${key.replace(/'/g,"\\'")}')">${t('teamRecapRemove')}</button>
-            <div class="sub no-print" style="font-size:10px; color:#999;">${t('teamRecapUpdatedAt')} ${updated}</div>
+            ${teeIcon} ${name}${ownTag}
+            ${removeBtn}
+            ${updated}
           </td>
           ${cells}
           <td style="font-weight:bold;">${out || ''}</td><td style="font-weight:bold;">${inn || ''}</td><td style="font-weight:bold;">${tot || ''}</td>
