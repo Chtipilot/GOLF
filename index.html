@@ -372,7 +372,17 @@
   //                 avance automatiquement au premier trou vide dès que le trou affiché est complet
   //                 (score et putt renseignés), avec navigation manuelle ‹ › ; le tableau des 18 trous
   //                 reste entièrement éditable et synchronisé avec ce panneau
-  const APP_VERSION = "SuarPark - V01.004.012";
+  //   V01.004.013 — Carte de score vierge : réorganisation de l'ordre d'affichage. L'initialisation
+  //                 (Player's Name, Date, Caddie, Météo) est regroupée en premier, puis la section
+  //                 "Carte de score" démarre avec le choix du départ WHITE/RED suivi immédiatement du
+  //                 gros panneau du 1er trou à jouer
+  //   V01.004.014 — Carte de score vierge : suppression du bouton "Afficher Black/Blue" (jugé
+  //                 inutile) et des lignes Black/Blue associées ; libellés "Copier"/"Coller"
+  //                 clarifiés (précisent qu'il s'agit du presse-papier du téléphone) avec une note
+  //                 explicative ajoutée sous les boutons ; notice utilisateur mise à jour (FR/EN/DE/
+  //                 TH) avec 4 nouvelles entrées décrivant le fonctionnement de la carte de score
+  //                 vierge (saisie live, sauvegarde locale, échange entre téléphones, impression)
+  const APP_VERSION = "SuarPark - V01.004.014";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -456,10 +466,11 @@
       blankCardIntro: "À imprimer ou à remplir directement à l'écran avant/pendant la manche.",
       blankCardBtnPrint: "🖨️ Imprimer",
       blankCardBtnClose: "Fermer",
-      blankCardBtnExport: "📤 Copier les données",
-      blankCardBtnImport: "📥 Coller les données",
+      blankCardBtnExport: "📤 Copier (presse-papier)",
+      blankCardBtnImport: "📥 Coller un code reçu",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
+      blankCardExportImportNote: "« Copier » place un code dans le presse-papier de ce téléphone, à coller (SMS, LINE...) pour l'envoyer. « Coller » lit un code reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil.",
       blankCardLastSaved: (time) => `Dernière sauvegarde : ${time}`,
       blankCardExportCopied: "Code copié dans le presse-papier ! Envoie-le à l'autre joueur (SMS, LINE...) pour qu'il puisse l'importer sur son téléphone.",
       blankCardExportFallbackTitle: "Copie ce code et envoie-le à l'autre joueur :",
@@ -467,8 +478,6 @@
       blankCardImportSuccess: "Données importées avec succès !",
       blankCardImportError: "Ce code n'est pas valide. Vérifie qu'il a été copié en entier.",
       blankCardClearConfirm: "Effacer définitivement le brouillon de cette carte de score (en-tête, noms et scores) ? Cette action est irréversible.",
-      blankCardBtnShowTees: "⚫🔵 Afficher Black/Blue",
-      blankCardBtnHideTees: "⚫🔵 Masquer Black/Blue",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Plan du parcours",
@@ -484,6 +493,7 @@
       blankCardTeeChoiceLabel: "Départ pour la partie :",
       blankCardTeeLocked: "Départ verrouillé (la manche est commencée)",
       blankCardHoleLabel: "Trou n°",
+      blankCardScorecardSectionTitle: "Carte de score",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Comparaison Rouge / Blanc",
@@ -552,7 +562,11 @@
         "<strong>Parcourir les manches :</strong> utilisez les flèches ▲▼ à côté de la date pour revoir le détail trou par trou d'une manche passée (score, météo, départ, caddie).",
         "<strong>Putts :</strong> cliquez sur « 🎯 Putts » pour afficher ce détail sous les scores.",
         "<strong>Historique / Éclectique / Graphiques / Faits marquants / Rouge vs Blanc / Caddies :</strong> boutons dédiés sous le tableau pour afficher ou masquer chaque section.",
-        "<strong>Zoom des graphiques :</strong> dans « 📊 Graphiques », utilisez les boutons 3 mois / 6 mois / 1 an / Tout au-dessus des courbes pour restreindre la période affichée (score total et température restent synchronisés)."
+        "<strong>Zoom des graphiques :</strong> dans « 📊 Graphiques », utilisez les boutons 3 mois / 6 mois / 1 an / Tout au-dessus des courbes pour restreindre la période affichée (score total et température restent synchronisés).",
+        "<strong>📋 Carte de score vierge :</strong> ouvre une carte individuelle en plein écran pour saisir une manche en direct sur le parcours. Choisissez le joueur, la date (proposée par défaut), le caddie et la météo, puis le départ (⚪ WHITE / 🔴 RED — modifiable uniquement avant le premier score saisi). Le trou à jouer s'affiche en très grand avec ses cases Score et Putt, et avance automatiquement au trou suivant une fois les deux renseignés ; utilisez ‹ › pour naviguer librement. Le tableau complet des 18 trous reste éditable en dessous.",
+        "<strong>Sauvegarde de la carte vierge :</strong> tout est enregistré automatiquement sur cet appareil (brouillon local) — rien n'est perdu en cas de fermeture ou de rechargement de la page.",
+        "<strong>Échanger la carte vierge entre téléphones :</strong> « 📤 Copier » place un code dans le presse-papier de votre téléphone à envoyer par SMS/LINE ; sur l'autre appareil, « 📥 Coller » lit ce code depuis son presse-papier pour recharger la même carte.",
+        "<strong>Imprimer la carte vierge :</strong> le bouton « 🖨️ Imprimer » n'imprime que la carte, sans le reste de l'application."
       ],
       btnShowCaddies: "🎽 Afficher les caddies",
       btnHideCaddies: "🎽 Masquer les caddies",
@@ -640,10 +654,11 @@
       blankCardIntro: "Print it or fill it in directly on screen before/during the round.",
       blankCardBtnPrint: "🖨️ Print",
       blankCardBtnClose: "Close",
-      blankCardBtnExport: "📤 Copy data",
-      blankCardBtnImport: "📥 Paste data",
+      blankCardBtnExport: "📤 Copy (clipboard)",
+      blankCardBtnImport: "📥 Paste a received code",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
+      blankCardExportImportNote: "\"Copy\" puts a code on this phone's clipboard, to paste (SMS, LINE...) and send it. \"Paste\" reads a code received from another player, first copied to this device's clipboard.",
       blankCardLastSaved: (time) => `Last saved: ${time}`,
       blankCardExportCopied: "Code copied to clipboard! Send it to the other player (SMS, LINE...) so they can import it on their phone.",
       blankCardExportFallbackTitle: "Copy this code and send it to the other player:",
@@ -651,8 +666,6 @@
       blankCardImportSuccess: "Data imported successfully!",
       blankCardImportError: "This code isn't valid. Check that it was copied in full.",
       blankCardClearConfirm: "Permanently clear this scorecard's draft (header, names and scores)? This cannot be undone.",
-      blankCardBtnShowTees: "⚫🔵 Show Black/Blue",
-      blankCardBtnHideTees: "⚫🔵 Hide Black/Blue",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Course layout",
@@ -668,6 +681,7 @@
       blankCardTeeChoiceLabel: "Tee for this round:",
       blankCardTeeLocked: "Tee locked (round already started)",
       blankCardHoleLabel: "Hole no.",
+      blankCardScorecardSectionTitle: "Scorecard",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Red / White comparison",
@@ -736,7 +750,11 @@
         "<strong>Browse rounds:</strong> use the ▲▼ arrows next to the date to review the hole-by-hole detail of a past round (score, weather, tee, caddie).",
         "<strong>Putts:</strong> click « 🎯 Putts » to show this detail under the scores.",
         "<strong>History / Eclectic / Charts / Highlights / Red vs White / Caddies:</strong> dedicated buttons below the table to show or hide each section.",
-        "<strong>Chart zoom:</strong> in « 📊 Charts », use the 3 months / 6 months / 1 year / All buttons above the graphs to restrict the displayed period (total score and temperature stay synchronized)."
+        "<strong>Chart zoom:</strong> in « 📊 Charts », use the 3 months / 6 months / 1 year / All buttons above the graphs to restrict the displayed period (total score and temperature stay synchronized).",
+        "<strong>📋 Blank scorecard:</strong> opens a full-screen individual card for live scoring on the course. Choose the player, date (defaulted to today), caddie and weather, then the tee (⚪ WHITE / 🔴 RED — editable only before the first score is entered). The hole to play is shown very large with its Score and Putt boxes, and automatically advances to the next hole once both are filled; use ‹ › to navigate freely. The full 18-hole table below stays editable.",
+        "<strong>Blank card saving:</strong> everything is saved automatically on this device (local draft) — nothing is lost if the page closes or reloads.",
+        "<strong>Sharing the blank card between phones:</strong> « 📤 Copy » puts a code on your phone's clipboard to send via SMS/LINE; on the other device, « 📥 Paste » reads that code from its clipboard to reload the same card.",
+        "<strong>Printing the blank card:</strong> the « 🖨️ Print » button only prints the card, without the rest of the app."
       ],
       storageWarning: "⚠️ Insufficient storage space or private browsing detected on this phone: the full backup (history + 10 caddies) might fail. Consider exporting to Excel regularly.",
       storageTestOk: "✅ Memory test passed: the full backup (history + 10 caddies) works on this phone.",
@@ -806,10 +824,11 @@
       blankCardIntro: "Zum Ausdrucken oder direkt am Bildschirm vor/während der Runde ausfüllen.",
       blankCardBtnPrint: "🖨️ Drucken",
       blankCardBtnClose: "Schließen",
-      blankCardBtnExport: "📤 Daten kopieren",
-      blankCardBtnImport: "📥 Daten einfügen",
+      blankCardBtnExport: "📤 Kopieren (Zwischenablage)",
+      blankCardBtnImport: "📥 Erhaltenen Code einfügen",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
+      blankCardExportImportNote: "«Kopieren» legt einen Code in die Zwischenablage dieses Handys, zum Einfügen (SMS, LINE...) und Versenden. «Einfügen» liest einen Code, der von einem anderen Spieler empfangen und zuvor in die Zwischenablage dieses Geräts kopiert wurde.",
       blankCardLastSaved: (time) => `Zuletzt gespeichert: ${time}`,
       blankCardExportCopied: "Code in die Zwischenablage kopiert! Sende ihn an den anderen Spieler (SMS, LINE...), damit er ihn auf seinem Handy importieren kann.",
       blankCardExportFallbackTitle: "Kopiere diesen Code und sende ihn an den anderen Spieler:",
@@ -817,8 +836,6 @@
       blankCardImportSuccess: "Daten erfolgreich importiert!",
       blankCardImportError: "Dieser Code ist ungültig. Prüfe, ob er vollständig kopiert wurde.",
       blankCardClearConfirm: "Diesen Kartenentwurf endgültig löschen (Kopfzeile, Namen und Scores)? Dies kann nicht rückgängig gemacht werden.",
-      blankCardBtnShowTees: "⚫🔵 Black/Blue anzeigen",
-      blankCardBtnHideTees: "⚫🔵 Black/Blue ausblenden",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Platzplan",
@@ -834,6 +851,7 @@
       blankCardTeeChoiceLabel: "Abschlag für diese Runde:",
       blankCardTeeLocked: "Abschlag gesperrt (Runde bereits begonnen)",
       blankCardHoleLabel: "Loch Nr.",
+      blankCardScorecardSectionTitle: "Scorekarte",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Vergleich Rot / Weiß",
@@ -902,7 +920,11 @@
         "<strong>Runden durchblättern:</strong> die Pfeile ▲▼ neben dem Datum verwenden, um das Loch-für-Loch-Detail einer vergangenen Runde einzusehen (Ergebnis, Wetter, Abschlag, Caddie).",
         "<strong>Putts:</strong> auf « 🎯 Putts » klicken, um dieses Detail unter den Ergebnissen anzuzeigen.",
         "<strong>Verlauf / Eclectic / Diagramme / Highlights / Rot vs Weiß / Caddies:</strong> eigene Schaltflächen unter der Tabelle, um jeden Bereich ein- oder auszublenden.",
-        "<strong>Diagramm-Zoom:</strong> unter « 📊 Diagramme » die Schaltflächen 3 Monate / 6 Monate / 1 Jahr / Alle über den Kurven verwenden, um den angezeigten Zeitraum einzugrenzen (Gesamtergebnis und Temperatur bleiben synchron)."
+        "<strong>Diagramm-Zoom:</strong> unter « 📊 Diagramme » die Schaltflächen 3 Monate / 6 Monate / 1 Jahr / Alle über den Kurven verwenden, um den angezeigten Zeitraum einzugrenzen (Gesamtergebnis und Temperatur bleiben synchron).",
+        "<strong>📋 Leere Scorekarte:</strong> öffnet eine individuelle Vollbildkarte für die Live-Eingabe auf dem Platz. Spieler, Datum (standardmäßig heute), Caddie und Wetter wählen, dann den Abschlag (⚪ WHITE / 🔴 RED — nur änderbar, bevor der erste Score eingegeben wurde). Das zu spielende Loch wird sehr groß mit Score- und Putt-Feldern angezeigt und springt automatisch zum nächsten Loch, sobald beide ausgefüllt sind; mit ‹ › frei navigieren. Die vollständige 18-Loch-Tabelle darunter bleibt bearbeitbar.",
+        "<strong>Speicherung der leeren Karte:</strong> alles wird automatisch auf diesem Gerät gespeichert (lokaler Entwurf) — nichts geht beim Schließen oder Neuladen der Seite verloren.",
+        "<strong>Leere Karte zwischen Handys austauschen:</strong> « 📤 Kopieren » legt einen Code in die Zwischenablage des eigenen Handys, der per SMS/LINE verschickt werden kann; auf dem anderen Gerät liest « 📥 Einfügen » diesen Code aus der Zwischenablage, um dieselbe Karte zu laden.",
+        "<strong>Leere Karte drucken:</strong> die Schaltfläche « 🖨️ Drucken » druckt nur die Karte, ohne den Rest der App."
       ],
       storageWarning: "⚠️ Unzureichender Speicherplatz oder privates Surfen auf diesem Telefon erkannt: Die vollständige Sicherung (Verlauf + 10 Caddies) könnte fehlschlagen. Exportieren Sie regelmäßig nach Excel.",
       storageTestOk: "✅ Speichertest erfolgreich: Die vollständige Sicherung (Verlauf + 10 Caddies) funktioniert auf diesem Telefon.",
@@ -972,10 +994,11 @@
       blankCardIntro: "พิมพ์หรือกรอกโดยตรงบนหน้าจอ ก่อน/ระหว่างรอบการเล่น",
       blankCardBtnPrint: "🖨️ พิมพ์",
       blankCardBtnClose: "ปิด",
-      blankCardBtnExport: "📤 คัดลอกข้อมูล",
-      blankCardBtnImport: "📥 วางข้อมูล",
+      blankCardBtnExport: "📤 คัดลอก (คลิปบอร์ด)",
+      blankCardBtnImport: "📥 วางโค้ดที่ได้รับ",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
+      blankCardExportImportNote: "«คัดลอก» จะวางโค้ดไว้ในคลิปบอร์ดของโทรศัพท์นี้ เพื่อวาง (SMS, LINE...) และส่งต่อ «วาง» จะอ่านโค้ดที่ได้รับจากผู้เล่นอีกคน ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว",
       blankCardLastSaved: (time) => `บันทึกล่าสุด: ${time}`,
       blankCardExportCopied: "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว! ส่งให้ผู้เล่นอีกคน (SMS, LINE...) เพื่อนำเข้าในโทรศัพท์ของเขา",
       blankCardExportFallbackTitle: "คัดลอกโค้ดนี้และส่งให้ผู้เล่นอีกคน:",
@@ -983,8 +1006,6 @@
       blankCardImportSuccess: "นำเข้าข้อมูลสำเร็จ!",
       blankCardImportError: "โค้ดนี้ไม่ถูกต้อง ตรวจสอบว่าคัดลอกครบถ้วน",
       blankCardClearConfirm: "ล้างร่างการ์ดคะแนนนี้อย่างถาวร (หัวข้อ ชื่อ และคะแนน) ใช่หรือไม่ ไม่สามารถย้อนกลับได้",
-      blankCardBtnShowTees: "⚫🔵 แสดง Black/Blue",
-      blankCardBtnHideTees: "⚫🔵 ซ่อน Black/Blue",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "แผนผังสนาม",
@@ -1000,6 +1021,7 @@
       blankCardTeeChoiceLabel: "ทีออกสำหรับรอบนี้:",
       blankCardTeeLocked: "ทีออกถูกล็อก (รอบเริ่มแล้ว)",
       blankCardHoleLabel: "หลุมที่",
+      blankCardScorecardSectionTitle: "การ์ดคะแนน",
       blankCardScoreRowLabel: "สกอร์",
       blankCardPuttRowLabel: "↳ พัตต์",
       teeCompareTitle: "🔴⚪ เปรียบเทียบ ทีแดง / ทีขาว",
@@ -1068,7 +1090,11 @@
         "<strong>เรียกดูรอบที่ผ่านมา:</strong> ใช้ลูกศร ▲▼ ข้างวันที่เพื่อดูรายละเอียดรายหลุมของรอบที่ผ่านมา (สกอร์ สภาพอากาศ ทีออก แคดดี้)",
         "<strong>พัตต์:</strong> คลิก « 🎯 พัตต์ » เพื่อแสดงรายละเอียดนี้ใต้สกอร์",
         "<strong>ประวัติ / Eclectic / กราฟ / ไฮไลต์ / แดง vs ขาว / แคดดี้:</strong> ปุ่มเฉพาะใต้ตารางสำหรับแสดงหรือซ่อนแต่ละส่วน",
-        "<strong>ซูมกราฟ:</strong> ใน « 📊 กราฟ » ใช้ปุ่ม 3 เดือน / 6 เดือน / 1 ปี / ทั้งหมด เหนือกราฟเพื่อจำกัดช่วงเวลาที่แสดง (สกอร์รวมและอุณหภูมิจะซิงค์กัน)"
+        "<strong>ซูมกราฟ:</strong> ใน « 📊 กราฟ » ใช้ปุ่ม 3 เดือน / 6 เดือน / 1 ปี / ทั้งหมด เหนือกราฟเพื่อจำกัดช่วงเวลาที่แสดง (สกอร์รวมและอุณหภูมิจะซิงค์กัน)",
+        "<strong>📋 การ์ดคะแนนเปล่า:</strong> เปิดการ์ดรายบุคคลแบบเต็มหน้าจอสำหรับกรอกสกอร์สดขณะเล่นในสนาม เลือกผู้เล่น วันที่ (ตั้งค่าเริ่มต้นเป็นวันนี้) แคดดี้ และสภาพอากาศ จากนั้นเลือกทีออก (⚪ WHITE / 🔴 RED — แก้ไขได้เฉพาะก่อนกรอกสกอร์แรกเท่านั้น) หลุมที่ต้องเล่นจะแสดงตัวใหญ่มากพร้อมช่องสกอร์และพัตต์ และจะเลื่อนไปหลุมถัดไปอัตโนมัติเมื่อกรอกครบทั้งสองช่อง ใช้ ‹ › เพื่อเลื่อนไปมาได้อย่างอิสระ ตารางครบ 18 หลุมด้านล่างยังคงแก้ไขได้",
+        "<strong>การบันทึกการ์ดเปล่า:</strong> ทุกอย่างถูกบันทึกอัตโนมัติบนอุปกรณ์นี้ (ร่างในเครื่อง) — ไม่มีข้อมูลสูญหายแม้ปิดหรือโหลดหน้าใหม่",
+        "<strong>แลกเปลี่ยนการ์ดเปล่าระหว่างโทรศัพท์:</strong> « 📤 คัดลอก » จะวางโค้ดไว้ในคลิปบอร์ดของโทรศัพท์คุณเพื่อส่งทาง SMS/LINE บนอีกเครื่อง « 📥 วาง » จะอ่านโค้ดนั้นจากคลิปบอร์ดเพื่อโหลดการ์ดเดียวกัน",
+        "<strong>พิมพ์การ์ดเปล่า:</strong> ปุ่ม « 🖨️ พิมพ์ » จะพิมพ์เฉพาะการ์ดเท่านั้น ไม่รวมส่วนอื่นของแอป"
       ],
       btnShowCaddies: "🎽 แสดงแคดดี้",
       btnHideCaddies: "🎽 ซ่อนแคดดี้",
@@ -1353,7 +1379,6 @@
   let teeCompareVisible = false;
   let caddiesVisible = false;
   let blankCardVisible = false;
-  let blankCardShowBlackBlue = false;
   let blankCardFocusHole = 0;
   let expandedCaddie = null;
   let chartRangeMonths = null; // null = "Tout"
@@ -2298,7 +2323,6 @@
   function blankCardEmptyDraft(){
     return {
       header: Object.fromEntries(BLANKCARD_HEADER_FIELDS.map(f => [f, ""])),
-      showBlackBlue: false,
       scores: Array(18).fill(""),
       putts: Array(18).fill("")
     };
@@ -2316,7 +2340,6 @@
       const empty = blankCardEmptyDraft();
       return {
         header: Object.assign(empty.header, parsed.header || {}),
-        showBlackBlue: !!parsed.showBlackBlue,
         scores: (parsed.scores && parsed.scores.length === 18) ? parsed.scores : empty.scores,
         putts: (parsed.putts && parsed.putts.length === 18) ? parsed.putts : empty.putts
       };
@@ -2342,7 +2365,7 @@
     section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => { scores[Number(inp.dataset.hole)] = inp.value; });
     const putts = Array(18).fill("");
     section.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => { putts[Number(inp.dataset.hole)] = inp.value; });
-    return {header, showBlackBlue: blankCardShowBlackBlue, scores, putts};
+    return {header, scores, putts};
   }
 
   function persistBlankCardDraft(){
@@ -2402,12 +2425,10 @@
       const empty = blankCardEmptyDraft();
       const merged = {
         header: Object.assign(empty.header, draft.header || {}),
-        showBlackBlue: !!draft.showBlackBlue,
         scores: (draft.scores.length === 18) ? draft.scores : empty.scores,
         putts: (draft.putts && draft.putts.length === 18) ? draft.putts : empty.putts
       };
       saveBlankCardDraft(merged);
-      blankCardShowBlackBlue = merged.showBlackBlue;
       renderBlankCard();
       window.alert(t('blankCardImportSuccess'));
     } catch(e){
@@ -2418,7 +2439,6 @@
   function blankCardClear(){
     if (!window.confirm(t('blankCardClearConfirm'))) return;
     localStorage.removeItem(BLANKCARD_DRAFT_KEY);
-    blankCardShowBlackBlue = false;
     renderBlankCard();
   }
 
@@ -2614,9 +2634,6 @@
     if (!container) return;
 
     const draft = loadBlankCardDraft();
-    blankCardShowBlackBlue = draft.showBlackBlue;
-
-    const hideClass = blankCardShowBlackBlue ? '' : 'no-print-hide';
 
     const idxRow = `<tr style="background:#e8f0ee; color:#1a3c34; font-weight:bold;">
       <th>HCP</th>${IDX.map(i=>`<th>${i}</th>`).join("")}<th colspan="3"></th>
@@ -2667,11 +2684,11 @@
       <div class="toolbar no-print">
         <button class="btn btn-secondary" id="btnBlankCardClose">✕ ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
-        <button class="btn btn-secondary" id="btnBlankCardTees">${blankCardShowBlackBlue ? t('blankCardBtnHideTees') : t('blankCardBtnShowTees')}</button>
         <button class="btn btn-secondary" id="btnBlankCardExport">${t('blankCardBtnExport')}</button>
         <button class="btn btn-secondary" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
+      <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔗 ${t('blankCardExportImportNote')}</p>
 
       <div class="blankcard-header-row" style="margin-top:10px;">
         <div class="blankcard-header-cell" style="flex-basis:48%;">
@@ -2683,20 +2700,6 @@
           <input type="text" class="blankcard-field" data-field="playerNameOther">
         </div>
       </div>
-
-      <div class="blankcard-header-row" style="margin-top:6px; align-items:flex-start;">
-        <div class="blankcard-header-cell" style="flex-basis:100%; flex-direction:column; align-items:flex-start;">
-          <label>${t('blankCardTeeChoiceLabel')}</label>
-          <div style="display:flex; gap:8px; margin-top:4px; width:100%;">
-            <button type="button" id="btnBlankCardTeeWhite" class="btn btn-secondary no-print" style="flex:1;">⚪ WHITE</button>
-            <button type="button" id="btnBlankCardTeeRed" class="btn btn-secondary no-print" style="flex:1;">🔴 RED</button>
-          </div>
-          <input type="hidden" data-field="tee">
-          <p class="sub no-print" id="blankCardTeeLockNote" style="font-size:11px; color:#888; margin-top:4px; display:none;">🔒 ${t('blankCardTeeLocked')}</p>
-        </div>
-      </div>
-
-      <div id="blankCardBigPanel"></div>
 
       <div class="blankcard-header-row">
         <div class="blankcard-header-cell" style="flex-basis:31%;"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
@@ -2712,7 +2715,7 @@
       <div class="blankcard-header-row" style="margin-bottom:10px;">
         <div class="blankcard-header-cell" style="flex-basis:100%; font-weight:bold; color:#1a3c34;">🌤️ ${t('blankCardWeatherLabel')}</div>
       </div>
-      <div class="blankcard-header-row" style="margin-bottom:10px;">
+      <div class="blankcard-header-row" style="margin-bottom:14px;">
         <div class="blankcard-header-cell" style="flex-basis:22%;"><label>${t('weatherTemp')}</label><input type="number" class="blankcard-field" data-field="weatherTemp" placeholder="${t('weatherTempPlaceholder')}"></div>
         <div class="blankcard-header-cell" style="flex-basis:22%;"><label>${t('weatherWind')}</label><input type="number" min="0" class="blankcard-field" data-field="weatherWind" placeholder="${t('weatherWindPlaceholder')}"></div>
         <div class="blankcard-header-cell" style="flex-basis:22%;">
@@ -2724,6 +2727,24 @@
           <select class="blankcard-field" data-field="weatherCondition" style="width:100%;">${conditionOptions}</select>
         </div>
       </div>
+
+      <hr style="border:none; border-top:2px solid #1a3c34; margin:16px 0 14px 0;">
+
+      <h3 style="margin:0 0 4px 0; color:#1a3c34;">⛳ ${t('blankCardScorecardSectionTitle')}</h3>
+
+      <div class="blankcard-header-row" style="align-items:flex-start;">
+        <div class="blankcard-header-cell" style="flex-basis:100%; flex-direction:column; align-items:flex-start;">
+          <label>${t('blankCardTeeChoiceLabel')}</label>
+          <div style="display:flex; gap:8px; margin-top:4px; width:100%;">
+            <button type="button" id="btnBlankCardTeeWhite" class="btn btn-secondary no-print" style="flex:1;">⚪ WHITE</button>
+            <button type="button" id="btnBlankCardTeeRed" class="btn btn-secondary no-print" style="flex:1;">🔴 RED</button>
+          </div>
+          <input type="hidden" data-field="tee">
+          <p class="sub no-print" id="blankCardTeeLockNote" style="font-size:11px; color:#888; margin-top:4px; display:none;">🔒 ${t('blankCardTeeLocked')}</p>
+        </div>
+      </div>
+
+      <div id="blankCardBigPanel"></div>
 
       <div style="overflow-x:auto;">
         <table class="scorecard-table">
@@ -2743,17 +2764,12 @@
             ${idxRow}
           </thead>
           <tbody id="blankCardTeeRows">
-            ${blankCardTeeRow('BLACK', DIST_BLACK, '#3a3a3a', '#fff', hideClass)}
-            ${blankCardTeeRow('BLUE', DIST_BLUE, '#3b3b7a', '#fff', hideClass)}
             ${blankCardTeeRow('WHITE', DIST_WHITE, '#ffffff', '#1a1a1a')}
             ${blankCardTeeRow('RED', DIST, '#DC3545', '#fff')}
           </tbody>
           <tbody>${scoreRows}</tbody>
         </table>
       </div>
-      <style>
-        #blankCardTeeRows tr.no-print-hide { display:none; }
-      </style>
 
       <p class="sub" style="margin-top:16px; font-weight:bold; color:#1a3c34;">🗺️ ${t('blankCardCourseLayout')}</p>
       <div style="text-align:center;">
@@ -2765,11 +2781,6 @@
 
     document.getElementById('btnBlankCardClose').addEventListener('click', () => setBlankCardVisible(false));
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
-    document.getElementById('btnBlankCardTees').addEventListener('click', () => {
-      blankCardShowBlackBlue = !blankCardShowBlackBlue;
-      persistBlankCardDraft();
-      renderBlankCard();
-    });
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
     document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
     document.getElementById('btnBlankCardClear').addEventListener('click', blankCardClear);
