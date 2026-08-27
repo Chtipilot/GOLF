@@ -382,7 +382,20 @@
   //                 explicative ajoutée sous les boutons ; notice utilisateur mise à jour (FR/EN/DE/
   //                 TH) avec 4 nouvelles entrées décrivant le fonctionnement de la carte de score
   //                 vierge (saisie live, sauvegarde locale, échange entre téléphones, impression)
-  const APP_VERSION = "SuarPark - V01.004.014";
+  //   V01.004.015 — Carte de score vierge : ordre des champs d'initialisation corrigé (Joueur puis
+  //                 Caddie puis Date, au lieu de Joueur/Date/Caddie) ; correction de la date du jour
+  //                 non proposée si un brouillon (même vide) avait déjà été sauvegardé — la date du
+  //                 jour est désormais proposée dès que le champ Date est vide, peu importe l'état
+  //                 antérieur du brouillon
+  //   V01.004.016 — Carte de score vierge : correction des 2 grosses cases Score/Putt du panneau
+  //                 "trou en cours" qui apparaissaient noires sur fond noir (fond transparent hérité,
+  //                 invisible sur le panneau vert foncé, surtout en mode sombre du téléphone) ; fond
+  //                 blanc et texte foncé désormais forcés explicitement pour rester lisibles
+  //   V01.004.017 — Carte de score vierge : ajout d'un petit son de victoire (arpège généré en
+  //                 direct, sans fichier audio) joué à la validation d'un score Par ou mieux (Par,
+  //                 Birdie, Eagle...), depuis le gros panneau du trou en cours comme depuis le
+  //                 tableau complet
+  const APP_VERSION = "SuarPark - V01.004.017";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2338,11 +2351,13 @@
       }
       const parsed = JSON.parse(raw);
       const empty = blankCardEmptyDraft();
-      return {
+      const result = {
         header: Object.assign(empty.header, parsed.header || {}),
         scores: (parsed.scores && parsed.scores.length === 18) ? parsed.scores : empty.scores,
         putts: (parsed.putts && parsed.putts.length === 18) ? parsed.putts : empty.putts
       };
+      if (!result.header.date) result.header.date = todayFrDate(); // proposée si jamais renseignée
+      return result;
     } catch(e){ return blankCardEmptyDraft(); }
   }
 
@@ -2550,14 +2565,46 @@
         <div style="display:flex; gap:14px; justify-content:center; margin-top:14px;">
           <div>
             <div style="font-size:12px; opacity:.85;">${t('blankCardScoreRowLabel')}</div>
-            <input type="number" min="1" max="20" id="bcBigScore" style="width:90px; height:70px; font-size:40px; text-align:center; border-radius:8px; border:none;">
+            <input type="number" min="1" max="20" id="bcBigScore" style="width:90px; height:70px; font-size:40px; text-align:center; border-radius:8px; border:none; background:#ffffff; color:#1a3c34; font-weight:bold; -webkit-text-fill-color:#1a3c34;">
           </div>
           <div>
             <div style="font-size:12px; opacity:.85;">${t('blankCardPuttRowLabel')}</div>
-            <input type="number" min="0" max="10" id="bcBigPutt" style="width:90px; height:70px; font-size:40px; text-align:center; border-radius:8px; border:none;">
+            <input type="number" min="0" max="10" id="bcBigPutt" style="width:90px; height:70px; font-size:40px; text-align:center; border-radius:8px; border:none; background:#ffffff; color:#1a3c34; font-weight:bold; -webkit-text-fill-color:#1a3c34;">
           </div>
         </div>
       </div>`;
+  }
+
+  // --- Son de victoire (Par ou mieux) — généré directement, aucun fichier audio requis ---
+  let blankCardAudioCtx = null;
+  function blankCardPlayVictorySound(){
+    try {
+      if (!blankCardAudioCtx) blankCardAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = blankCardAudioCtx;
+      if (ctx.state === 'suspended') ctx.resume();
+      const now = ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99]; // do5, mi5, sol5 — petit arpège "victoire"
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.09;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.3);
+      });
+    } catch(e){ /* Web Audio non supporté : on ignore silencieusement */ }
+  }
+
+  // Déclenche le son si le score saisi pour le trou h est Par ou mieux
+  function blankCardCheckParSound(h, value){
+    if (value === "" || value === null || value === undefined) return;
+    const score = Number(value);
+    if (!isNaN(score) && score > 0 && score <= PAR[h]) blankCardPlayVictorySound();
   }
 
   function blankCardOnHoleInput(h){
@@ -2602,6 +2649,7 @@
       persistBlankCardDraft();
       blankCardMaybeAdvance(h);
     });
+    bigScore.addEventListener('change', () => blankCardCheckParSound(blankCardFocusHole, bigScore.value));
     bigPutt.addEventListener('input', () => {
       const h = blankCardFocusHole;
       const target = document.getElementById(`bcPutt-${h}`);
@@ -2702,7 +2750,6 @@
       </div>
 
       <div class="blankcard-header-row">
-        <div class="blankcard-header-cell" style="flex-basis:31%;"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
         <div class="blankcard-header-cell" style="flex-basis:31%;">
           <label>${t('blankCardCaddie')}</label>
           <select class="blankcard-field" data-field="caddieNumber" style="width:100%;">${caddieOptions}</select>
@@ -2711,6 +2758,7 @@
           <input type="text" class="blankcard-field" data-field="caddieOtherNumber" placeholder="${t('blankCardCaddieNumberPlaceholder')}" style="flex-basis:35%;">
           <input type="text" class="blankcard-field" data-field="caddieOtherName" placeholder="${t('blankCardCaddieNamePlaceholder')}" style="flex-basis:60%;">
         </div>
+        <div class="blankcard-header-cell" style="flex-basis:31%;"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
       </div>
       <div class="blankcard-header-row" style="margin-bottom:10px;">
         <div class="blankcard-header-cell" style="flex-basis:100%; font-weight:bold; color:#1a3c34;">🌤️ ${t('blankCardWeatherLabel')}</div>
@@ -2800,6 +2848,7 @@
         blankCardComputeTotals(); persistBlankCardDraft();
         blankCardOnHoleInput(Number(inp.dataset.hole));
       });
+      inp.addEventListener('change', () => blankCardCheckParSound(Number(inp.dataset.hole), inp.value));
     });
     container.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => {
       inp.addEventListener('input', () => {
