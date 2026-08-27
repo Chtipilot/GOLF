@@ -359,7 +359,12 @@
   //                 au par) et juste en dessous une ligne "↳ Putt" (18 trous), chacune avec son
   //                 propre total Out/In/Tot calculé automatiquement. Export/Import de code inchangés,
   //                 pour l'échange de cette carte individuelle avec d'autres joueurs.
-  const APP_VERSION = "SuarPark - V01.004.010";
+  //   V01.004.011 — Carte de score vierge : suppression des champs Time, Group, HCP, Player's
+  //                 Signature et Marker's Signature (inutiles pour l'usage individuel) ; ajout sous
+  //                 Date d'un choix de Caddie (liste déroulante des caddies connus, format N°_Nom,
+  //                 avec option "+ Ajouter un caddie" pour saisir un numéro/nom non répertorié) ;
+  //                 ajout d'un bloc météo (température, vent, direction, condition) éditable
+  const APP_VERSION = "SuarPark - V01.004.011";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -458,15 +463,16 @@
       blankCardBtnHideTees: "⚫🔵 Masquer Black/Blue",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
-      blankCardTime: "Time :",
-      blankCardHCP: "HCP :",
-      blankCardGroup: "Group :",
-      blankCardPlayerSignature: "Player's Signature :",
-      blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "Plan du parcours",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
+      blankCardCaddie: "Caddie :",
+      blankCardChooseCaddie: "-- Choisir --",
+      blankCardAddCaddie: "+ Ajouter un caddie",
+      blankCardCaddieNumberPlaceholder: "N°",
+      blankCardCaddieNamePlaceholder: "Nom",
+      blankCardWeatherLabel: "Météo (au moment du départ)",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Comparaison Rouge / Blanc",
@@ -638,15 +644,16 @@
       blankCardBtnHideTees: "⚫🔵 Hide Black/Blue",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
-      blankCardTime: "Time :",
-      blankCardHCP: "HCP :",
-      blankCardGroup: "Group :",
-      blankCardPlayerSignature: "Player's Signature :",
-      blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "Course layout",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
+      blankCardCaddie: "Caddie:",
+      blankCardChooseCaddie: "-- Choose --",
+      blankCardAddCaddie: "+ Add a caddie",
+      blankCardCaddieNumberPlaceholder: "No.",
+      blankCardCaddieNamePlaceholder: "Name",
+      blankCardWeatherLabel: "Weather (at tee-off)",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Red / White comparison",
@@ -800,15 +807,16 @@
       blankCardBtnHideTees: "⚫🔵 Black/Blue ausblenden",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
-      blankCardTime: "Time :",
-      blankCardHCP: "HCP :",
-      blankCardGroup: "Group :",
-      blankCardPlayerSignature: "Player's Signature :",
-      blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "Platzplan",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
+      blankCardCaddie: "Caddie:",
+      blankCardChooseCaddie: "-- Auswählen --",
+      blankCardAddCaddie: "+ Caddie hinzufügen",
+      blankCardCaddieNumberPlaceholder: "Nr.",
+      blankCardCaddieNamePlaceholder: "Name",
+      blankCardWeatherLabel: "Wetter (beim Abschlag)",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
       teeCompareTitle: "🔴⚪ Vergleich Rot / Weiß",
@@ -962,15 +970,16 @@
       blankCardBtnHideTees: "⚫🔵 ซ่อน Black/Blue",
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
-      blankCardTime: "Time :",
-      blankCardHCP: "HCP :",
-      blankCardGroup: "Group :",
-      blankCardPlayerSignature: "Player's Signature :",
-      blankCardMarkerSignature: "Marker's Signature :",
       blankCardCourseLayout: "แผนผังสนาม",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
+      blankCardCaddie: "แคดดี้:",
+      blankCardChooseCaddie: "-- เลือก --",
+      blankCardAddCaddie: "+ เพิ่มแคดดี้",
+      blankCardCaddieNumberPlaceholder: "หมายเลข",
+      blankCardCaddieNamePlaceholder: "ชื่อ",
+      blankCardWeatherLabel: "สภาพอากาศ (ขณะออกรอบ)",
       blankCardScoreRowLabel: "สกอร์",
       blankCardPuttRowLabel: "↳ พัตต์",
       teeCompareTitle: "🔴⚪ เปรียบเทียบ ทีแดง / ทีขาว",
@@ -2256,7 +2265,7 @@
   }
 
   const BLANKCARD_DRAFT_KEY = "suarpark-blankcard-draft";
-  const BLANKCARD_HEADER_FIELDS = ["playerName","playerNameOther","date","time","hcp","group","playerSignature","markerSignature"];
+  const BLANKCARD_HEADER_FIELDS = ["playerName","playerNameOther","date","caddieNumber","caddieOtherNumber","caddieOtherName","weatherTemp","weatherWind","weatherWindDir","weatherCondition"];
   const BLANKCARD_OTHER_VALUE = "__OTHER__";
 
   function blankCardEmptyDraft(){
@@ -2316,6 +2325,7 @@
       if (el) el.value = draft.header[f] || "";
     });
     blankCardUpdateOtherNameVisibility();
+    blankCardUpdateOtherCaddieVisibility();
     section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
       inp.value = draft.scores[Number(inp.dataset.hole)] || "";
     });
@@ -2329,6 +2339,14 @@
     const section = document.getElementById('blankCardSection');
     const select = section.querySelector('[data-field="playerName"]');
     const otherWrap = document.getElementById('blankCardOtherNameWrap');
+    if (!select || !otherWrap) return;
+    otherWrap.style.display = select.value === BLANKCARD_OTHER_VALUE ? 'flex' : 'none';
+  }
+
+  function blankCardUpdateOtherCaddieVisibility(){
+    const section = document.getElementById('blankCardSection');
+    const select = section.querySelector('[data-field="caddieNumber"]');
+    const otherWrap = document.getElementById('blankCardOtherCaddieWrap');
     if (!select || !otherWrap) return;
     otherWrap.style.display = select.value === BLANKCARD_OTHER_VALUE ? 'flex' : 'none';
   }
@@ -2466,6 +2484,16 @@
       .concat([`<option value="${BLANKCARD_OTHER_VALUE}">${t('blankCardOtherPlayer')}</option>`])
       .join("");
 
+    const caddieOptions = [`<option value="">${t('blankCardChooseCaddie')}</option>`]
+      .concat((state.caddies || []).filter(c => c.number).map(c => `<option value="${c.number}">${c.number}${c.name ? '_' + c.name : ''}</option>`))
+      .concat([`<option value="${BLANKCARD_OTHER_VALUE}">${t('blankCardAddCaddie')}</option>`])
+      .join("");
+
+    const windDirOptions = ["N","NE","E","SE","S","SW","W","NW"]
+      .map(d => `<option value="${d}">${t('windDir'+d)}</option>`).join("");
+    const conditionOptions = ["sun","partly_cloudy","cloudy","overcast","rain_shower","rain","storm"]
+      .map(c => `<option value="${c}">${t('weatherCondition' + c.split('_').map(w=>w[0].toUpperCase()+w.slice(1)).join(''))}</option>`).join("");
+
     container.innerHTML = `
       <h3>${t('blankCardTitle')}</h3>
       <p class="sub" style="margin-top:2px;">${t('blankCardIntro')}</p>
@@ -2490,16 +2518,30 @@
         </div>
       </div>
       <div class="blankcard-header-row">
-        <div class="blankcard-header-cell"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
-        <div class="blankcard-header-cell"><label>${t('blankCardTime')}</label><input type="text" class="blankcard-field" data-field="time"></div>
-        <div class="blankcard-header-cell"><label>${t('blankCardHCP')}</label><input type="text" class="blankcard-field" data-field="hcp"></div>
-      </div>
-      <div class="blankcard-header-row">
-        <div class="blankcard-header-cell" style="flex-basis:48%;"><label>${t('blankCardGroup')}</label><input type="text" class="blankcard-field" data-field="group"></div>
-        <div class="blankcard-header-cell" style="flex-basis:48%;"><label>${t('blankCardPlayerSignature')}</label><input type="text" class="blankcard-field" data-field="playerSignature"></div>
+        <div class="blankcard-header-cell" style="flex-basis:31%;"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
+        <div class="blankcard-header-cell" style="flex-basis:31%;">
+          <label>${t('blankCardCaddie')}</label>
+          <select class="blankcard-field" data-field="caddieNumber" style="width:100%;">${caddieOptions}</select>
+        </div>
+        <div class="blankcard-header-cell" id="blankCardOtherCaddieWrap" style="flex-basis:31%; display:none; gap:4px;">
+          <input type="text" class="blankcard-field" data-field="caddieOtherNumber" placeholder="${t('blankCardCaddieNumberPlaceholder')}" style="flex-basis:35%;">
+          <input type="text" class="blankcard-field" data-field="caddieOtherName" placeholder="${t('blankCardCaddieNamePlaceholder')}" style="flex-basis:60%;">
+        </div>
       </div>
       <div class="blankcard-header-row" style="margin-bottom:10px;">
-        <div class="blankcard-header-cell" style="flex-basis:100%;"><label>${t('blankCardMarkerSignature')}</label><input type="text" class="blankcard-field" data-field="markerSignature"></div>
+        <div class="blankcard-header-cell" style="flex-basis:100%; font-weight:bold; color:#1a3c34;">🌤️ ${t('blankCardWeatherLabel')}</div>
+      </div>
+      <div class="blankcard-header-row" style="margin-bottom:10px;">
+        <div class="blankcard-header-cell" style="flex-basis:22%;"><label>${t('weatherTemp')}</label><input type="number" class="blankcard-field" data-field="weatherTemp" placeholder="${t('weatherTempPlaceholder')}"></div>
+        <div class="blankcard-header-cell" style="flex-basis:22%;"><label>${t('weatherWind')}</label><input type="number" min="0" class="blankcard-field" data-field="weatherWind" placeholder="${t('weatherWindPlaceholder')}"></div>
+        <div class="blankcard-header-cell" style="flex-basis:22%;">
+          <label>${t('weatherWindDir')}</label>
+          <select class="blankcard-field" data-field="weatherWindDir" style="width:100%;">${windDirOptions}</select>
+        </div>
+        <div class="blankcard-header-cell" style="flex-basis:22%;">
+          <label>${t('weatherCondition')}</label>
+          <select class="blankcard-field" data-field="weatherCondition" style="width:100%;">${conditionOptions}</select>
+        </div>
       </div>
 
       <div style="overflow-x:auto;">
@@ -2553,6 +2595,10 @@
 
     container.querySelector('[data-field="playerName"]').addEventListener('change', () => {
       blankCardUpdateOtherNameVisibility();
+      persistBlankCardDraft();
+    });
+    container.querySelector('[data-field="caddieNumber"]').addEventListener('change', () => {
+      blankCardUpdateOtherCaddieVisibility();
       persistBlankCardDraft();
     });
     container.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
