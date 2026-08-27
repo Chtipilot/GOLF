@@ -94,21 +94,6 @@
   }
   body.blankcard-open { overflow:hidden; }
 
-  /* Force l'affichage en mode paysage même si le téléphone reste en portrait */
-  @media (orientation: portrait) {
-    #blankCardSection.active {
-      width:100vh;
-      height:100vw;
-      transform:rotate(90deg);
-      transform-origin:top left;
-      position:fixed;
-      top:0;
-      left:100%;
-      overflow-x:hidden;
-      overflow-y:auto;
-    }
-  }
-
   @media print {
     body * { visibility:hidden; }
     #blankCardSection, #blankCardSection * { visibility:visible; }
@@ -402,7 +387,15 @@
   //                 — texte Par/HCP/Distance agrandi (22px, gras), et les cases Score/Putt sont
   //                 désormais aussi grosses que possible (130px de haut, chiffres à 64px) pour une
   //                 saisie facile au gros doigt sur le parcours
-  const APP_VERSION = "SuarPark - V01.004.019";
+  //   V01.004.020 — Carte de score vierge : le plan du parcours n'est plus affiché par défaut ; un
+  //                 bouton "🗺️ Afficher/Masquer le plan" permet de le montrer uniquement à la demande
+  //   V01.004.021 — Carte de score vierge : suppression de la rotation forcée CSS en mode paysage,
+  //                 qui provoquait un bug d'affichage sur certains téléphones (contenu décalé, pivoté
+  //                 n'importe comment, carte ne recouvrant pas tout l'écran). Le plein écran est
+  //                 conservé mais sans rotation automatique ; une suggestion discrète invite
+  //                 désormais l'utilisateur à tourner physiquement son téléphone pour une vue plus
+  //                 large, ce que le navigateur gère nativement et de façon fiable
+  const APP_VERSION = "SuarPark - V01.004.021";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -491,6 +484,7 @@
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
       blankCardExportImportNote: "« Copier » place un code dans le presse-papier de ce téléphone, à coller (SMS, LINE...) pour l'envoyer. « Coller » lit un code reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil.",
+      blankCardRotateHint: "Astuce : tourne ton téléphone en mode paysage pour une vue plus large de la carte.",
       blankCardLastSaved: (time) => `Dernière sauvegarde : ${time}`,
       blankCardExportCopied: "Code copié dans le presse-papier ! Envoie-le à l'autre joueur (SMS, LINE...) pour qu'il puisse l'importer sur son téléphone.",
       blankCardExportFallbackTitle: "Copie ce code et envoie-le à l'autre joueur :",
@@ -501,6 +495,8 @@
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Plan du parcours",
+      blankCardBtnShowMap: "Afficher le plan",
+      blankCardBtnHideMap: "Masquer le plan",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
@@ -679,6 +675,7 @@
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
       blankCardExportImportNote: "\"Copy\" puts a code on this phone's clipboard, to paste (SMS, LINE...) and send it. \"Paste\" reads a code received from another player, first copied to this device's clipboard.",
+      blankCardRotateHint: "Tip: rotate your phone to landscape for a wider view of the card.",
       blankCardLastSaved: (time) => `Last saved: ${time}`,
       blankCardExportCopied: "Code copied to clipboard! Send it to the other player (SMS, LINE...) so they can import it on their phone.",
       blankCardExportFallbackTitle: "Copy this code and send it to the other player:",
@@ -689,6 +686,8 @@
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Course layout",
+      blankCardBtnShowMap: "Show map",
+      blankCardBtnHideMap: "Hide map",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
@@ -849,6 +848,7 @@
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
       blankCardExportImportNote: "«Kopieren» legt einen Code in die Zwischenablage dieses Handys, zum Einfügen (SMS, LINE...) und Versenden. «Einfügen» liest einen Code, der von einem anderen Spieler empfangen und zuvor in die Zwischenablage dieses Geräts kopiert wurde.",
+      blankCardRotateHint: "Tipp: Drehe dein Handy ins Querformat für eine breitere Ansicht der Karte.",
       blankCardLastSaved: (time) => `Zuletzt gespeichert: ${time}`,
       blankCardExportCopied: "Code in die Zwischenablage kopiert! Sende ihn an den anderen Spieler (SMS, LINE...), damit er ihn auf seinem Handy importieren kann.",
       blankCardExportFallbackTitle: "Kopiere diesen Code und sende ihn an den anderen Spieler:",
@@ -859,6 +859,8 @@
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Platzplan",
+      blankCardBtnShowMap: "Plan anzeigen",
+      blankCardBtnHideMap: "Plan ausblenden",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
@@ -1019,6 +1021,7 @@
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
       blankCardExportImportNote: "«คัดลอก» จะวางโค้ดไว้ในคลิปบอร์ดของโทรศัพท์นี้ เพื่อวาง (SMS, LINE...) และส่งต่อ «วาง» จะอ่านโค้ดที่ได้รับจากผู้เล่นอีกคน ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว",
+      blankCardRotateHint: "เคล็ดลับ: หมุนโทรศัพท์เป็นแนวนอนเพื่อดูการ์ดในมุมมองที่กว้างขึ้น",
       blankCardLastSaved: (time) => `บันทึกล่าสุด: ${time}`,
       blankCardExportCopied: "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว! ส่งให้ผู้เล่นอีกคน (SMS, LINE...) เพื่อนำเข้าในโทรศัพท์ของเขา",
       blankCardExportFallbackTitle: "คัดลอกโค้ดนี้และส่งให้ผู้เล่นอีกคน:",
@@ -1029,6 +1032,8 @@
       blankCardPlayerName: "Player's Name :",
       blankCardDate: "Date :",
       blankCardCourseLayout: "แผนผังสนาม",
+      blankCardBtnShowMap: "แสดงแผนผัง",
+      blankCardBtnHideMap: "ซ่อนแผนผัง",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
@@ -2754,6 +2759,7 @@
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔗 ${t('blankCardExportImportNote')}</p>
+      <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔄 ${t('blankCardRotateHint')}</p>
 
       <div class="blankcard-header-row" style="margin-top:10px;">
         <div class="blankcard-header-cell" style="flex-basis:48%;">
@@ -2836,9 +2842,14 @@
         </table>
       </div>
 
-      <p class="sub" style="margin-top:16px; font-weight:bold; color:#1a3c34;">🗺️ ${t('blankCardCourseLayout')}</p>
-      <div style="text-align:center;">
-        <img src="${COURSE_MAP_IMG}" alt="${t('blankCardCourseLayout')}" style="max-width:100%; height:auto; border:1px solid #e0e0e0; border-radius:6px;">
+      <div class="no-print" style="margin-top:16px;">
+        <button type="button" class="btn btn-secondary" id="btnBlankCardMap">🗺️ ${t('blankCardBtnShowMap')}</button>
+      </div>
+      <div id="blankCardMapWrap" style="display:none;">
+        <p class="sub" style="margin-top:12px; font-weight:bold; color:#1a3c34;">🗺️ ${t('blankCardCourseLayout')}</p>
+        <div style="text-align:center;">
+          <img src="${COURSE_MAP_IMG}" alt="${t('blankCardCourseLayout')}" style="max-width:100%; height:auto; border:1px solid #e0e0e0; border-radius:6px;">
+        </div>
       </div>
     `;
 
@@ -2851,6 +2862,13 @@
     document.getElementById('btnBlankCardClear').addEventListener('click', blankCardClear);
     document.getElementById('btnBlankCardTeeWhite').addEventListener('click', () => blankCardSetTee('white'));
     document.getElementById('btnBlankCardTeeRed').addEventListener('click', () => blankCardSetTee('red'));
+    document.getElementById('btnBlankCardMap').addEventListener('click', () => {
+      const wrap = document.getElementById('blankCardMapWrap');
+      const btn = document.getElementById('btnBlankCardMap');
+      const showing = wrap.style.display !== 'none';
+      wrap.style.display = showing ? 'none' : 'block';
+      btn.textContent = `🗺️ ${showing ? t('blankCardBtnShowMap') : t('blankCardBtnHideMap')}`;
+    });
 
     container.querySelector('[data-field="playerName"]').addEventListener('change', () => {
       blankCardUpdateOtherNameVisibility();
