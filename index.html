@@ -395,7 +395,10 @@
   //                 direct, sans fichier audio) joué à la validation d'un score Par ou mieux (Par,
   //                 Birdie, Eagle...), depuis le gros panneau du trou en cours comme depuis le
   //                 tableau complet
-  const APP_VERSION = "SuarPark - V01.004.017";
+  //   V01.004.018 — Carte de score vierge : le son de victoire est allongé à environ 5 secondes
+  //                 (motif montant + reprise scintillante + accord final tenu qui s'estompe), au
+  //                 lieu du petit arpège de 0,3 seconde initial
+  const APP_VERSION = "SuarPark - V01.004.018";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2583,20 +2586,30 @@
       const ctx = blankCardAudioCtx;
       if (ctx.state === 'suspended') ctx.resume();
       const now = ctx.currentTime;
-      const notes = [523.25, 659.25, 783.99]; // do5, mi5, sol5 — petit arpège "victoire"
-      notes.forEach((freq, i) => {
+
+      const playNote = (freq, start, dur, peak) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
         osc.frequency.value = freq;
-        const start = now + i * 0.09;
-        gain.gain.setValueAtTime(0, start);
-        gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(peak, now + start + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
         osc.connect(gain).connect(ctx.destination);
-        osc.start(start);
-        osc.stop(start + 0.3);
-      });
+        osc.start(now + start);
+        osc.stop(now + start + dur + 0.05);
+      };
+
+      // Petite fanfare "victoire" d'environ 5 secondes : motif montant, reprise scintillante,
+      // puis accord final tenu qui s'estompe.
+      playNote(523.25, 0.00, 0.25, 0.25);  // Do5
+      playNote(659.25, 0.18, 0.25, 0.25);  // Mi5
+      playNote(783.99, 0.36, 0.25, 0.25);  // Sol5
+      playNote(1046.50, 0.54, 0.90, 0.30); // Do6 tenu
+      playNote(783.99, 1.60, 0.30, 0.22);  // Sol5
+      playNote(1046.50, 1.90, 0.30, 0.22); // Do6
+      playNote(1318.51, 2.20, 0.30, 0.22); // Mi6
+      [1046.50, 1318.51, 1567.98].forEach(freq => playNote(freq, 2.60, 2.40, 0.18)); // accord final Do-Mi-Sol aigu, ~5s au total
     } catch(e){ /* Web Audio non supporté : on ignore silencieusement */ }
   }
 
