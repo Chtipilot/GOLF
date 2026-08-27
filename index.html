@@ -75,8 +75,10 @@
   #app .blankcard-header-row { display:flex; flex-wrap:wrap; gap:6px 18px; margin-bottom:6px; }
   #app .blankcard-header-cell { display:flex; align-items:baseline; gap:4px; flex:1 1 220px; min-width:180px; }
   #app .blankcard-header-cell label { font-size:12px; white-space:nowrap; color:#1a3c34; font-weight:bold; }
-  #app .blankcard-name-input { border:none; border-bottom:1px dotted #999; background:transparent; font-size:11px; width:100%; text-align:left; padding:2px 2px; }
-  #app .blankcard-name-input:focus { outline:none; border-bottom:1px solid #1a3c34; background:#fff3cd; }
+  #app .blankcard-name-input { border:1px solid #b8c4c1; border-radius:3px; background:#fff; font-size:11px; width:100%; text-align:left; padding:3px 4px; }
+  #app .blankcard-name-input:focus { outline:none; border-color:#1a3c34; background:#fff3cd; }
+  #app .blankcard-score-input { width:100%; border:1px solid #b8c4c1; border-radius:3px; background:#fff; text-align:center; font-size:12px; padding:4px 0; -moz-appearance:textfield; }
+  #app .blankcard-score-input:focus { outline:none; border-color:#1a3c34; background:#fff3cd; }
 
   /* Carte de score vierge : mode plein écran, seule à l'affichage */
   #blankCardSection { display:none; }
@@ -97,11 +99,11 @@
     #blankCardSection.active {
       width:100vh;
       height:100vw;
-      transform:rotate(-90deg);
-      transform-origin:left top;
+      transform:rotate(90deg);
+      transform-origin:top left;
       position:fixed;
-      top:100%;
-      left:0;
+      top:0;
+      left:100%;
       overflow-x:hidden;
       overflow-y:auto;
     }
@@ -343,7 +345,14 @@
   //                 rechargement de la page pendant la partie ; ajout d'un échange manuel de données
   //                 entre appareils via un code exporté/importé (copier-coller, ex. SMS/LINE) ;
   //                 ajout d'un bouton "🗑️ Effacer" pour réinitialiser le brouillon
-  const APP_VERSION = "SuarPark - V01.004.007";
+  //   V01.004.008 — Carte de score vierge : correction du sens de rotation forcée en mode paysage
+  //                 (était affichée à l'envers, 180° d'écart) ; ajout de cases de saisie clairement
+  //                 visibles (bordure et fond blanc) pour les scores et les noms de joueurs, qui
+  //                 étaient auparavant invisibles (juste un soulignement pointillé transparent)
+  //   V01.004.009 — Carte de score vierge : les 5 premières lignes de score sont désormais
+  //                 pré-remplies par défaut avec les joueurs de l'équipe (ALAN, LOUIS, MARCUS,
+  //                 PATRICK, SANDY), 6e ligne laissée vide pour un invité ; noms restent modifiables
+  const APP_VERSION = "SuarPark - V01.004.009";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2222,12 +2231,13 @@
   const BLANKCARD_ROWS = 6; // nombre de lignes de score vierges (joueurs) proposées
   const BLANKCARD_DRAFT_KEY = "suarpark-blankcard-draft";
   const BLANKCARD_HEADER_FIELDS = ["playerName","date","time","hcp","group","playerSignature","markerSignature"];
+  const BLANKCARD_DEFAULT_NAMES = ["ALAN","LOUIS","MARCUS","PATRICK","SANDY"]; // 6e ligne laissée vide (invité)
 
   function blankCardEmptyDraft(){
     return {
       header: Object.fromEntries(BLANKCARD_HEADER_FIELDS.map(f => [f, ""])),
       showBlackBlue: false,
-      rows: Array.from({length: BLANKCARD_ROWS}, () => ({name: "", scores: Array(18).fill("")}))
+      rows: Array.from({length: BLANKCARD_ROWS}, (_, i) => ({name: BLANKCARD_DEFAULT_NAMES[i] || "", scores: Array(18).fill("")}))
     };
   }
 
@@ -2379,10 +2389,10 @@
     let scoreRows = "";
     for (let r = 0; r < BLANKCARD_ROWS; r++){
       const holeCells = Array.from({length:18}, (_,h) =>
-        `<td style="padding:0;"><input type="number" min="1" max="20" class="blankcard-field" data-blankrow="${r}" data-blanktype="score" data-hole="${h}"></td>`
+        `<td style="padding:2px;"><input type="number" min="1" max="20" class="blankcard-score-input" data-blankrow="${r}" data-blanktype="score" data-hole="${h}"></td>`
       ).join("");
       scoreRows += `<tr style="background:${r%2===0?'#ffffff':'#f4f7f6'};">
-        <td style="padding:0;"><input type="text" class="blankcard-name-input" placeholder="${t('thPlayer')}" data-blankrow="${r}" data-blanktype="name"></td>
+        <td style="padding:2px;"><input type="text" class="blankcard-name-input" placeholder="${t('thPlayer')}" data-blankrow="${r}" data-blanktype="name"></td>
         ${holeCells}
         <td style="font-weight:bold; background:#e8f0ee;" id="bcOut-${r}"></td>
         <td style="font-weight:bold; background:#e8f0ee;" id="bcIn-${r}"></td>
