@@ -31,6 +31,11 @@
   }
   #app * { box-sizing: border-box; }
   #app table { width:100%; table-layout:fixed; border-collapse:collapse; }
+  /* Récap équipe : le tableau est large (rang + nom + 18 trous + OUT/IN/TOT) — on lui laisse
+     sa taille naturelle minimale plutôt que de le forcer à 100% (qui écrasait les colonnes de
+     droite jusqu'à les rendre invisibles/illisibles). Le conteneur "overflow-x:auto" prend le
+     relais avec un défilement horizontal sur les écrans étroits. */
+  #app .team-recap-table { width:auto; min-width:680px; }
   #app th, #app td { border:1px solid var(--line); text-align:center; padding:3px 1px; }
   #app .btn { background:var(--green-deep); color:#fff; border:none; border-radius:9px; padding:8px 14px; font-size:12px; cursor:pointer; margin:3px 4px 3px 0; box-shadow:0 1px 2px rgba(26,60,52,0.18); transition:background 0.15s ease, transform 0.1s ease; min-height:38px; }
   #app .btn:hover { background:var(--green-mid); }
@@ -138,9 +143,9 @@
   #app .blankcard-score-input:focus { outline:none; border-color:#1a3c34; background:#fff3cd; }
 
   /* Marquage façon carte de score papier : rond noir = par, double rond noir = eagle (ou mieux) */
-  #app .score-ring-par { border-radius:50% !important; border:2px solid #000000 !important; }
-  #app .score-ring-eagle { border-radius:50% !important; border:2px solid #000000 !important; box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #000000 !important; }
-  #app .score-mark-badge { display:inline-flex; align-items:center; justify-content:center; width:1.9em; height:1.9em; line-height:1; box-sizing:border-box; }
+  #app .score-ring-par { border-radius:50% !important; border:1px solid #000000 !important; }
+  #app .score-ring-eagle { border-radius:50% !important; border:1px solid #000000 !important; box-shadow: 0 0 0 2px #ffffff, 0 0 0 3px #000000 !important; }
+  #app .score-mark-badge { display:inline-flex; align-items:center; justify-content:center; width:1.5em; height:1.5em; line-height:1; box-sizing:border-box; }
 
   /* Carte de score vierge : mode plein écran, seule à l'affichage */
   #blankCardSection { display:none; }
@@ -808,7 +813,16 @@
   //                 la colonne du nom du joueur. Correction associée : la règle de largeur de la
   //                 colonne nom ciblait par erreur la première colonne du tableau (donc "#" depuis
   //                 son ajout), elle cible maintenant correctement la colonne du nom.
-  const APP_VERSION = "SuarPark - V01.004.068";
+  //   V01.004.069 — Deux corrections sur le récap équipe, vérifiées avec un rendu réel (Playwright,
+  //                 vrai téléphone en portrait) : 1) le tableau était forcé à 100% de largeur, ce qui
+  //                 écrasait les colonnes de droite (OUT/IN/TOT, derniers trous) jusqu'à les rendre
+  //                 invisibles sur petit écran — il garde maintenant sa largeur minimale naturelle
+  //                 (680px), avec défilement horizontal si besoin ; testé sur un écran de téléphone
+  //                 390px de large (avec le mode paysage forcé) : tout le tableau est désormais
+  //                 visible, jusqu'à TOT. 2) Le rond de marquage PAR/EAGLE est réduit (1.9em → 1.5em)
+  //                 et aminci (bordure 2px → 1px, anneaux EAGLE resserrés), pour un rendu plus discret
+  //                 partout où il apparaît (carte principale, historique, éclectique, récap équipe).
+  const APP_VERSION = "SuarPark - V01.004.069";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
