@@ -732,7 +732,18 @@
   //                 photographié directement, avec de meilleures chances de reconnaissance OCR
   //                 qu'une capture de l'écran normal de l'app (coloré et dense). Réutilise le même
   //                 texte que "Copier ma carte" (fonction de génération factorisée en interne).
-  const APP_VERSION = "SuarPark - V01.004.061";
+  //   V01.004.062 — Demande du Directeur de session : pouvoir tout envoyer/recevoir en une fois.
+  //                 1) "📥 Coller ma carte" et "👥 Recevoir la carte d'un joueur" reconnaissent
+  //                 désormais un texte contenant PLUSIEURS cartes à la fois (chacune restant un
+  //                 bloc auto-délimité par ses balises début/fin) et les ajoutent toutes en un seul
+  //                 geste, avec un message récapitulant le nombre de cartes ajoutées. 2) Nouveau
+  //                 bouton "📋 Tout copier" dans le récapitulatif d'équipe : exporte toutes les
+  //                 cartes connues (celles du récap + la carte personnelle) en un seul texte prêt à
+  //                 renvoyer ailleurs. 3) Corrigé au passage : un vrai bug préexistant où deux
+  //                 messages de confirmation ("Carte de {0} ajoutée...", "Retirer la carte de {0}
+  //                 ...") affichaient littéralement "{0}" au lieu du nom du joueur, faute d'être
+  //                 écrits sous la forme fonction attendue par le système de traduction.
+  const APP_VERSION = "SuarPark - V01.004.062";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -841,11 +852,14 @@
       scanReviewRetry: "Nouveau test",
       scanReviewQuit: "Quitter",
       teamRecapEmpty: "Aucune carte reçue pour l'instant. Utilise \"👥 Recevoir la carte d'un joueur\" depuis la carte de score vierge.",
-      teamRecapReceiveSuccess: "Carte de {0} ajoutée au récapitulatif d'équipe !",
+      teamRecapReceiveSuccess: (n) => `Carte de ${n} ajoutée au récapitulatif d'équipe !`,
       teamRecapReceiveError: "Ce texte n'a pas été reconnu comme une carte SuarPark valide.",
       teamRecapRemove: "Retirer",
-      teamRecapRemoveConfirm: "Retirer la carte de {0} du récapitulatif ?",
+      teamRecapRemoveConfirm: (n) => `Retirer la carte de ${n} du récapitulatif ?`,
       teamRecapClearAll: "Tout effacer",
+      teamRecapCopyAll: "📋 Tout copier",
+      teamRecapCopyAllSuccess: "Toutes les cartes copiées dans le presse-papier !",
+      teamRecapReceiveBatchSuccess: (count, names) => `${count} cartes ajoutées au récapitulatif : ${names}`,
       teamRecapClearAllConfirm: "Effacer tout le récapitulatif d'équipe ? Cette action est irréversible.",
       teamRecapUpdatedAt: "Reçue à",
       teamRecapBtnClose: "Fermer",
@@ -1088,11 +1102,14 @@
       scanReviewRetry: "New attempt",
       scanReviewQuit: "Quit",
       teamRecapEmpty: "No card received yet. Use \"👥 Receive a player's card\" from the blank scorecard.",
-      teamRecapReceiveSuccess: "{0}'s card added to the team recap!",
+      teamRecapReceiveSuccess: (n) => `${n}'s card added to the team recap!`,
       teamRecapReceiveError: "This text wasn't recognized as a valid SuarPark card.",
       teamRecapRemove: "Remove",
-      teamRecapRemoveConfirm: "Remove {0}'s card from the recap?",
+      teamRecapRemoveConfirm: (n) => `Remove ${n}'s card from the recap?`,
       teamRecapClearAll: "Clear all",
+      teamRecapCopyAll: "📋 Copy all",
+      teamRecapCopyAllSuccess: "All cards copied to the clipboard!",
+      teamRecapReceiveBatchSuccess: (count, names) => `${count} cards added to the recap: ${names}`,
       teamRecapClearAllConfirm: "Clear the whole team recap? This cannot be undone.",
       teamRecapUpdatedAt: "Received at",
       teamRecapBtnClose: "Close",
@@ -1335,11 +1352,14 @@
       scanReviewRetry: "Neuer Versuch",
       scanReviewQuit: "Beenden",
       teamRecapEmpty: "Noch keine Karte empfangen. \"👥 Karte eines Spielers empfangen\" auf der leeren Scorekarte verwenden.",
-      teamRecapReceiveSuccess: "Karte von {0} zur Team-Übersicht hinzugefügt!",
+      teamRecapReceiveSuccess: (n) => `Karte von ${n} zur Team-Übersicht hinzugefügt!`,
       teamRecapReceiveError: "Dieser Text wurde nicht als gültige SuarPark-Karte erkannt.",
       teamRecapRemove: "Entfernen",
-      teamRecapRemoveConfirm: "Karte von {0} aus der Übersicht entfernen?",
+      teamRecapRemoveConfirm: (n) => `Karte von ${n} aus der Übersicht entfernen?`,
       teamRecapClearAll: "Alles löschen",
+      teamRecapCopyAll: "📋 Alles kopieren",
+      teamRecapCopyAllSuccess: "Alle Karten in die Zwischenablage kopiert!",
+      teamRecapReceiveBatchSuccess: (count, names) => `${count} Karten zur Übersicht hinzugefügt: ${names}`,
       teamRecapClearAllConfirm: "Die gesamte Team-Übersicht löschen? Dies kann nicht rückgängig gemacht werden.",
       teamRecapUpdatedAt: "Empfangen um",
       teamRecapBtnClose: "Schließen",
@@ -1582,11 +1602,14 @@
       scanReviewRetry: "ลองใหม่",
       scanReviewQuit: "ออก",
       teamRecapEmpty: "ยังไม่มีการ์ดที่ได้รับ ใช้ \"👥 รับการ์ดของผู้เล่น\" จากการ์ดคะแนนเปล่า",
-      teamRecapReceiveSuccess: "เพิ่มการ์ดของ {0} ในสรุปทีมแล้ว!",
+      teamRecapReceiveSuccess: (n) => `เพิ่มการ์ดของ ${n} ในสรุปทีมแล้ว!`,
       teamRecapReceiveError: "ไม่รู้จักข้อความนี้ว่าเป็นการ์ด SuarPark ที่ถูกต้อง",
       teamRecapRemove: "ลบ",
-      teamRecapRemoveConfirm: "ลบการ์ดของ {0} ออกจากสรุปทีม?",
+      teamRecapRemoveConfirm: (n) => `ลบการ์ดของ ${n} ออกจากสรุปทีม?`,
       teamRecapClearAll: "ล้างทั้งหมด",
+      teamRecapCopyAll: "📋 คัดลอกทั้งหมด",
+      teamRecapCopyAllSuccess: "คัดลอกการ์ดทั้งหมดไปยังคลิปบอร์ดแล้ว!",
+      teamRecapReceiveBatchSuccess: (count, names) => `เพิ่ม ${count} การ์ดในสรุป: ${names}`,
       teamRecapClearAllConfirm: "ล้างสรุปทีมทั้งหมด? การกระทำนี้ไม่สามารถย้อนกลับได้",
       teamRecapUpdatedAt: "ได้รับเมื่อ",
       teamRecapBtnClose: "ปิด",
@@ -3232,6 +3255,89 @@
     return lines.join('\n');
   }
 
+  // Reconstruit le texte lisible d'une carte à partir de données déjà stockées (récap
+  // équipe ou carte personnelle sauvegardée), sans dépendre du DOM — utilisé pour l'export
+  // groupé "Tout copier". Les libellés météo (direction, condition) sont reconstruits à
+  // partir des codes internes stockés, via les mêmes clés de traduction que les menus.
+  function buildReadableTextFromDraft(draft){
+    const h = draft.header;
+    const playerName = h.playerName === BLANKCARD_OTHER_VALUE ? (h.playerNameOther || '?') : (h.playerName || '?');
+
+    let caddieText = '';
+    if (h.caddieNumber === BLANKCARD_OTHER_VALUE){
+      caddieText = [h.caddieOtherNumber, h.caddieOtherName].filter(Boolean).join('_');
+    } else if (h.caddieNumber){
+      caddieText = caddieDisplayText(h.caddieNumber);
+    }
+
+    const teeLabel = h.tee === 'red' ? '🔴 RED' : h.tee === 'white' ? '⚪ WHITE' : '';
+    const windDirText = h.weatherWindDir ? t('windDir' + h.weatherWindDir) : '';
+    const condSlug = h.weatherCondition ? 'weatherCondition' + h.weatherCondition.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join('') : '';
+    const condText = condSlug ? t(condSlug) : '';
+    const weatherParts = [];
+    if (h.weatherTemp !== "") weatherParts.push(`${h.weatherTemp}°C`);
+    if (h.weatherWind !== "") weatherParts.push(`${h.weatherWind} km/h${windDirText ? ' ' + windDirText : ''}${h.weatherWindDir ? ' [' + h.weatherWindDir + ']' : ''}`);
+    if (condText) weatherParts.push(`${condText}${h.weatherCondition ? ' [' + h.weatherCondition + ']' : ''}`);
+
+    const scoresOut = draft.scores.slice(0,9).map(s => s || '–').join(' ');
+    const scoresIn = draft.scores.slice(9,18).map(s => s || '–').join(' ');
+    const puttsOut = draft.putts.slice(0,9).map(s => s || '–').join(' ');
+    const puttsIn = draft.putts.slice(9,18).map(s => s || '–').join(' ');
+    const {out, inn, tot} = computeOutInTot(draft.scores);
+    const {out: pOut, inn: pIn, tot: pTot} = computeOutInTot(draft.putts);
+    const parTotal = PAR.reduce((a,b) => a+b, 0);
+
+    const lines = [];
+    lines.push('SuarPark_début:');
+    lines.push(`⛳ SuarPark — ${playerName}${h.date ? ' — ' + h.date : ''}`);
+    const line2 = [];
+    if (teeLabel) line2.push(`${t('blankCardTextLabelTee')} : ${teeLabel}`);
+    if (caddieText) line2.push(`${t('blankCardTextLabelCaddie')} : ${caddieText}`);
+    if (line2.length) lines.push(line2.join(' — '));
+    if (weatherParts.length) lines.push(`${t('blankCardTextLabelWeather')} : ${weatherParts.join(' · ')}`);
+    lines.push(`${t('blankCardTextLabelScore')} : ${scoresOut} | ${scoresIn}`);
+    lines.push(`${t('blankCardTextLabelTotal')} : ${out || 0} + ${inn || 0} = ${tot || 0}  (${t('blankCardTextLabelPar')} ${parTotal})`);
+    if (pOut !== 0 || pIn !== 0){
+      lines.push(`${t('blankCardTextLabelPutts')} : ${puttsOut} | ${puttsIn}`);
+      lines.push(`${t('blankCardTextLabelTotalPutts')} : ${pOut} + ${pIn} = ${pTot}`);
+    }
+    lines.push('SuarPark_Fin.');
+    return lines.join('\n');
+  }
+
+  // Exporte TOUTES les cartes connues (celles du récap équipe + la carte personnelle si
+  // elle a une identité) en un seul texte, chaque carte restant un bloc auto-délimité —
+  // ce même texte peut être renvoyé plus tard vers "Recevoir la carte d'un joueur", qui
+  // sait désormais traiter plusieurs cartes à la fois.
+  function teamRecapExportAllText(){
+    const data = loadTeamRecap();
+    const keys = Object.keys(data);
+    const blocks = keys.map(k => buildReadableTextFromDraft(data[k]));
+    const ownDraft = loadBlankCardDraft();
+    if (ownDraft.header.playerName || ownDraft.header.playerNameOther){
+      blocks.unshift(buildReadableTextFromDraft(ownDraft));
+    }
+    const border = '='.repeat(32);
+    return blocks.map(b => border + '\n' + b + '\n' + border).join('\n\n');
+  }
+
+  function teamRecapCopyAll(){
+    const data = loadTeamRecap();
+    const ownDraft = loadBlankCardDraft();
+    const hasOwn = ownDraft.header.playerName || ownDraft.header.playerNameOther;
+    if (Object.keys(data).length === 0 && !hasOwn){
+      window.alert(t('teamRecapEmpty'));
+      return;
+    }
+    const text = teamRecapExportAllText();
+    const finish = () => window.alert(t('teamRecapCopyAllSuccess'));
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(finish).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), text));
+    } else {
+      window.prompt(t('blankCardExportTextFallbackTitle'), text);
+    }
+  }
+
   function blankCardExportText(){
     const text = buildBlankCardReadableText();
     const finish = () => window.alert(t('blankCardExportTextCopied'));
@@ -3578,6 +3684,41 @@
     return {status: 'success', name: teamRecapDisplayName(draft.header)};
   }
 
+  // Découpe un texte en plusieurs blocs de carte (un par paire de balises début/fin
+  // trouvée), pour permettre la réception de plusieurs joueurs d'un coup. Si aucune balise
+  // n'est trouvée, retourne le texte entier tel quel (repli sur l'ancien comportement à
+  // une seule carte, pour rester compatible avec d'anciens messages).
+  function splitCardBlocks(rawText){
+    const startRe = /\[SuarPark\]|SuarPark[_\s]*d[ée]but\s*:?/gi;
+    const endRe = /\[\/SuarPark\]|SuarPark[_\s]*Fin\s*\.?/gi;
+    const starts = [];
+    const ends = [];
+    let m;
+    while ((m = startRe.exec(rawText))) starts.push(m.index);
+    while ((m = endRe.exec(rawText))) ends.push(m.index + m[0].length);
+    if (starts.length === 0 || ends.length === 0) return [rawText];
+    const blocks = [];
+    let endPtr = 0;
+    for (let i = 0; i < starts.length; i++){
+      const s = starts[i];
+      while (endPtr < ends.length && ends[endPtr] <= s) endPtr++;
+      if (endPtr >= ends.length) break;
+      blocks.push(rawText.slice(s, ends[endPtr]));
+      endPtr++;
+    }
+    return blocks.length ? blocks : [rawText];
+  }
+
+  function parseMultipleCards(rawText){
+    const blocks = splitCardBlocks(rawText);
+    const drafts = [];
+    blocks.forEach(block => {
+      const draft = blankCardParseReadableText(block);
+      if (draft && draft.scores) drafts.push(draft);
+    });
+    return drafts;
+  }
+
   function teamRecapApplyImportedText(trimmed){
     if (!trimmed) return {status: 'invalid'};
     let draft = null;
@@ -3591,12 +3732,34 @@
     return teamRecapCommitDraft(draft);
   }
 
+  // Version "en lot" : reconnaît un texte contenant une OU plusieurs cartes (le Directeur
+  // de session peut recevoir/coller plusieurs joueurs d'un coup) et les ajoute toutes.
+  function teamRecapApplyImportedTextBatch(rawText){
+    if (!rawText) return {count: 0, names: []};
+    try {
+      const cleaned = rawText.trim().replace(/\s+/g, '');
+      const parsed = JSON.parse(decodeURIComponent(escape(atob(cleaned))));
+      if (parsed && parsed.scores){
+        const result = teamRecapCommitDraft(parsed);
+        return result.status === 'success' ? {count: 1, names: [result.name]} : {count: 0, names: []};
+      }
+    } catch(e){ /* pas le format technique : on essaie le texte lisible, potentiellement en lot */ }
+
+    const drafts = parseMultipleCards(rawText);
+    const names = [];
+    drafts.forEach(draft => {
+      const result = teamRecapCommitDraft(draft);
+      if (result.status === 'success') names.push(result.name);
+    });
+    return {count: names.length, names};
+  }
+
   function teamRecapReceiveManual(){
     const code = window.prompt(t('blankCardImportPrompt'), "");
     if (!code) return;
-    const result = teamRecapApplyImportedText(code.trim());
-    if (result.status === 'success'){
-      window.alert(t('teamRecapReceiveSuccess', result.name));
+    const result = teamRecapApplyImportedTextBatch(code.trim());
+    if (result.count > 0){
+      window.alert(result.count === 1 ? t('teamRecapReceiveSuccess', result.names[0]) : t('teamRecapReceiveBatchSuccess', result.count, result.names.join(', ')));
       renderTeamRecap();
     } else {
       window.alert(t('teamRecapReceiveError'));
@@ -3608,9 +3771,9 @@
       navigator.clipboard.readText().then(clip => {
         const trimmed = (clip || '').trim();
         if (!trimmed){ teamRecapReceiveManual(); return; }
-        const result = teamRecapApplyImportedText(trimmed);
-        if (result.status === 'success'){
-          window.alert(t('teamRecapReceiveSuccess', result.name));
+        const result = teamRecapApplyImportedTextBatch(trimmed);
+        if (result.count > 0){
+          window.alert(result.count === 1 ? t('teamRecapReceiveSuccess', result.names[0]) : t('teamRecapReceiveBatchSuccess', result.count, result.names.join(', ')));
           renderTeamRecap();
         } else {
           teamRecapReceiveManual();
@@ -3920,6 +4083,7 @@
       <div class="toolbar no-print" style="margin-bottom:8px;">
         <button class="btn btn-secondary" id="btnTeamRecapClose">← ${t('teamRecapBtnClose')}</button>
         <button class="btn btn-secondary" id="btnTeamRecapPrint">${t('teamRecapBtnPrint')}</button>
+        <button class="btn btn-transfer" id="btnTeamRecapCopyAll">${t('teamRecapCopyAll')}</button>
         <button class="btn btn-danger" id="btnTeamRecapClearAll">${t('teamRecapClearAll')}</button>
       </div>
       <h2>${t('teamRecapTitle')}</h2>
@@ -3931,6 +4095,7 @@
 
     document.getElementById('btnTeamRecapClose').addEventListener('click', () => teamRecapSetVisible(false));
     document.getElementById('btnTeamRecapPrint').addEventListener('click', () => window.print());
+    document.getElementById('btnTeamRecapCopyAll').addEventListener('click', teamRecapCopyAll);
     document.getElementById('btnTeamRecapClearAll').addEventListener('click', teamRecapClearAll);
     wireLangSelectors();
   }
