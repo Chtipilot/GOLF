@@ -14,39 +14,58 @@
 <meta name="apple-mobile-web-app-title" content="SuarPark">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0; padding:12px; background:#ffffff;">
+<body style="margin:0; padding:12px; background:#f7f3ea;">
 <div id="app" style="width:100%; max-width:100%; overflow-x:hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing:border-box; color:#1a1a1a;">
 
 <style>
+  #app {
+    --green-deep:#1a3c34; --green-mid:#2d5c4c; --green-pale:#e8f0ee;
+    --sand:#c9a668; --sand-pale:#f1e6cc;
+    --flag-red:#b23a3a; --flag-red-dark:#8f2e2e;
+    --cream:#f7f3ea; --line:#e4dfd2; --ink:#1a1a1a;
+    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+  }
   #app * { box-sizing: border-box; }
   #app table { width:100%; table-layout:fixed; border-collapse:collapse; }
-  #app th, #app td { border:1px solid #e0e0e0; text-align:center; padding:3px 1px; }
-  #app .btn { background:#1a3c34; color:#fff; border:none; border-radius:6px; padding:7px 12px; font-size:12px; cursor:pointer; margin:3px 4px 3px 0; }
-  #app .btn:hover { background:#254e44; }
-  #app .btn-secondary { background:#e8f0ee; color:#1a3c34; }
+  #app th, #app td { border:1px solid var(--line); text-align:center; padding:3px 1px; }
+  #app .btn { background:var(--green-deep); color:#fff; border:none; border-radius:9px; padding:8px 14px; font-size:12px; cursor:pointer; margin:3px 4px 3px 0; box-shadow:0 1px 2px rgba(26,60,52,0.18); transition:background 0.15s ease, transform 0.1s ease; min-height:38px; }
+  #app .btn:hover { background:var(--green-mid); }
+  #app .btn:active { transform:translateY(1px); }
+  #app .btn-secondary { background:var(--green-pale); color:var(--green-deep); box-shadow:none; }
   #app .btn-secondary:hover { background:#d5e4e0; }
-  #app .btn-danger { background:#b23a3a; }
-  #app .btn-danger:hover { background:#8f2e2e; }
+  #app .btn-danger { background:var(--flag-red); }
+  #app .btn-danger:hover { background:var(--flag-red-dark); }
   /* Boutons de transmission (copier/coller/recevoir) : nettement distincts visuellement du
      reste, pour que l'action "envoyer/recevoir une carte" saute aux yeux dans la barre. */
   #app .btn-transfer { background:#1a73e8; color:#fff; border:2px solid #0d47a1; }
   #app .btn-transfer:hover { background:#1558b0; }
   #app input[type=number] { width:100%; border:none; text-align:center; font-size:inherit; padding:2px 0; background:transparent; -moz-appearance:textfield; }
-  #app input[type=number]:focus { background:#fff3cd; outline:1px solid #1a3c34; }
+  #app input[type=number]:focus { background:#fff3cd; outline:1px solid var(--green-deep); }
   #app input[type=number]::-webkit-outer-spin-button,
   #app input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
   #app input[type=text], #app input[type=date] { border:1px solid #ccc; border-radius:4px; padding:4px 6px; font-size:12px; }
-  #app h2 { font-size: clamp(15px, 2vw, 20px); margin: 0 0 4px 0; color:#1a3c34; }
-  #app h3 { font-size: clamp(12px, 1.6vw, 15px); margin: 14px 0 6px 0; color:#1a3c34; }
+  #app h2 { font-family:var(--font-display); font-weight:700; font-size: clamp(17px, 2.4vw, 23px); margin: 0 0 4px 0; color:var(--green-deep); letter-spacing:0.2px; }
+  #app h3 { font-family:var(--font-display); font-weight:600; font-size: clamp(13px, 1.8vw, 17px); margin: 14px 0 6px 0; color:var(--green-deep); }
   #app .sub { font-size:11px; color:#666; margin:0 0 10px 0; }
-  #app .toolbar { margin-bottom:10px; display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
+  #app .toolbar { margin-bottom:10px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
   #app .scorecard-table { font-size: clamp(7px, 0.95vw, 10.5px); }
-  #app .history-scroll { max-height:260px; overflow-y:auto; border:1px solid #e0e0e0; border-radius:4px; }
+  #app .history-scroll { max-height:260px; overflow-y:auto; border:1px solid var(--line); border-radius:4px; }
   #app .date-slider-row { display:flex; align-items:center; gap:8px; margin:4px 0 6px 0; }
-  #app .date-slider-row input[type=range] { flex:1; accent-color:#1a3c34; }
-  #app .date-slider-label { font-size:11px; color:#1a3c34; font-weight:bold; min-width:80px; text-align:right; }
-  #app .status { font-size:11px; color:#1a3c34; margin-top:6px; min-height:14px; }
+  #app .date-slider-row input[type=range] { flex:1; accent-color:var(--green-deep); }
+  #app .date-slider-label { font-size:11px; color:var(--green-deep); font-weight:bold; min-width:80px; text-align:right; }
+  #app .status { font-size:11px; color:var(--green-deep); margin-top:6px; min-height:14px; }
+
+  /* --- Ergonomie mobile : cibles tactiles plus grandes, plus d'air entre les boutons --- */
+  @media (max-width: 600px) {
+    #app .btn { min-height:44px; padding:10px 14px; font-size:13px; }
+    #app .toolbar { gap:8px; }
+    #app input[type=number] { padding:6px 0; }
+    #app .blankcard-score-input { padding:8px 0 !important; font-size:14px !important; }
+  }
 
   /* --- Optimisations mode Paysage (téléphone) --- */
   @media (orientation: landscape) and (max-height: 500px) {
@@ -575,7 +594,17 @@
   //                 (30px, gras) juste sous le bouton "👥 Récapitulatif de l'équipe" et juste
   //                 au-dessus du tableau de score, pour être identifiable en un coup d'œil. Mis à
   //                 jour en direct dès que le nom change (liste des joueurs ou saisie "Autre").
-  const APP_VERSION = "SuarPark - V01.004.048";
+  //   V01.004.049 — Passe de présentation générale demandée par le Directeur de session : 1) palette
+  //                 rafraîchie façon "club-house golf" — fond crème (#f7f3ea) plutôt que blanc pur,
+  //                 nouvelles variables CSS (--green-deep, --sand, --flag-red, --cream, --line...) ;
+  //                 2) ajout de la police d'accent "Fraunces" (serif à caractère) pour les titres
+  //                 (h2/h3) et le grand nom du joueur, tout en gardant la police système pour les
+  //                 données/tableaux (lisibilité en priorité) ; 3) boutons arrondis (rayon 9px),
+  //                 légère ombre, cibles tactiles agrandies à 44px minimum sous 600px de large pour
+  //                 une meilleure ergonomie mobile ; 4) polish de la section Carte de score vierge :
+  //                 bouton Récap équipe et boutons de départ WHITE/RED redessinés (coins arrondis
+  //                 façon marqueur de golf), nom du joueur souligné d'un filet sable.
+  const APP_VERSION = "SuarPark - V01.004.049";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3718,18 +3747,18 @@
 
       <hr style="border:none; border-top:2px solid #1a3c34; margin:16px 0 14px 0;">
 
-      <button class="btn no-print" id="btnToggleTeamRecapFromCard" style="display:block; width:100%; font-size:18px; padding:14px 10px; background:#0d47a1; border:3px solid #0a3880; margin-bottom:14px;">👥 ${t('teamRecapTitle')}</button>
+      <button class="btn no-print" id="btnToggleTeamRecapFromCard" style="display:block; width:100%; font-size:16px; font-family:var(--font-display); font-weight:700; letter-spacing:0.3px; padding:14px 10px; background:#0d47a1; border-radius:10px; box-shadow:0 2px 5px rgba(13,71,161,0.3); margin-bottom:14px;">👥 ${t('teamRecapTitle')}</button>
 
-      <div id="blankCardBigName" style="text-align:center; font-size:30px; font-weight:900; color:#1a3c34; margin:2px 0 16px 0; letter-spacing:0.5px;">${teamRecapDisplayName(draft.header)}</div>
+      <div id="blankCardBigName" style="text-align:center; font-family:var(--font-display); font-size:32px; font-weight:900; color:var(--green-deep); margin:2px 0 16px 0; letter-spacing:0.3px; padding-bottom:10px; border-bottom:2px solid var(--sand);">${teamRecapDisplayName(draft.header)}</div>
 
-      <h3 style="margin:0 0 4px 0; color:#1a3c34;">⛳ ${t('blankCardScorecardSectionTitle')}</h3>
+      <h3 style="margin:0 0 4px 0;">⛳ ${t('blankCardScorecardSectionTitle')}</h3>
 
       <div class="blankcard-header-row" style="align-items:flex-start;">
         <div class="blankcard-header-cell" style="flex-basis:100%; flex-direction:column; align-items:flex-start;">
           <label>${t('blankCardTeeChoiceLabel')}</label>
           <div style="display:flex; gap:8px; margin-top:4px; width:100%;">
-            <button type="button" id="btnBlankCardTeeWhite" class="btn btn-secondary no-print" style="flex:1;">⚪ WHITE</button>
-            <button type="button" id="btnBlankCardTeeRed" class="btn btn-secondary no-print" style="flex:1;">🔴 RED</button>
+            <button type="button" id="btnBlankCardTeeWhite" class="btn btn-secondary no-print" style="flex:1; border-radius:20px;">⚪ WHITE</button>
+            <button type="button" id="btnBlankCardTeeRed" class="btn btn-secondary no-print" style="flex:1; border-radius:20px;">🔴 RED</button>
           </div>
           <input type="hidden" data-field="tee">
           <p class="sub no-print" id="blankCardTeeLockNote" style="font-size:11px; color:#888; margin-top:4px; display:none;">🔒 ${t('blankCardTeeLocked')}</p>
