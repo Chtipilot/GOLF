@@ -773,7 +773,16 @@
   //                 colonne du nom du joueur (icône départ, nom, badge "Toi", bouton Retirer, date
   //                 de réception) est passée en largeur fixe avec retour à la ligne, corrigeant un
   //                 débordement visuel des noms longs sur les cases de score des trous.
-  const APP_VERSION = "SuarPark - V01.004.063";
+  //   V01.004.064 — Correction suite à un test réel de lot (plusieurs cartes en un seul message) :
+  //                 la 1ère carte d'un lot était silencieusement perdue si sa balise "SuarPark_
+  //                 début:" manquait (ex. coupée par un message qui tronque le début du texte),
+  //                 même si sa balise "Fin" était bien présente. Le découpage en plusieurs cartes
+  //                 s'appuie désormais sur les balises "Fin" comme repère principal (une carte par
+  //                 "Fin" rencontrée) plutôt que sur des paires début/fin strictes : une carte sans
+  //                 balise "début" est maintenant quand même récupérée, au lieu de disparaître sans
+  //                 aucun avertissement. Non-régression vérifiée sur tous les cas déjà testés
+  //                 (lot complet, carte unique, ancien format sans balises).
+  const APP_VERSION = "SuarPark - V01.004.064";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3714,10 +3723,14 @@
     return {status: 'success', name: teamRecapDisplayName(draft.header)};
   }
 
-  // Découpe un texte en plusieurs blocs de carte (un par paire de balises début/fin
-  // trouvée), pour permettre la réception de plusieurs joueurs d'un coup. Si aucune balise
-  // n'est trouvée, retourne le texte entier tel quel (repli sur l'ancien comportement à
-  // une seule carte, pour rester compatible avec d'anciens messages).
+  // Découpe un texte en plusieurs blocs de carte, un par balise "Fin" rencontrée (dans
+  // l'ordre), pour permettre la réception de plusieurs joueurs d'un coup. S'appuie sur les
+  // balises "Fin" comme repère principal plutôt que sur les paires début/fin : si une carte
+  // n'a pas (ou plus) sa balise "début" — par ex. coupée par un message qui tronque le
+  // début du texte — son contenu est quand même récupéré (tout ce qui n'a pas encore été
+  // consommé jusqu'à ce "Fin"), au lieu d'être perdu silencieusement. Si aucune balise "Fin"
+  // n'est trouvée du tout, retourne le texte entier tel quel (repli sur l'ancien
+  // comportement à une seule carte, pour rester compatible avec d'anciens messages).
   function splitCardBlocks(rawText){
     const startRe = /\[SuarPark\]|SuarPark[_\s]*d[ée]but\s*:?/gi;
     const endRe = /\[\/SuarPark\]|SuarPark[_\s]*Fin\s*\.?/gi;
@@ -3726,15 +3739,20 @@
     let m;
     while ((m = startRe.exec(rawText))) starts.push(m.index);
     while ((m = endRe.exec(rawText))) ends.push(m.index + m[0].length);
-    if (starts.length === 0 || ends.length === 0) return [rawText];
+    if (ends.length === 0) return [rawText];
+
     const blocks = [];
-    let endPtr = 0;
-    for (let i = 0; i < starts.length; i++){
-      const s = starts[i];
-      while (endPtr < ends.length && ends[endPtr] <= s) endPtr++;
-      if (endPtr >= ends.length) break;
-      blocks.push(rawText.slice(s, ends[endPtr]));
-      endPtr++;
+    let cursor = 0;
+    let startPtr = 0;
+    for (let i = 0; i < ends.length; i++){
+      const e = ends[i];
+      let blockStart = cursor;
+      while (startPtr < starts.length && starts[startPtr] < e){
+        blockStart = starts[startPtr];
+        startPtr++;
+      }
+      blocks.push(rawText.slice(blockStart, e));
+      cursor = e;
     }
     return blocks.length ? blocks : [rawText];
   }
