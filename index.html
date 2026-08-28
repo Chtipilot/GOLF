@@ -650,7 +650,24 @@
   //                 "Historique" sont désormais regroupés dans un cadre dédié, distinct des autres
   //                 boutons de menu (Caddies, Putts, Éclectique, Graphiques, Faits marquants,
   //                 Rouge vs Blanc).
-  const APP_VERSION = "SuarPark - V01.004.052";
+  //   V01.004.053 — Correction suite à un test réel (bouton "👥 Récap équipe" du haut de page resté
+  //                 affiché en français alors que l'anglais était sélectionné) : ce bouton n'était
+  //                 mis à jour qu'au clic (ouverture/fermeture), pas lors d'un changement de langue.
+  //                 Ajouté à applyStaticText(), comme les autres boutons de bascule (Carte vierge,
+  //                 Comparatif Tee, etc.), pour se traduire immédiatement avec le reste du site.
+  //   V01.004.054 — Correction suite à un test réel (bouton "Afficher les caddies" resté en français
+  //                 en mode anglais) : 18 clés de traduction liées aux caddies (btnShowCaddies,
+  //                 caddiesTitle, caddieNumber, caddieName, caddiePhone, caddiePhoto, btnAddCaddie,
+  //                 messages d'ajout/suppression, etc.) étaient absentes des dictionnaires anglais
+  //                 et allemand — seuls le français et le thaï les avaient. Ajoutées dans les deux
+  //                 langues manquantes ; vérification exhaustive effectuée : les 4 langues comptent
+  //                 désormais exactement le même nombre de clés (210), sans aucun trou.
+  //   V01.004.055 — Sous-titre de la page de garde simplifié : la mention fixe "Départs rouges" est
+  //                 retirée (le départ n'est plus figé depuis que chaque manche peut être en WHITE
+  //                 ou RED — la donnée couleur/distance du parcours reste consultable dans le
+  //                 tableau des départs, plus bas). Le sous-titre affiche désormais simplement
+  //                 "Par 72 · 18 trous — Fichier de consultation (lecture seule)".
+  const APP_VERSION = "SuarPark - V01.004.055";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -676,7 +693,7 @@
     fr: {
       title: "Carte de score — SuarPark",
       langLabel: "Langue",
-      subtitle: "Départs rouges · Par 72 · 18 trous — 📖 Fichier de consultation (lecture seule)",
+      subtitle: "Par 72 · 18 trous — 📖 Fichier de consultation (lecture seule)",
       sessionDateLabel: "Date de la manche :",
       newSession: "Nouvelle manche",
       btnSave: "💾 Enregistrer la manche",
@@ -898,7 +915,7 @@
     en: {
       title: "Scorecard — SuarPark",
       langLabel: "Language",
-      subtitle: "Red tees · Par 72 · 18 holes — 📖 View-only file",
+      subtitle: "Par 72 · 18 holes — 📖 View-only file",
       sessionDateLabel: "Round date:",
       newSession: "New round",
       btnSave: "💾 Save round",
@@ -1092,6 +1109,24 @@
         "<strong>Installing SuarPark as an app:</strong> on your phone, use \"Add to Home screen\" (Android) or \"Add to Home Screen\" (iPhone, via Safari's Share button). Once installed, from a message received in Messenger/LINE/WhatsApp, you can tap \"Share\" and choose \"SuarPark\" from the list: the blank scorecard opens and fills in automatically, without going through « 📥 Paste ».",
         "<strong>Printing the blank card:</strong> the « 🖨️ Print » button only prints the card, without the rest of the app."
       ],
+      btnShowCaddies: "🎽 Show caddies",
+      btnHideCaddies: "🎽 Hide caddies",
+      caddiesTitle: "🎽 Caddie list",
+      caddieNumber: "Caddie #",
+      caddieName: "Name",
+      caddiePhone: "Phone",
+      caddiePhoto: "Photo",
+      btnAddCaddie: "➕ Add",
+      noCaddies: "No caddies registered.",
+      caddieMissingFields: "Caddie number and name required.",
+      caddieExists: "This caddie number already exists.",
+      caddieAdded: (n) => `Caddie ${n} added.`,
+      caddieRemoved: (n) => `Caddie #${n} removed.`,
+      confirmRemoveCaddie: (n) => `Remove caddie #${n}?`,
+      caddieSelectTitle: "Choose the caddie for this round",
+      btnSaveCaddies: "💾 Save",
+      addCaddieSubtitle: "Add a new caddie",
+      caddiesSaved: "✅ Caddie list saved.",
       storageWarning: "⚠️ Insufficient storage space or private browsing detected on this phone: the full backup (history + 10 caddies) might fail. Consider exporting to Excel regularly.",
       storageTestOk: "✅ Memory test passed: the full backup (history + 10 caddies) works on this phone.",
       caddieCardRounds: (n) => `${n} round(s) recorded with this caddie`,
@@ -1102,7 +1137,7 @@
     de: {
       title: "Scorekarte — SuarPark",
       langLabel: "Sprache",
-      subtitle: "Rote Abschläge · Par 72 · 18 Löcher — 📖 Nur-Lese-Datei",
+      subtitle: "Par 72 · 18 Löcher — 📖 Nur-Lese-Datei",
       sessionDateLabel: "Rundendatum:",
       newSession: "Neue Runde",
       btnSave: "💾 Runde speichern",
@@ -1296,6 +1331,24 @@
         "<strong>SuarPark als App installieren:</strong> auf dem Handy „Zum Startbildschirm hinzufügen“ (Android) bzw. „Zum Home-Bildschirm“ (iPhone, über die Teilen-Schaltfläche von Safari) verwenden. Nach der Installation kann man bei einer in Messenger/LINE/WhatsApp empfangenen Nachricht auf „Teilen“ tippen und „SuarPark“ aus der Liste wählen: die leere Scorekarte öffnet sich und wird automatisch ausgefüllt, ohne über « 📥 Einfügen » zu gehen.",
         "<strong>Leere Karte drucken:</strong> die Schaltfläche « 🖨️ Drucken » druckt nur die Karte, ohne den Rest der App."
       ],
+      btnShowCaddies: "🎽 Caddies anzeigen",
+      btnHideCaddies: "🎽 Caddies ausblenden",
+      caddiesTitle: "🎽 Caddie-Liste",
+      caddieNumber: "Caddie-Nr.",
+      caddieName: "Name",
+      caddiePhone: "Telefon",
+      caddiePhoto: "Foto",
+      btnAddCaddie: "➕ Hinzufügen",
+      noCaddies: "Keine Caddies erfasst.",
+      caddieMissingFields: "Caddie-Nummer und Name erforderlich.",
+      caddieExists: "Diese Caddie-Nummer existiert bereits.",
+      caddieAdded: (n) => `Caddie ${n} hinzugefügt.`,
+      caddieRemoved: (n) => `Caddie Nr. ${n} entfernt.`,
+      confirmRemoveCaddie: (n) => `Caddie Nr. ${n} entfernen?`,
+      caddieSelectTitle: "Caddie für diese Runde wählen",
+      btnSaveCaddies: "💾 Speichern",
+      addCaddieSubtitle: "Neuen Caddie hinzufügen",
+      caddiesSaved: "✅ Caddie-Liste gespeichert.",
       storageWarning: "⚠️ Unzureichender Speicherplatz oder privates Surfen auf diesem Telefon erkannt: Die vollständige Sicherung (Verlauf + 10 Caddies) könnte fehlschlagen. Exportieren Sie regelmäßig nach Excel.",
       storageTestOk: "✅ Speichertest erfolgreich: Die vollständige Sicherung (Verlauf + 10 Caddies) funktioniert auf diesem Telefon.",
       caddieCardRounds: (n) => `${n} erfasste Runde(n) mit diesem Caddie`,
@@ -1306,7 +1359,7 @@
     th: {
       title: "การ์ดสกอร์ — SuarPark",
       langLabel: "ภาษา",
-      subtitle: "ทีออกแดง · พาร์ 72 · 18 หลุม — 📖 ไฟล์สำหรับดูข้อมูลเท่านั้น",
+      subtitle: "พาร์ 72 · 18 หลุม — 📖 ไฟล์สำหรับดูข้อมูลเท่านั้น",
       sessionDateLabel: "วันที่เล่น:",
       newSession: "รอบใหม่",
       btnSave: "💾 บันทึกรอบ",
@@ -1544,6 +1597,7 @@
     document.getElementById('btnToggleInsights').textContent = insightsVisible ? t('btnHideInsights') : t('btnShowInsights');
     document.getElementById('btnToggleTeeCompare').textContent = teeCompareVisible ? t('btnHideTeeCompare') : t('btnShowTeeCompare');
     document.getElementById('btnToggleBlankCard').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
+    document.getElementById('btnToggleTeamRecap').textContent = teamRecapVisible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
     document.getElementById('btnNotice').textContent = t('btnNotice');
     renderNotice();
     document.getElementById('thHole').textContent = t('thHole');
