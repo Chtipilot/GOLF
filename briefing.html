@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Briefing d'avant partie — SuarPark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-deep:#1a3c34; --green-mid:#2d5c4c; --green-pale:#e8f0ee;
+    --sand:#c9a668; --sand-pale:#f1e6cc;
+    --flag-red:#b23a3a;
+    --cream:#f7f3ea; --line:#e4dfd2; --ink:#26241d; --muted:#6b6558;
+    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#000; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+  /* Barre du haut : UNIQUE élément persistant, en dehors des diapositives (jamais dupliqué
+     lors de leur régénération), pour éviter tout conflit d'identifiant sur le sélecteur de
+     langue. Sa couleur s'adapte simplement selon que la diapositive active est sombre ou non. */
+  #topbar {
+    position:fixed; top:0; left:0; right:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    padding: max(12px, env(safe-area-inset-top)) 20px 10px 20px;
+    background:#fff; border-bottom:1px solid var(--line);
+  }
+  #topbar.dark { background:var(--green-deep); border-bottom-color:rgba(255,255,255,0.15); }
+  .brand { font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.3px; color:var(--green-deep); }
+  #topbar.dark .brand { color:var(--sand-pale); }
+  .topbar-controls { display:flex; align-items:center; gap:8px; }
+  select#langSelect {
+    font-size:12px; padding:4px 8px; border-radius:6px; border:1px solid #ccc; background:#fff; color:#222;
+  }
+  .btn-close {
+    font-size:12px; font-weight:bold; padding:6px 12px; border-radius:8px; border:none; cursor:pointer;
+    background:var(--flag-red); color:#fff; text-decoration:none; display:inline-block;
+  }
+  #topbar.dark .btn-close { background:rgba(255,255,255,0.2); }
+
+  #deck { position:fixed; top:52px; left:0; right:0; bottom:60px; overflow:hidden; }
+  .slide {
+    position:absolute; inset:0; display:none; flex-direction:column;
+    padding: 18px 32px;
+    background:#fff; color:var(--ink);
+  }
+  .slide.active { display:flex; }
+  .slide.dark { background:var(--green-deep); color:#fff; }
+
+  .kicker { font-size:11px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:var(--sand); margin:6px 0 2px 0; }
+  .slide.dark .kicker { color:var(--sand); }
+  h2.slide-title { font-family:var(--font-display); font-weight:700; font-size:clamp(22px,5.5vw,32px); margin:0 0 14px 0; color:var(--green-deep); }
+  .slide.dark h2.slide-title { color:#fff; }
+
+  .content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:10px; }
+  .item { display:flex; gap:12px; margin-bottom:16px; align-items:flex-start; }
+  .item .num {
+    flex:0 0 auto; width:34px; height:34px; border-radius:50%; background:var(--green-deep); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px;
+  }
+  .item .txt .h { font-weight:bold; color:var(--green-deep); margin-bottom:2px; font-size:15px; }
+  .item .txt .b { font-size:13.5px; line-height:1.5; color:var(--ink); }
+  .item .txt .b strong { color:var(--green-deep); }
+
+  .title-slide { justify-content:center; align-items:flex-start; }
+  .title-slide .kicker2 { font-size:13px; font-weight:bold; letter-spacing:3px; color:var(--sand); margin-bottom:10px; }
+  .title-slide h1 { font-family:var(--font-display); font-weight:900; font-size:clamp(30px,7vw,46px); margin:0 0 12px 0; line-height:1.1; }
+  .title-slide p.sub { font-size:14px; color:var(--sand-pale); margin:0; }
+
+  .closing-slide { justify-content:center; align-items:center; text-align:center; }
+  .closing-slide h1 { font-family:var(--font-display); font-weight:900; font-size:clamp(28px,7vw,42px); margin:14px 0 8px 0; }
+  .closing-slide p { font-size:13px; color:var(--sand-pale); max-width:520px; }
+
+  .flag { width:56px; height:56px; }
+
+  .navbar {
+    position:fixed; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 18px max(10px, env(safe-area-inset-bottom)) 18px; background:rgba(255,255,255,0.94);
+    border-top:1px solid var(--line); z-index:10;
+  }
+  .slide.dark ~ .navbar { }
+  .nav-btn {
+    border:none; background:var(--green-pale); color:var(--green-deep); font-weight:bold; font-size:18px;
+    width:42px; height:42px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .nav-btn:disabled { opacity:0.35; cursor:default; }
+  .counter { font-size:12px; color:var(--muted); font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="brand" id="brandText"></span>
+  <div class="topbar-controls">
+    <select id="langSelect">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+      <option value="de">Deutsch</option>
+      <option value="th">ไทย</option>
+    </select>
+    <a class="btn-close" href="index.html" id="closeLink"></a>
+  </div>
+</div>
+
+<div id="deck"></div>
+
+<div class="navbar">
+  <button class="nav-btn" id="btnPrev" aria-label="Précédent">‹</button>
+  <span class="counter" id="counter">1 / 11</span>
+  <button class="nav-btn" id="btnNext" aria-label="Suivant">›</button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const FLAG_ICON_LIGHT = '<svg class="flag" viewBox="0 0 48 48"><rect x="6" y="4" width="6" height="40" rx="2" fill="#c9a668"/><path d="M12 6 L40 14 L12 22 Z" fill="#b23a3a"/><ellipse cx="12" cy="44" rx="10" ry="3" fill="#c9a668" opacity="0.5"/></svg>';
+  const FLAG_ICON_DARK = FLAG_ICON_LIGHT;
+
+  const CONTENT = {
+    fr: {
+      brand: "SuarPark · GOLF_TEAM", close: "✕ Fermer",
+      slides: [
+        { type:"title", kicker:"GOLF_TEAM", title:"Briefing d'avant partie", sub:"Le rôle du Directeur de Session — pense-bête complet, écran par écran" },
+        { type:"content", kicker:"Vue d'ensemble", title:"Le rôle du Directeur de Session", items:[
+          ["1","Collecter","Les cartes envoyées par chaque joueur, en cours ou en fin de manche."],
+          ["2","Vérifier","Jamais d'ajout automatique sans un coup d'œil — surtout pour les cartes scannées."],
+          ["3","Consolider","Toutes les cartes reçues se rassemblent dans un seul récapitulatif d'équipe."],
+          ["4","Transmettre","Le récap complet, prêt à renvoyer pour la mise à jour du site."]
+        ]},
+        { type:"content", kicker:"Checklist", title:"Avant de partir sur le parcours", items:[
+          ["1","Dernière version déployée","Vérifier que le site affiche bien le dernier numéro de version en page de garde."],
+          ["2","Langue testée","Confirmer que le sélecteur de langue fonctionne dans les sections utilisées."],
+          ["3","Accès rapide (tablette)","Envisager « Ajouter à l'écran d'accueil » pour un accès plus rapide et la réception de partage."],
+          ["4","Connexion disponible","S'assurer d'avoir une connexion (données mobiles ou Wi-Fi du club) pour l'échange des cartes."]
+        ]},
+        { type:"content", kicker:"Écran 1", title:"Page d'accueil", items:[
+          ["•","GOLF_TEAM","Le titre, puis deux grosses tuiles d'accès rapide : Carte de score vierge et Récap équipe."],
+          ["•","Historique","Juste sous les deux tuiles — parties déjà jouées, consultables à tout moment."],
+          ["•","Sélecteur de langue","Toujours en premier, en haut de chaque page du site."]
+        ]},
+        { type:"content", kicker:"Écran 2", title:"Ma carte de score vierge", items:[
+          ["•","Champs regroupés à gauche","Nom du joueur en gros, caddie et date juste en dessous."],
+          ["•","Météo encadrée à droite","Température, vent, direction, condition — dans un cadre dédié."],
+          ["•","Départ WHITE ou RED","Se choisit une fois puis se verrouille automatiquement après le premier score saisi."]
+        ]},
+        { type:"content", kicker:"Écran 3", title:"Le menu Transmission", items:[
+          ["•","Copier ma carte","Sortie — texte lisible, à coller dans Messenger, LINE, e-mail…"],
+          ["•","Coller ma carte","Entrée — restaure MA carte (avec confirmation avant d'écraser)."],
+          ["•","Recevoir la carte d'un joueur","Entrée — s'ajoute au récap équipe ; plusieurs cartes à la fois possible."],
+          ["•","Scanner une carte","Entrée — photo + reconnaissance, toujours à valider avant ajout."],
+          ["•","Préparer pour un scan","Sortie — grand écran net, pensé pour être photographié."]
+        ]},
+        { type:"content", kicker:"Écran 4", title:"Récapitulatif de l'équipe", items:[
+          ["•","Classement golf classique","Meilleur score en tête. Ta propre carte apparaît aussi (badge « Toi »)."],
+          ["•","Jamais de doublon","Les données ne sont jamais dupliquées entre ta carte et le récap."],
+          ["•","Réceptions multiples","Si un joueur envoie ses 9 premiers trous puis les 9 derniers, tout se complète automatiquement."],
+          ["•","Tout copier","Exporte toutes les cartes connues en un seul texte, prêt à renvoyer."]
+        ]},
+        { type:"content", kicker:"Bonnes pratiques", title:"Quel format utiliser ?", items:[
+          ["✓","Texte lisible — recommandé","Le joueur voit ce qu'il envoie, résiste aux petits accidents de transmission."],
+          ["✓","Reste exploitable","Même si un champ est perdu en cours de route, le reste s'importe quand même."],
+          ["•","Code technique — en secours","Fidélité parfaite si transmis sans accroc, mais illisible et « tout ou rien »."],
+          ["•","Masqué par défaut","Dans l'interface, pour éviter toute confusion avec le texte lisible."]
+        ]},
+        { type:"content", kicker:"Dépannage rapide", title:"En cas de souci", items:[
+          ["•","Une carte a disparu / mal importée","Vérifie d'abord le texte reçu (balises « SuarPark_début »/« Fin » présentes ?). En dernier recours, redemande la carte au joueur."],
+          ["•","La langue ne change pas partout","Ferme et rouvre la section concernée, ou redéploie la dernière version si le souci persiste."],
+          ["•","Le scan se trompe sur un chiffre","Ne jamais valider sans comparer à la photo. En cas de doute : « Refuser » puis redemander le texte."],
+          ["•","Pas de réseau sur le parcours","Les cartes restent en mémoire sur chaque téléphone — la transmission peut attendre un meilleur réseau."]
+        ]},
+        { type:"content", kicker:"Fin de manche", title:"La checklist du Directeur", items:[
+          ["1","Vérifier","Que toutes les cartes attendues sont bien présentes dans le récap équipe."],
+          ["2","Comparer","Rapidement les totaux affichés avec les cartes papier ou les scores annoncés."],
+          ["3","Tout copier","Utiliser « Tout copier » pour rassembler toutes les cartes en un seul texte."],
+          ["4","Transmettre","Ce texte pour la mise à jour du site (Excel + index.html)."]
+        ]},
+        { type:"closing", title:"Bonne partie !", sub:"En cas de doute : Copier ma carte → Récap équipe → Tout copier en fin de manche." }
+      ]
+    },
+    en: {
+      brand: "SuarPark · GOLF_TEAM", close: "✕ Close",
+      slides: [
+        { type:"title", kicker:"GOLF_TEAM", title:"Pre-round briefing", sub:"The Session Director's role — a full cheat sheet, screen by screen" },
+        { type:"content", kicker:"Overview", title:"The Session Director's role", items:[
+          ["1","Collect","The cards sent by each player, during or at the end of a round."],
+          ["2","Check","Never add automatically without a quick look — especially for scanned cards."],
+          ["3","Consolidate","Every card received gathers into a single team recap."],
+          ["4","Send","The full recap, ready to send back for the site update."]
+        ]},
+        { type:"content", kicker:"Checklist", title:"Before heading onto the course", items:[
+          ["1","Latest version deployed","Check the site shows the latest version number on the home page."],
+          ["2","Language tested","Confirm the language selector works in the sections you use."],
+          ["3","Quick access (tablet)","Consider \"Add to Home Screen\" for faster access and share reception."],
+          ["4","Connection available","Make sure you have a connection (mobile data or club Wi-Fi) to exchange cards."]
+        ]},
+        { type:"content", kicker:"Screen 1", title:"Home page", items:[
+          ["•","GOLF_TEAM","The title, then two big quick-access tiles: Blank scorecard and Team recap."],
+          ["•","History","Right below the two tiles — past rounds, browsable at any time."],
+          ["•","Language selector","Always first, at the top of every page on the site."]
+        ]},
+        { type:"content", kicker:"Screen 2", title:"My blank scorecard", items:[
+          ["•","Fields grouped on the left","Player name in large text, caddie and date right below."],
+          ["•","Weather framed on the right","Temperature, wind, direction, condition — in a dedicated frame."],
+          ["•","WHITE or RED tee","Chosen once, then locks automatically after the first score entered."]
+        ]},
+        { type:"content", kicker:"Screen 3", title:"The Transfer menu", items:[
+          ["•","Copy my card","Output — readable text, ready to paste into Messenger, LINE, email…"],
+          ["•","Paste my card","Input — restores MY card (with confirmation before overwriting)."],
+          ["•","Receive a player's card","Input — adds to the team recap; several cards at once are supported."],
+          ["•","Scan a card","Input — photo + recognition, always to validate before adding."],
+          ["•","Prepare for a scan","Output — big, clear screen, designed to be photographed."]
+        ]},
+        { type:"content", kicker:"Screen 4", title:"Team recap", items:[
+          ["•","Classic golf ranking","Best score on top. Your own card shows too (\"You\" badge)."],
+          ["•","Never duplicated","Data is never duplicated between your card and the recap."],
+          ["•","Multiple receptions","If a player sends their first 9 holes then the last 9, everything completes automatically."],
+          ["•","Copy all","Exports every known card into a single text, ready to forward."]
+        ]},
+        { type:"content", kicker:"Best practice", title:"Which format to use?", items:[
+          ["✓","Readable text — recommended","The player sees what they're sending, survives small transmission hiccups."],
+          ["✓","Stays usable","Even if one field is lost along the way, the rest still imports."],
+          ["•","Technical code — as backup","Perfectly faithful if sent cleanly, but unreadable and all-or-nothing."],
+          ["•","Hidden by default","In the interface, to avoid confusion with the readable text."]
+        ]},
+        { type:"content", kicker:"Quick fixes", title:"If something goes wrong", items:[
+          ["•","A card disappeared / misimported","Check the received text first (are the \"SuarPark_début\"/\"Fin\" tags present?). As a last resort, ask the player to resend."],
+          ["•","Language not updating everywhere","Close and reopen the section, or redeploy the latest version if it persists."],
+          ["•","Scan misreads a digit","Never validate without comparing to the photo. If in doubt: \"Refuse\", then ask for the text again."],
+          ["•","No signal on the course","Cards stay saved on each phone — transmission can wait for better signal."]
+        ]},
+        { type:"content", kicker:"End of round", title:"The Director's checklist", items:[
+          ["1","Check","That every expected card is present in the team recap."],
+          ["2","Compare","Quickly compare the totals shown with paper cards or announced scores."],
+          ["3","Copy all","Use \"Copy all\" to gather every card into one text."],
+          ["4","Send","That text for the site update (Excel + index.html)."]
+        ]},
+        { type:"closing", title:"Have a great round!", sub:"When in doubt: Copy my card → Team recap → Copy all at the end of the round." }
+      ]
+    },
+    de: {
+      brand: "SuarPark · GOLF_TEAM", close: "✕ Schließen",
+      slides: [
+        { type:"title", kicker:"GOLF_TEAM", title:"Briefing vor der Runde", sub:"Die Rolle des Session-Direktors — die vollständige Übersicht, Bildschirm für Bildschirm" },
+        { type:"content", kicker:"Überblick", title:"Die Rolle des Session-Direktors", items:[
+          ["1","Sammeln","Die von jedem Spieler gesendeten Karten, während oder am Ende einer Runde."],
+          ["2","Prüfen","Nie automatisch hinzufügen ohne kurzen Blick — besonders bei gescannten Karten."],
+          ["3","Zusammenführen","Jede empfangene Karte sammelt sich in einer einzigen Team-Übersicht."],
+          ["4","Übermitteln","Die vollständige Übersicht, bereit für die Website-Aktualisierung."]
+        ]},
+        { type:"content", kicker:"Checkliste", title:"Vor dem Start auf den Platz", items:[
+          ["1","Neueste Version veröffentlicht","Prüfen, ob die Website die neueste Versionsnummer auf der Startseite zeigt."],
+          ["2","Sprache getestet","Bestätigen, dass die Sprachauswahl in den genutzten Bereichen funktioniert."],
+          ["3","Schnellzugriff (Tablet)","„Zum Startbildschirm hinzufügen“ für schnelleren Zugriff und Teilen-Empfang erwägen."],
+          ["4","Verbindung verfügbar","Internetverbindung sicherstellen (mobile Daten oder Club-WLAN) für den Kartenaustausch."]
+        ]},
+        { type:"content", kicker:"Bildschirm 1", title:"Startseite", items:[
+          ["•","GOLF_TEAM","Der Titel, dann zwei große Schnellzugriffs-Kacheln: Leere Scorekarte und Team-Übersicht."],
+          ["•","Verlauf","Direkt unter den beiden Kacheln — bereits gespielte Runden, jederzeit einsehbar."],
+          ["•","Sprachauswahl","Immer zuerst, ganz oben auf jeder Seite der Website."]
+        ]},
+        { type:"content", kicker:"Bildschirm 2", title:"Meine leere Scorekarte", items:[
+          ["•","Felder links gruppiert","Spielername groß, Caddie und Datum direkt darunter."],
+          ["•","Wetter rechts eingerahmt","Temperatur, Wind, Richtung, Bedingung — in einem eigenen Rahmen."],
+          ["•","Abschlag WHITE oder RED","Einmal gewählt, sperrt sich automatisch nach dem ersten eingetragenen Score."]
+        ]},
+        { type:"content", kicker:"Bildschirm 3", title:"Das Übertragungsmenü", items:[
+          ["•","Meine Karte kopieren","Ausgehend — lesbarer Text, einfügbar in Messenger, LINE, E-Mail…"],
+          ["•","Meine Karte einfügen","Eingehend — stellt MEINE Karte wieder her (mit Bestätigung vor dem Überschreiben)."],
+          ["•","Karte eines Spielers empfangen","Eingehend — wird zur Team-Übersicht hinzugefügt; mehrere Karten gleichzeitig möglich."],
+          ["•","Karte scannen","Eingehend — Foto + Erkennung, immer vor dem Hinzufügen zu bestätigen."],
+          ["•","Für Scan vorbereiten","Ausgehend — großer, klarer Bildschirm, zum Fotografieren gedacht."]
+        ]},
+        { type:"content", kicker:"Bildschirm 4", title:"Team-Übersicht", items:[
+          ["•","Klassische Golf-Rangliste","Bester Score oben. Die eigene Karte erscheint auch („Du“-Abzeichen)."],
+          ["•","Nie dupliziert","Daten werden nie zwischen der eigenen Karte und der Übersicht dupliziert."],
+          ["•","Mehrfacher Empfang","Sendet ein Spieler zuerst die ersten 9, dann die letzten 9 Löcher, ergänzt sich alles automatisch."],
+          ["•","Alles kopieren","Exportiert alle bekannten Karten in einen einzigen Text, bereit zum Weiterleiten."]
+        ]},
+        { type:"content", kicker:"Bewährte Praxis", title:"Welches Format verwenden?", items:[
+          ["✓","Lesbarer Text — empfohlen","Der Spieler sieht, was er sendet, übersteht kleine Übertragungspannen."],
+          ["✓","Bleibt nutzbar","Selbst wenn unterwegs ein Feld verloren geht, lässt sich der Rest importieren."],
+          ["•","Technischer Code — als Rückfall","Perfekt originalgetreu bei fehlerfreier Übertragung, aber unlesbar und alles-oder-nichts."],
+          ["•","Standardmäßig ausgeblendet","In der Oberfläche, um Verwechslungen mit dem lesbaren Text zu vermeiden."]
+        ]},
+        { type:"content", kicker:"Schnelle Hilfe", title:"Bei Problemen", items:[
+          ["•","Eine Karte fehlt / falsch importiert","Zuerst den empfangenen Text prüfen (sind die Tags „SuarPark_début“/„Fin“ vorhanden?). Als letzten Ausweg den Spieler um erneutes Senden bitten."],
+          ["•","Sprache aktualisiert sich nicht überall","Den betroffenen Bereich schließen und erneut öffnen, oder die neueste Version erneut bereitstellen."],
+          ["•","Scan liest eine Ziffer falsch","Nie bestätigen ohne Vergleich mit dem Foto. Im Zweifel: „Ablehnen“, dann den Text erneut anfordern."],
+          ["•","Kein Netz auf dem Platz","Karten bleiben auf jedem Handy gespeichert — die Übertragung kann auf besseres Netz warten."]
+        ]},
+        { type:"content", kicker:"Rundenende", title:"Die Checkliste des Direktors", items:[
+          ["1","Prüfen","Dass jede erwartete Karte in der Team-Übersicht vorhanden ist."],
+          ["2","Vergleichen","Die angezeigten Summen schnell mit Papierkarten oder gemeldeten Scores vergleichen."],
+          ["3","Alles kopieren","„Alles kopieren“ nutzen, um alle Karten in einem Text zu sammeln."],
+          ["4","Übermitteln","Diesen Text für die Website-Aktualisierung (Excel + index.html)."]
+        ]},
+        { type:"closing", title:"Gute Runde!", sub:"Im Zweifel: Meine Karte kopieren → Team-Übersicht → Alles kopieren am Rundenende." }
+      ]
+    },
+    th: {
+      brand: "SuarPark · GOLF_TEAM", close: "✕ ปิด",
+      slides: [
+        { type:"title", kicker:"GOLF_TEAM", title:"บรีฟฟิ่งก่อนเริ่มรอบ", sub:"บทบาทของผู้อำนวยการเซสชัน — คู่มือฉบับสมบูรณ์ ทีละหน้าจอ" },
+        { type:"content", kicker:"ภาพรวม", title:"บทบาทของผู้อำนวยการเซสชัน", items:[
+          ["1","รวบรวม","การ์ดที่ผู้เล่นแต่ละคนส่งมา ระหว่างหรือช่วงท้ายของรอบ"],
+          ["2","ตรวจสอบ","ไม่เพิ่มอัตโนมัติโดยไม่ตรวจดูก่อน โดยเฉพาะการ์ดที่สแกน"],
+          ["3","รวบรวมข้อมูล","การ์ดที่ได้รับทั้งหมดจะรวมกันในสรุปทีมเดียว"],
+          ["4","ส่งต่อ","สรุปที่สมบูรณ์ พร้อมส่งกลับเพื่ออัปเดตเว็บไซต์"]
+        ]},
+        { type:"content", kicker:"รายการตรวจสอบ", title:"ก่อนออกไปที่สนาม", items:[
+          ["1","เวอร์ชันล่าสุดถูกติดตั้งแล้ว","ตรวจสอบว่าเว็บไซต์แสดงหมายเลขเวอร์ชันล่าสุดในหน้าแรก"],
+          ["2","ทดสอบภาษาแล้ว","ยืนยันว่าตัวเลือกภาษาทำงานในส่วนที่ใช้"],
+          ["3","เข้าถึงเร็ว (แท็บเล็ต)","พิจารณา \"เพิ่มไปยังหน้าจอหลัก\" เพื่อเข้าถึงเร็วขึ้นและรับการแชร์"],
+          ["4","มีการเชื่อมต่อ","ตรวจสอบว่ามีการเชื่อมต่อ (ข้อมูลมือถือหรือ Wi-Fi ของคลับ) สำหรับแลกเปลี่ยนการ์ด"]
+        ]},
+        { type:"content", kicker:"หน้าจอ 1", title:"หน้าแรก", items:[
+          ["•","GOLF_TEAM","ชื่อ จากนั้นปุ่มใหญ่สองปุ่มสำหรับเข้าถึงด่วน: การ์ดคะแนนเปล่า และสรุปทีม"],
+          ["•","ประวัติ","อยู่ใต้ปุ่มทั้งสองทันที — รอบที่เล่นไปแล้ว ดูได้ตลอดเวลา"],
+          ["•","ตัวเลือกภาษา","อยู่บนสุดเสมอ ในทุกหน้าของเว็บไซต์"]
+        ]},
+        { type:"content", kicker:"หน้าจอ 2", title:"การ์ดคะแนนเปล่าของฉัน", items:[
+          ["•","ฟิลด์จัดกลุ่มด้านซ้าย","ชื่อผู้เล่นตัวใหญ่ แคดดี้และวันที่อยู่ด้านล่างทันที"],
+          ["•","สภาพอากาศแสดงกรอบด้านขวา","อุณหภูมิ ลม ทิศทาง สภาพ — ในกรอบเฉพาะ"],
+          ["•","ทีออก WHITE หรือ RED","เลือกครั้งเดียว แล้วล็อกอัตโนมัติหลังจากกรอกสกอร์แรก"]
+        ]},
+        { type:"content", kicker:"หน้าจอ 3", title:"เมนูการส่งข้อมูล", items:[
+          ["•","คัดลอกการ์ดของฉัน","ขาออก — ข้อความอ่านได้ พร้อมวางใน Messenger, LINE, อีเมล…"],
+          ["•","วางการ์ดของฉัน","ขาเข้า — คืนค่าการ์ดของฉัน (มีการยืนยันก่อนเขียนทับ)"],
+          ["•","รับการ์ดของผู้เล่น","ขาเข้า — เพิ่มในสรุปทีม รองรับหลายการ์ดพร้อมกัน"],
+          ["•","สแกนการ์ด","ขาเข้า — ถ่ายภาพ + จดจำ ต้องยืนยันก่อนเพิ่มเสมอ"],
+          ["•","เตรียมสำหรับสแกน","ขาออก — หน้าจอใหญ่ชัดเจน ออกแบบมาให้ถ่ายภาพได้ง่าย"]
+        ]},
+        { type:"content", kicker:"หน้าจอ 4", title:"สรุปทีม", items:[
+          ["•","การจัดอันดับกอล์ฟคลาสสิก","สกอร์ดีที่สุดอยู่บนสุด การ์ดของคุณเองก็แสดงด้วย (ป้าย \"คุณ\")"],
+          ["•","ไม่ซ้ำซ้อนเลย","ข้อมูลไม่เคยซ้ำกันระหว่างการ์ดของคุณกับสรุปทีม"],
+          ["•","รับหลายครั้ง","หากผู้เล่นส่ง 9 หลุมแรกแล้วตามด้วย 9 หลุมสุดท้าย ทุกอย่างจะรวมกันอัตโนมัติ"],
+          ["•","คัดลอกทั้งหมด","ส่งออกการ์ดที่รู้จักทั้งหมดเป็นข้อความเดียว พร้อมส่งต่อ"]
+        ]},
+        { type:"content", kicker:"แนวทางปฏิบัติที่ดี", title:"ควรใช้รูปแบบไหน?", items:[
+          ["✓","ข้อความอ่านได้ — แนะนำ","ผู้เล่นเห็นสิ่งที่ส่ง ทนต่อปัญหาการส่งเล็กน้อย"],
+          ["✓","ยังใช้งานได้","แม้ข้อมูลบางส่วนหายไประหว่างทาง ส่วนที่เหลือยังนำเข้าได้"],
+          ["•","โค้ดเทคนิค — สำรอง","ถูกต้องสมบูรณ์แบบหากส่งไม่มีปัญหา แต่อ่านไม่ได้และเป็นแบบทั้งหมดหรือไม่มีเลย"],
+          ["•","ซ่อนโดยค่าเริ่มต้น","ในอินเทอร์เฟซ เพื่อป้องกันความสับสนกับข้อความอ่านได้"]
+        ]},
+        { type:"content", kicker:"แก้ปัญหาด่วน", title:"หากมีปัญหา", items:[
+          ["•","การ์ดหาย / นำเข้าผิด","ตรวจสอบข้อความที่ได้รับก่อน (มีแท็ก \"SuarPark_début\"/\"Fin\" หรือไม่?) ทางเลือกสุดท้ายคือขอให้ผู้เล่นส่งใหม่"],
+          ["•","ภาษาไม่อัปเดตทุกที่","ปิดแล้วเปิดส่วนนั้นใหม่ หรือติดตั้งเวอร์ชันล่าสุดใหม่หากยังคงมีปัญหา"],
+          ["•","สแกนอ่านตัวเลขผิด","อย่ายืนยันโดยไม่เปรียบเทียบกับรูปภาพ หากไม่แน่ใจ: \"ปฏิเสธ\" แล้วขอข้อความใหม่"],
+          ["•","ไม่มีสัญญาณในสนาม","การ์ดยังคงบันทึกอยู่ในโทรศัพท์แต่ละเครื่อง การส่งรอสัญญาณที่ดีขึ้นได้"]
+        ]},
+        { type:"content", kicker:"ท้ายรอบ", title:"รายการตรวจสอบของผู้อำนวยการ", items:[
+          ["1","ตรวจสอบ","ว่าการ์ดที่คาดหวังทั้งหมดอยู่ในสรุปทีม"],
+          ["2","เปรียบเทียบ","ยอดรวมที่แสดงกับการ์ดกระดาษหรือสกอร์ที่ประกาศอย่างรวดเร็ว"],
+          ["3","คัดลอกทั้งหมด","ใช้ \"คัดลอกทั้งหมด\" เพื่อรวบรวมการ์ดทั้งหมดเป็นข้อความเดียว"],
+          ["4","ส่งต่อ","ข้อความนี้เพื่ออัปเดตเว็บไซต์ (Excel + index.html)"]
+        ]},
+        { type:"closing", title:"ขอให้เล่นได้ดี!", sub:"หากไม่แน่ใจ: คัดลอกการ์ดของฉัน → สรุปทีม → คัดลอกทั้งหมดเมื่อจบรอบ" }
+      ]
+    }
+  };
+
+  let lang = "fr";
+  let idx = 0;
+
+  function getLangFromURL(){
+    const p = new URLSearchParams(window.location.search);
+    const l = p.get('lang');
+    return (l && CONTENT[l]) ? l : null;
+  }
+
+  function itemHTML(it){
+    const [num, h, b] = it;
+    return `<div class="item">
+      <div class="num">${num}</div>
+      <div class="txt"><div class="h">${h}</div><div class="b">${b}</div></div>
+    </div>`;
+  }
+
+  function slideHTML(slide){
+    if (slide.type === "title"){
+      return `<div class="slide dark title-slide">
+        ${FLAG_ICON_DARK}
+        <div class="kicker2">${slide.kicker}</div>
+        <h1>${slide.title}</h1>
+        <p class="sub">${slide.sub}</p>
+      </div>`;
+    }
+    if (slide.type === "closing"){
+      return `<div class="slide dark closing-slide">
+        ${FLAG_ICON_DARK}
+        <h1>${slide.title}</h1>
+        <p>${slide.sub}</p>
+      </div>`;
+    }
+    return `<div class="slide">
+      <div class="kicker">${slide.kicker}</div>
+      <h2 class="slide-title">${slide.title}</h2>
+      <div class="content">${slide.items.map(itemHTML).join("")}</div>
+    </div>`;
+  }
+
+  // Barre du haut : mise à jour en place (jamais régénérée), pour garder le sélecteur de
+  // langue et le lien Fermer toujours fonctionnels, quelle que soit la diapositive active.
+  function renderTopbar(){
+    document.getElementById('brandText').textContent = CONTENT[lang].brand;
+    document.getElementById('closeLink').textContent = CONTENT[lang].close;
+    const sel = document.getElementById('langSelect');
+    sel.value = lang;
+    const slides = CONTENT[lang].slides;
+    const isDark = slides[idx] && slides[idx].type !== "content";
+    document.getElementById('topbar').classList.toggle('dark', isDark);
+  }
+
+  function render(){
+    const deck = document.getElementById('deck');
+    const slides = CONTENT[lang].slides;
+    deck.innerHTML = slides.map(slideHTML).join("");
+    Array.from(deck.children).forEach((el, i) => { el.classList.toggle('active', i === idx); });
+    document.getElementById('counter').textContent = (idx+1) + " / " + slides.length;
+    document.getElementById('btnPrev').disabled = (idx === 0);
+    document.getElementById('btnNext').disabled = (idx === slides.length - 1);
+    renderTopbar();
+  }
+
+  function go(delta){
+    const max = CONTENT[lang].slides.length - 1;
+    idx = Math.max(0, Math.min(max, idx + delta));
+    render();
+  }
+
+  document.getElementById('btnPrev').addEventListener('click', () => go(-1));
+  document.getElementById('btnNext').addEventListener('click', () => go(1));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+
+  let touchStartX = null;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', (e) => {
+    if (touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+    touchStartX = null;
+  }, {passive:true});
+
+  document.getElementById('langSelect').addEventListener('change', (e) => {
+    lang = e.target.value;
+    render();
+  });
+
+  const urlLang = getLangFromURL();
+  if (urlLang) lang = urlLang;
+  render();
+})();
+</script>
+</body>
+</html>
