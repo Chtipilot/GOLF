@@ -59,11 +59,13 @@
   #app .date-slider-label { font-size:11px; color:var(--green-deep); font-weight:bold; min-width:80px; text-align:right; }
   #app .status { font-size:11px; color:var(--green-deep); margin-top:6px; min-height:14px; }
 
-  /* Récap équipe : colonne nom à largeur fixe, jamais de débordement sur les cases de score
-     (les noms longs / avec badge / bouton / date passent à la ligne dans cette largeur). */
-  #app .team-recap-table th:first-child, #app .team-recap-table td.team-recap-name-cell { width:88px; max-width:88px; }
+  /* Récap équipe : colonne "#" (rang) étroite — un seul chiffre au maximum — et colonne nom
+     à largeur fixe, jamais de débordement sur les cases de score (les noms longs / avec badge
+     / bouton / date passent à la ligne dans cette largeur). */
+  #app .team-recap-table th.team-recap-rank-cell, #app .team-recap-table td.team-recap-rank-cell { width:22px; max-width:22px; padding-left:2px; padding-right:2px; }
+  #app .team-recap-table th:nth-child(2), #app .team-recap-table td.team-recap-name-cell { width:88px; max-width:88px; }
   @media (min-width: 700px) {
-    #app .team-recap-table th:first-child, #app .team-recap-table td.team-recap-name-cell { width:130px; max-width:130px; }
+    #app .team-recap-table th:nth-child(2), #app .team-recap-table td.team-recap-name-cell { width:130px; max-width:130px; }
   }
 
   /* Règle générale : toute référence à une info secondaire (notice, aide...) se pousse
@@ -801,7 +803,12 @@
   //                 (Caddies, Putts, Éclectique, Graphiques, Faits marquants, Rouge vs Blanc) dans
   //                 la barre du bas, au lieu d'être isolé juste après les deux tuiles d'accès rapide.
   //                 Tous ces boutons sont désormais regroupés dans un seul cadre visuel commun.
-  const APP_VERSION = "SuarPark - V01.004.067";
+  //   V01.004.068 — Récap équipe : la colonne "#" (rang) était bien trop large pour un simple
+  //                 chiffre — réduite à sa juste taille (22px), ce qui laisse davantage de place à
+  //                 la colonne du nom du joueur. Correction associée : la règle de largeur de la
+  //                 colonne nom ciblait par erreur la première colonne du tableau (donc "#" depuis
+  //                 son ajout), elle cible maintenant correctement la colonne du nom.
+  const APP_VERSION = "SuarPark - V01.004.068";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4133,7 +4140,7 @@
     if (entries.length === 0){
       rowsHtml = `<p class="sub" style="padding:12px 0;">${t('teamRecapEmpty')}</p>`;
     } else {
-      const headerRow = `<tr><th>#</th><th>${t('blankCardTextLabelScore')}</th>` + Array.from({length: 18}, (_,i) => `<th>${i+1}</th>`).join('') + `<th>OUT</th><th>IN</th><th>TOT</th></tr>`;
+      const headerRow = `<tr><th class="team-recap-rank-cell">#</th><th>${t('blankCardTextLabelScore')}</th>` + Array.from({length: 18}, (_,i) => `<th>${i+1}</th>`).join('') + `<th>OUT</th><th>IN</th><th>TOT</th></tr>`;
       const bodyRows = entries.map(entry => {
         const name = teamRecapDisplayName(entry.header);
         const {out, inn, tot} = computeOutInTot(entry.scores);
@@ -4152,7 +4159,7 @@
         const removeBtn = entry.isOwn ? '' : `<button class="btn btn-danger no-print" style="font-size:10px; padding:2px 6px; margin-top:2px;" onclick="window.teamRecapRemove('${entry.key.replace(/'/g,"\\'")}')">${t('teamRecapRemove')}</button>`;
         const updated = entry.updatedAt ? `<div class="sub no-print" style="font-size:9px; color:#999; white-space:normal;">${t('teamRecapUpdatedAt')} ${new Date(entry.updatedAt).toLocaleString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US')}</div>` : '';
         return `<tr${entry.isOwn ? ' style="background:#f4f9f7;"' : ''}>
-          <td style="font-weight:bold;">${rankLabel}</td>
+          <td class="team-recap-rank-cell" style="font-weight:bold;">${rankLabel}</td>
           <td class="team-recap-name-cell" style="text-align:left; font-weight:bold; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
             <div>${teeIcon} ${name}${ownTag}</div>
             ${removeBtn}
