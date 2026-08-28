@@ -197,13 +197,12 @@
 <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
   <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:var(--green-deep); letter-spacing:0.5px;">GOLF_TEAM</h1>
   <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
-  <button class="btn btn-secondary" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
+  <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
 </div>
 <div class="page-subtitle-row" id="homeSubtitleRow"></div>
 <p class="sub" id="appSubtitle">Départs rouges · Par 72 · 18 trous</p>
 
 <div id="noticeSection" style="display:none; margin:6px 0 12px 0; background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.6; color:#1a3c34;"></div>
-<div id="briefingSection" style="display:none; margin:6px 0 12px 0; background:#fdf9f0; border:1px solid var(--sand); border-radius:8px; padding:14px 16px; font-size:12px; line-height:1.6; color:#1a3c34;"></div>
 
 <hr class="header-separator">
 
@@ -229,13 +228,6 @@
     </svg>
     <span id="tileTeamRecapLabel">👥 Récap équipe</span>
   </button>
-</div>
-
-<div class="menu-frame">
-  <div class="toolbar" style="margin:0;">
-    <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
-  </div>
-  <div id="historySection" style="display:none; margin-top:10px;"></div>
 </div>
 
 <div class="rotate-hint" id="rotateHint">
@@ -317,18 +309,21 @@
   </table>
 </div>
 
-<div class="toolbar" style="margin-top:10px;">
-  <button class="btn btn-secondary" id="btnToggleCaddies">🎽 Afficher les caddies</button>
-  <button class="btn btn-secondary" id="btnToggleDetails">🎯 Putts</button>
-  <button class="btn btn-secondary" id="btnToggleEclectic">🏆 Afficher l'éclectique</button>
-  <button class="btn btn-secondary" id="btnToggleStats">📊 Graphiques</button>
-  <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
-  <button class="btn btn-secondary" id="btnToggleTeeCompare">🔴⚪ Rouge vs Blanc</button>
+<div class="menu-frame">
+  <div class="toolbar" style="margin:0;">
+    <button class="btn btn-secondary" id="btnToggleCaddies">🎽 Afficher les caddies</button>
+    <button class="btn btn-secondary" id="btnToggleDetails">🎯 Putts</button>
+    <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
+    <button class="btn btn-secondary" id="btnToggleEclectic">🏆 Afficher l'éclectique</button>
+    <button class="btn btn-secondary" id="btnToggleStats">📊 Graphiques</button>
+    <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
+    <button class="btn btn-secondary" id="btnToggleTeeCompare">🔴⚪ Rouge vs Blanc</button>
+  </div>
 </div>
 <div class="status" id="status"></div>
 
 <div id="caddiesSection" style="display:none; margin-top:10px;"></div>
-
+<div id="historySection" style="display:none; margin-top:10px;"></div>
 <div id="eclecticSection" style="display:none; margin-top:10px;"></div>
 <div id="statsSection" style="display:none; margin-top:10px;"></div>
 <div id="insightsSection" style="display:none; margin-top:10px;"></div>
@@ -791,7 +786,22 @@
   //                 quel format utiliser, dépannage rapide, checklist de fin de manche). Contenu
   //                 traduit dans les 4 langues du site, avec un bouton "✕ Fermer le briefing"
   //                 dédié à l'intérieur du panneau, en plus du bouton principal.
-  const APP_VERSION = "SuarPark - V01.004.065";
+  //   V01.004.066 — Le briefing devient une vraie page indépendante : "briefing.html", un fichier
+  //                 séparé (à déposer sur GitHub à côté de index.html) qui se présente comme un
+  //                 vrai diaporama plein écran — 11 diapositives, navigation flèches/swipe/clavier,
+  //                 compteur "x / 11", fond vert sombre pour le titre et la clôture, fond clair pour
+  //                 le contenu. Le bouton "🎓 Briefing Directeur" (aligné à droite comme "📖 Notice
+  //                 utilisateur") ouvre désormais cette page (avec la langue en cours transmise dans
+  //                 l'URL) au lieu d'un panneau intégré, retiré avec le nettoyage du code associé.
+  //                 Chaque diapositive porte un bouton "✕ Fermer" qui ramène vers index.html. Bug
+  //                 trouvé et corrigé pendant les tests : le sélecteur de langue, initialement dupliqué
+  //                 dans chaque diapositive (identifiants en doublon), a été sorti en un seul élément
+  //                 persistant en haut de la page pour rester fonctionnel sur toutes les diapositives.
+  //   V01.004.067 — Le bouton "📜 Afficher l'historique" rejoint les autres boutons de menu
+  //                 (Caddies, Putts, Éclectique, Graphiques, Faits marquants, Rouge vs Blanc) dans
+  //                 la barre du bas, au lieu d'être isolé juste après les deux tuiles d'accès rapide.
+  //                 Tous ces boutons sont désormais regroupés dans un seul cadre visuel commun.
+  const APP_VERSION = "SuarPark - V01.004.067";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1849,7 +1859,6 @@
     document.getElementById('btnNotice').textContent = t('btnNotice');
     document.getElementById('btnBriefing').textContent = t('btnBriefing');
     renderNotice();
-    renderBriefingContent();
     document.getElementById('thHole').textContent = t('thHole');
     document.getElementById('rotateHintText').textContent = t('rotateHint');
     document.querySelectorAll('#entryBody .btn-danger').forEach(btn => btn.title = t('deletePlayerTitle'));
@@ -2371,80 +2380,10 @@
   }
 
   // ============================================================
-  // Briefing d'avant partie (intégré dans la page, à côté de la Notice utilisateur) :
-  // pense-bête pour le Directeur de Session, condensé du support complet (PowerPoint remis
-  // séparément). Contenu traduit dans les 4 langues du site.
+  // Le briefing d'avant partie du Directeur de Session vit désormais dans sa propre page
+  // indépendante (briefing.html), reliée par le bouton "🎓 Briefing Directeur" ci-dessus —
+  // voir le lien direct dans le HTML (plus de panneau intégré ici).
   // ============================================================
-  const BRIEFING_SECTIONS = {
-    fr: [
-      { title: "Le rôle du Directeur de Session", body: "<strong>Collecter</strong> les cartes de chaque joueur (texte, code, ou photo scannée) · <strong>Vérifier</strong> chaque carte avant de l'ajouter · <strong>Consolider</strong> dans le récap équipe, classé automatiquement · <strong>Transmettre</strong> le tout en fin de journée pour la mise à jour du site." },
-      { title: "Avant de partir : la checklist", body: "1) Vérifier que la dernière version du site est déployée (numéro affiché en page de garde) · 2) Confirmer que le sélecteur de langue fonctionne dans les sections utilisées · 3) Sur tablette, envisager « Ajouter à l'écran d'accueil » pour un accès rapide et la réception de partage · 4) S'assurer d'avoir une connexion (données mobiles ou Wi-Fi du club)." },
-      { title: "Écran 1 — Page d'accueil", body: "Le titre GOLF_TEAM, puis deux grosses tuiles d'accès rapide (« Carte de score vierge » et « Récap équipe »), et juste en dessous le cadre Historique. Le sélecteur de langue est toujours tout en haut, sur chaque page." },
-      { title: "Écran 2 — Ma carte de score vierge", body: "Le nom du joueur s'affiche en très gros, juste sous le bouton Récap équipe. Le départ (WHITE ou RED) se choisit une fois puis se verrouille automatiquement après le premier score saisi. La météo est encadrée à droite." },
-      { title: "Écran 3 — Le menu Transmission", body: "Cinq boutons bien distincts (encadré bleu) : <strong>Copier ma carte</strong> et <strong>Préparer pour un scan</strong> (sorties) ; <strong>Coller ma carte</strong>, <strong>Recevoir la carte d'un joueur</strong> et <strong>Scanner une carte</strong> (entrées). Un seul message peut contenir plusieurs cartes à la fois." },
-      { title: "Écran 4 — Récapitulatif de l'équipe", body: "Classement golf classique (meilleur score en tête), avec la carte du Directeur repérée par un badge « Toi ». Si un joueur envoie sa carte en plusieurs fois, tout se complète automatiquement, trou par trou." },
-      { title: "Quel format utiliser ?", body: "<strong>Recommandé — Texte lisible</strong> : le joueur voit ce qu'il envoie, résiste aux petits accidents de transmission, reste exploitable même si un champ est perdu. <strong>En secours — Code technique</strong> : fidèle à 100% si transmis sans accroc, mais illisible et « tout ou rien »." },
-      { title: "En cas de souci", body: "<strong>Carte disparue/mal importée</strong> : vérifier les balises SuarPark_début/Fin, sinon redemander la carte · <strong>Langue incohérente</strong> : fermer/rouvrir la section concernée · <strong>Le scan se trompe</strong> : ne jamais valider sans comparer à la photo, refuser en cas de doute · <strong>Pas de réseau</strong> : les cartes restent en mémoire sur chaque téléphone, la transmission peut attendre." },
-      { title: "La checklist de fin de manche", body: "1) Vérifier que toutes les cartes attendues sont dans le récap équipe · 2) Comparer rapidement les totaux avec les scores annoncés · 3) Utiliser « Tout copier » pour rassembler toutes les cartes en un seul texte · 4) Transmettre ce texte pour la mise à jour du site." }
-    ],
-    en: [
-      { title: "The Session Director's role", body: "<strong>Collect</strong> each player's card (text, code, or scanned photo) · <strong>Check</strong> each card before adding it · <strong>Consolidate</strong> into the team recap, ranked automatically · <strong>Send</strong> everything at day's end for the site update." },
-      { title: "Before heading out: the checklist", body: "1) Check that the latest version of the site is deployed (version number shown on the home page) · 2) Confirm the language selector works in the sections you use · 3) On tablet, consider \"Add to Home Screen\" for quick access and share reception · 4) Make sure you have a connection (mobile data or club Wi-Fi)." },
-      { title: "Screen 1 — Home page", body: "The GOLF_TEAM title, then two big quick-access tiles (\"Blank scorecard\" and \"Team recap\"), with the History frame just below. The language selector always sits at the very top, on every page." },
-      { title: "Screen 2 — My blank scorecard", body: "The player's name shows in very large text, right under the Team recap button. The tee (WHITE or RED) is chosen once and locks automatically after the first score entered. Weather is framed on the right." },
-      { title: "Screen 3 — The Transfer menu", body: "Five clearly distinct buttons (blue frame): <strong>Copy my card</strong> and <strong>Prepare for a scan</strong> (outputs); <strong>Paste my card</strong>, <strong>Receive a player's card</strong>, and <strong>Scan a card</strong> (inputs). One message can carry several cards at once." },
-      { title: "Screen 4 — Team recap", body: "Classic golf ranking (best score on top), with the Director's own card marked with a \"You\" badge. If a player sends their card in several parts, everything completes automatically, hole by hole." },
-      { title: "Which format to use?", body: "<strong>Recommended — Readable text</strong>: the player sees what they're sending, survives small transmission hiccups, still usable even if one field is lost. <strong>Backup — Technical code</strong>: 100% faithful if transmitted cleanly, but unreadable and all-or-nothing." },
-      { title: "If something goes wrong", body: "<strong>Card missing/misimported</strong>: check for the SuarPark_début/Fin tags, otherwise ask the player to resend · <strong>Language not updating everywhere</strong>: close/reopen the section · <strong>Scan misreads a digit</strong>: never validate without comparing to the photo, refuse if in doubt · <strong>No signal</strong>: cards stay saved on each phone, transmission can wait." },
-      { title: "End-of-round checklist", body: "1) Check that every expected card is in the team recap · 2) Quickly compare totals with announced scores · 3) Use \"Copy all\" to gather every card into one text · 4) Send that text for the site update." }
-    ],
-    de: [
-      { title: "Die Rolle des Session-Direktors", body: "<strong>Sammeln</strong> der Karte jedes Spielers (Text, Code oder gescanntes Foto) · <strong>Prüfen</strong> jeder Karte vor dem Hinzufügen · <strong>Zusammenführen</strong> in der Team-Übersicht, automatisch eingeordnet · <strong>Übermitteln</strong> von allem am Tagesende für die Website-Aktualisierung." },
-      { title: "Vor dem Start: die Checkliste", body: "1) Prüfen, ob die neueste Version der Website veröffentlicht ist (Versionsnummer auf der Startseite) · 2) Bestätigen, dass die Sprachauswahl in den genutzten Bereichen funktioniert · 3) Auf dem Tablet ggf. „Zum Startbildschirm hinzufügen“ für schnellen Zugriff und Teilen-Empfang · 4) Internetverbindung sicherstellen (mobile Daten oder Club-WLAN)." },
-      { title: "Bildschirm 1 — Startseite", body: "Der Titel GOLF_TEAM, dann zwei große Kacheln für den Schnellzugriff („Leere Scorekarte“ und „Team-Übersicht“), darunter der Verlaufs-Rahmen. Die Sprachauswahl steht auf jeder Seite ganz oben." },
-      { title: "Bildschirm 2 — Meine leere Scorekarte", body: "Der Spielername wird sehr groß angezeigt, direkt unter dem Team-Übersicht-Button. Der Abschlag (WHITE oder RED) wird einmal gewählt und sperrt sich automatisch nach dem ersten eingetragenen Score. Das Wetter steht rechts eingerahmt." },
-      { title: "Bildschirm 3 — Das Übertragungsmenü", body: "Fünf klar getrennte Schaltflächen (blauer Rahmen): <strong>Meine Karte kopieren</strong> und <strong>Für Scan vorbereiten</strong> (ausgehend); <strong>Meine Karte einfügen</strong>, <strong>Karte eines Spielers empfangen</strong> und <strong>Karte scannen</strong> (eingehend). Eine Nachricht kann mehrere Karten gleichzeitig enthalten." },
-      { title: "Bildschirm 4 — Team-Übersicht", body: "Klassische Golf-Rangliste (bester Score oben), die eigene Karte des Direktors mit einem „Du“-Abzeichen markiert. Sendet ein Spieler seine Karte in mehreren Teilen, ergänzt sich alles automatisch, Loch für Loch." },
-      { title: "Welches Format verwenden?", body: "<strong>Empfohlen — Lesbarer Text</strong>: der Spieler sieht, was er sendet, übersteht kleine Übertragungspannen, bleibt nutzbar, selbst wenn ein Feld fehlt. <strong>Als Rückfall — Technischer Code</strong>: 100% originalgetreu bei fehlerfreier Übertragung, aber unlesbar und alles-oder-nichts." },
-      { title: "Bei Problemen", body: "<strong>Karte fehlt/falsch importiert</strong>: SuarPark_début/Fin-Marken prüfen, sonst Spieler um erneutes Senden bitten · <strong>Sprache aktualisiert sich nicht überall</strong>: Bereich schließen/erneut öffnen · <strong>Scan liest eine Ziffer falsch</strong>: nie bestätigen ohne Vergleich mit dem Foto, im Zweifel ablehnen · <strong>Kein Netz</strong>: Karten bleiben auf jedem Handy gespeichert, die Übertragung kann warten." },
-      { title: "Checkliste zum Rundenende", body: "1) Prüfen, dass jede erwartete Karte in der Team-Übersicht ist · 2) Summen schnell mit den gemeldeten Scores vergleichen · 3) „Alles kopieren“ nutzen, um alle Karten in einem Text zu sammeln · 4) Diesen Text für die Website-Aktualisierung senden." }
-    ],
-    th: [
-      { title: "บทบาทของผู้อำนวยการเซสชัน", body: "<strong>รวบรวม</strong> การ์ดของผู้เล่นแต่ละคน (ข้อความ โค้ด หรือรูปที่สแกน) · <strong>ตรวจสอบ</strong> แต่ละการ์ดก่อนเพิ่ม · <strong>รวบรวมข้อมูล</strong> ในสรุปทีม จัดอันดับอัตโนมัติ · <strong>ส่งต่อ</strong> ทั้งหมดในตอนท้ายวันเพื่ออัปเดตเว็บไซต์" },
-      { title: "ก่อนออกเดินทาง: รายการตรวจสอบ", body: "1) ตรวจสอบว่าเว็บไซต์เวอร์ชันล่าสุดถูกติดตั้งแล้ว (หมายเลขเวอร์ชันแสดงในหน้าแรก) · 2) ยืนยันว่าตัวเลือกภาษาทำงานในส่วนที่ใช้ · 3) บนแท็บเล็ต พิจารณา \"เพิ่มไปยังหน้าจอหลัก\" เพื่อเข้าถึงเร็วและรับการแชร์ · 4) ตรวจสอบว่ามีการเชื่อมต่อ (ข้อมูลมือถือหรือ Wi-Fi ของคลับ)" },
-      { title: "หน้าจอ 1 — หน้าแรก", body: "ชื่อ GOLF_TEAM จากนั้นปุ่มใหญ่สองปุ่มสำหรับเข้าถึงด่วน (\"การ์ดคะแนนเปล่า\" และ \"สรุปทีม\") พร้อมกรอบประวัติด้านล่าง ตัวเลือกภาษาอยู่บนสุดเสมอในทุกหน้า" },
-      { title: "หน้าจอ 2 — การ์ดคะแนนเปล่าของฉัน", body: "ชื่อผู้เล่นแสดงตัวใหญ่มาก ใต้ปุ่มสรุปทีมทันที ทีออก (WHITE หรือ RED) เลือกครั้งเดียวแล้วล็อกอัตโนมัติหลังจากกรอกสกอร์แรก สภาพอากาศแสดงในกรอบด้านขวา" },
-      { title: "หน้าจอ 3 — เมนูการส่งข้อมูล", body: "ปุ่มที่แยกกันชัดเจนห้าปุ่ม (กรอบสีน้ำเงิน): <strong>คัดลอกการ์ดของฉัน</strong> และ <strong>เตรียมสำหรับสแกน</strong> (ขาออก); <strong>วางการ์ดของฉัน</strong>, <strong>รับการ์ดของผู้เล่น</strong> และ <strong>สแกนการ์ด</strong> (ขาเข้า) หนึ่งข้อความสามารถบรรจุหลายการ์ดพร้อมกันได้" },
-      { title: "หน้าจอ 4 — สรุปทีม", body: "การจัดอันดับแบบกอล์ฟคลาสสิก (สกอร์ดีที่สุดอยู่บนสุด) การ์ดของผู้อำนวยการเองมีป้าย \"คุณ\" กำกับ หากผู้เล่นส่งการ์ดเป็นหลายครั้ง ทุกอย่างจะรวมกันอัตโนมัติทีละหลุม" },
-      { title: "ควรใช้รูปแบบไหน?", body: "<strong>แนะนำ — ข้อความอ่านได้</strong>: ผู้เล่นเห็นสิ่งที่ส่ง ทนต่อปัญหาการส่งเล็กน้อย ยังใช้ได้แม้ข้อมูลบางส่วนหาย <strong>สำรอง — โค้ดเทคนิค</strong>: ถูกต้อง 100% หากส่งไม่มีปัญหา แต่อ่านไม่ได้และเป็นแบบทั้งหมดหรือไม่มีเลย" },
-      { title: "หากมีปัญหา", body: "<strong>การ์ดหาย/นำเข้าผิด</strong>: ตรวจสอบแท็ก SuarPark_début/Fin ไม่เช่นนั้นขอให้ผู้เล่นส่งใหม่ · <strong>ภาษาไม่อัปเดตทุกที่</strong>: ปิด/เปิดส่วนนั้นใหม่ · <strong>สแกนอ่านตัวเลขผิด</strong>: อย่ายืนยันโดยไม่เปรียบเทียบกับรูป ปฏิเสธหากไม่แน่ใจ · <strong>ไม่มีสัญญาณ</strong>: การ์ดยังคงบันทึกอยู่ในโทรศัพท์แต่ละเครื่อง การส่งรอได้" },
-      { title: "รายการตรวจสอบท้ายรอบ", body: "1) ตรวจสอบว่าการ์ดที่คาดหวังทั้งหมดอยู่ในสรุปทีม · 2) เปรียบเทียบยอดรวมกับสกอร์ที่ประกาศอย่างรวดเร็ว · 3) ใช้ \"คัดลอกทั้งหมด\" เพื่อรวบรวมการ์ดทั้งหมดเป็นข้อความเดียว · 4) ส่งข้อความนี้เพื่ออัปเดตเว็บไซต์" }
-    ]
-  };
-
-  let briefingVisible = false;
-
-  function renderBriefingContent(){
-    const container = document.getElementById('briefingSection');
-    if (!container) return;
-    const sections = BRIEFING_SECTIONS[lang] || BRIEFING_SECTIONS.fr;
-    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px;">
-      <strong style="font-family:var(--font-display); font-size:16px; color:var(--green-deep);">${t('briefingTitle')}</strong>
-      <button class="btn btn-secondary" id="btnBriefingClose" style="font-size:11px; padding:4px 8px; margin:0; white-space:nowrap;">${t('briefingCloseBtn')}</button>
-    </div>`;
-    sections.forEach(sec => {
-      html += `<div style="margin-bottom:12px;">
-        <div style="font-weight:bold; color:var(--green-deep); margin-bottom:3px;">${sec.title}</div>
-        <div>${sec.body}</div>
-      </div>`;
-    });
-    container.innerHTML = html;
-    document.getElementById('btnBriefingClose').addEventListener('click', () => {
-      briefingVisible = false;
-      container.style.display = 'none';
-      document.getElementById('btnBriefing').textContent = t('btnBriefing');
-    });
-  }
 
   // Bloc "SuarPark + version + sélecteur de langue" réutilisable, pour que le sélecteur de
   // langue soit présent en haut de CHAQUE page/section (accueil, carte de score vierge, récap
@@ -4792,10 +4731,7 @@
       document.getElementById('noticeSection').style.display = noticeVisible ? 'block' : 'none';
     });
     document.getElementById('btnBriefing').addEventListener('click', () => {
-      briefingVisible = !briefingVisible;
-      const section = document.getElementById('briefingSection');
-      section.style.display = briefingVisible ? 'block' : 'none';
-      if (briefingVisible) renderBriefingContent();
+      window.location.href = 'briefing.html?lang=' + lang;
     });
     document.getElementById('btnToggleDetails').addEventListener('click', () => {
       detailsVisible = !detailsVisible;
