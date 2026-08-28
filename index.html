@@ -75,6 +75,11 @@
   #app .menu-frame { border:1px solid var(--line); border-radius:10px; padding:10px 12px 12px; margin-top:10px; background:#fffdf8; }
   #app .menu-frame > .toolbar:first-child { margin-bottom:6px; }
 
+  /* Grosses tuiles d'accès rapide (Carte vierge / Récap équipe) en page de garde. */
+  #app .tile-btn { flex:1 1 200px; display:flex; align-items:center; gap:10px; background:#fff; border:2px solid var(--green-deep); border-radius:12px; padding:10px 14px; cursor:pointer; font-size:13px; font-weight:700; color:var(--green-deep); box-shadow:0 2px 4px rgba(26,60,52,0.12); transition:transform 0.1s ease, box-shadow 0.15s ease; min-height:56px; margin:3px 4px 3px 0; }
+  #app .tile-btn:hover { box-shadow:0 3px 8px rgba(26,60,52,0.2); transform:translateY(-1px); }
+  #app .tile-btn svg { flex-shrink:0; }
+
   /* --- Ergonomie mobile : cibles tactiles plus grandes, plus d'air entre les boutons --- */
   @media (max-width: 600px) {
     #app .btn { min-height:44px; padding:10px 14px; font-size:13px; }
@@ -178,14 +183,40 @@
 
 <hr class="header-separator">
 
+<div class="toolbar" style="gap:14px;">
+  <button class="tile-btn" id="btnToggleBlankCard">
+    <svg viewBox="0 0 48 48" width="38" height="38" aria-hidden="true">
+      <rect x="6" y="4" width="36" height="40" rx="4" fill="#fff" stroke="#1a3c34" stroke-width="2"/>
+      <rect x="6" y="4" width="36" height="10" rx="4" fill="#1a3c34"/>
+      <line x1="12" y1="20" x2="36" y2="20" stroke="#c9a668" stroke-width="1.6"/>
+      <line x1="12" y1="27" x2="36" y2="27" stroke="#c9a668" stroke-width="1.6"/>
+      <line x1="12" y1="34" x2="36" y2="34" stroke="#c9a668" stroke-width="1.6"/>
+      <line x1="20" y1="17" x2="20" y2="40" stroke="#e4dfd2" stroke-width="1.2"/>
+      <line x1="29" y1="17" x2="29" y2="40" stroke="#e4dfd2" stroke-width="1.2"/>
+    </svg>
+    <span id="tileBlankCardLabel">📋 Carte de score vierge</span>
+  </button>
+  <button class="tile-btn" id="btnToggleTeamRecap">
+    <svg viewBox="0 0 48 48" width="38" height="38" aria-hidden="true">
+      <circle cx="24" cy="9" r="4" fill="#1a3c34"/>
+      <rect x="6" y="26" width="9" height="16" rx="1.5" fill="#c9a668"/>
+      <rect x="19.5" y="16" width="9" height="26" rx="1.5" fill="#1a3c34"/>
+      <rect x="33" y="21" width="9" height="21" rx="1.5" fill="#b23a3a"/>
+    </svg>
+    <span id="tileTeamRecapLabel">👥 Récap équipe</span>
+  </button>
+</div>
+
+<div class="menu-frame">
+  <div class="toolbar" style="margin:0;">
+    <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
+  </div>
+  <div id="historySection" style="display:none; margin-top:10px;"></div>
+</div>
+
 <div class="rotate-hint" id="rotateHint">
   <span style="font-size:16px;">📱↻</span>
   <span id="rotateHintText">Tourne ton téléphone en mode paysage pour un meilleur affichage du tableau.</span>
-</div>
-
-<div class="toolbar">
-  <button class="btn btn-secondary" id="btnToggleBlankCard">📋 Carte de score vierge</button>
-  <button class="btn btn-secondary" id="btnToggleTeamRecap" style="margin-left:6px;">👥 Récap équipe</button>
 </div>
 
 <div class="toolbar">
@@ -273,13 +304,6 @@
 <div class="status" id="status"></div>
 
 <div id="caddiesSection" style="display:none; margin-top:10px;"></div>
-
-<div class="menu-frame">
-  <div class="toolbar" style="margin:0;">
-    <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
-  </div>
-  <div id="historySection" style="display:none; margin-top:10px;"></div>
-</div>
 
 <div id="eclecticSection" style="display:none; margin-top:10px;"></div>
 <div id="statsSection" style="display:none; margin-top:10px;"></div>
@@ -667,7 +691,23 @@
   //                 ou RED — la donnée couleur/distance du parcours reste consultable dans le
   //                 tableau des départs, plus bas). Le sous-titre affiche désormais simplement
   //                 "Par 72 · 18 trous — Fichier de consultation (lecture seule)".
-  const APP_VERSION = "SuarPark - V01.004.055";
+  //   V01.004.056 — Page de garde : les boutons "Carte de score vierge" et "Récap équipe" prennent
+  //                 la forme de deux grosses tuiles visuelles (icônes SVG dessinées en interne, sans
+  //                 image externe) placées côte à côte sur la même ligne — icône carte/grille pour
+  //                 la carte vierge, icône podium pour le récap équipe. Le cadre "Historique" est
+  //                 remonté juste après ces deux tuiles (au lieu d'être plus bas, après le tableau
+  //                 de score), conformément à l'ordre demandé pour la page de garde.
+  //   V01.004.057 — Faits marquants : 1) les vainqueurs du jour (score ET putts) sont désormais
+  //                 encadrés ensemble dans une seule carte "à l'honneur" (fond et bordure dorés,
+  //                 mise en avant façon podium), au lieu de deux cartes séparées ; 2) ajout d'un
+  //                 nouveau fait marquant "Record de putts all-time" juste après "Meilleure manche
+  //                 all-time", et son pendant "Pire total de putts" côté négatif ; 3) tous les faits
+  //                 marquants sont désormais classés du plus positif au moins positif : vainqueurs du
+  //                 jour, meilleure manche, record de putts, régularité, plus grande progression,
+  //                 série en forme, plus de manches jouées, trou le plus facile, trou le plus
+  //                 difficile, pire total de putts, manche la plus difficile — puis les stats neutres
+  //                 (total de manches équipe, coût total) en dernier.
+  const APP_VERSION = "SuarPark - V01.004.057";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -826,6 +866,8 @@
       insightsTitle: "📌 Faits marquants de l'équipe",
       insightsIntro: "Calculés automatiquement sur l'ensemble des manches enregistrées.",
       insightBestRoundEver: "🏅 Meilleure manche all-time",
+      insightBestPuttsEver: "🎯 Record de putts all-time",
+      insightWorstPuttsEver: "😅 Pire total de putts",
       insightWorstRoundEver: "🥴 Manche la plus difficile",
       insightMostConsistent: "🎯 Joueur le plus régulier",
       insightConsistentDesc: (n, sd) => `${n} — écart-type de ${sd} pts sur son total`,
@@ -846,6 +888,7 @@
       insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 Vainqueur du jour (putts)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} putts (${date})`,
+      insightDayWinnersHonorTitle: (date) => `🏆 Vainqueurs du jour — ${date}`,
       totalPuttsLabel: "Total putts : ",
       noDataForInsights: "Pas assez de données pour calculer des statistiques.",
       rotateHint: "Tourne ton téléphone en mode paysage pour un meilleur affichage du tableau.",
@@ -1048,6 +1091,8 @@
       insightsTitle: "📌 Team highlights",
       insightsIntro: "Automatically computed from all recorded rounds.",
       insightBestRoundEver: "🏅 Best round all-time",
+      insightBestPuttsEver: "🎯 All-time putts record",
+      insightWorstPuttsEver: "😅 Worst putts total",
       insightWorstRoundEver: "🥴 Toughest round",
       insightMostConsistent: "🎯 Most consistent player",
       insightConsistentDesc: (n, sd) => `${n} — standard deviation of ${sd} pts on total score`,
@@ -1068,6 +1113,7 @@
       insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 Winner of the day (putts)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} putts (${date})`,
+      insightDayWinnersHonorTitle: (date) => `🏆 Winners of the day — ${date}`,
       totalPuttsLabel: "Total putts: ",
       noDataForInsights: "Not enough data to compute statistics.",
       rotateHint: "Rotate your phone to landscape for a better view of the table.",
@@ -1270,6 +1316,8 @@
       insightsTitle: "📌 Highlights des Teams",
       insightsIntro: "Automatisch aus allen erfassten Runden berechnet.",
       insightBestRoundEver: "🏅 Beste Runde aller Zeiten",
+      insightBestPuttsEver: "🎯 Putt-Rekord aller Zeiten",
+      insightWorstPuttsEver: "😅 Schlechteste Putt-Summe",
       insightWorstRoundEver: "🥴 Schwierigste Runde",
       insightMostConsistent: "🎯 Konstantester Spieler",
       insightConsistentDesc: (n, sd) => `${n} — Standardabweichung von ${sd} Punkten beim Gesamtergebnis`,
@@ -1290,6 +1338,7 @@
       insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 Tagessieger (Putts)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} Putts (${date})`,
+      insightDayWinnersHonorTitle: (date) => `🏆 Tagessieger — ${date}`,
       totalPuttsLabel: "Putts gesamt: ",
       noDataForInsights: "Nicht genügend Daten für Statistiken.",
       rotateHint: "Drehe dein Handy ins Querformat für eine bessere Tabellenansicht.",
@@ -1492,6 +1541,8 @@
       insightsTitle: "📌 ไฮไลต์ของทีม",
       insightsIntro: "คำนวณโดยอัตโนมัติจากรอบที่บันทึกไว้ทั้งหมด",
       insightBestRoundEver: "🏅 รอบที่ดีที่สุดตลอดกาล",
+      insightBestPuttsEver: "🎯 สถิติพัตต์ตลอดกาล",
+      insightWorstPuttsEver: "😅 พัตต์รวมแย่ที่สุด",
       insightWorstRoundEver: "🥴 รอบที่ยากที่สุด",
       insightMostConsistent: "🎯 ผู้เล่นที่สม่ำเสมอที่สุด",
       insightConsistentDesc: (n, sd) => `${n} — ส่วนเบี่ยงเบนมาตรฐาน ${sd} แต้ม ของสกอร์รวม`,
@@ -1512,6 +1563,7 @@
       insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 ผู้ชนะประจำวัน (พัตต์)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} พัตต์ (${date})`,
+      insightDayWinnersHonorTitle: (date) => `🏆 ผู้ชนะประจำวัน — ${date}`,
       totalPuttsLabel: "รวมพัตต์: ",
       noDataForInsights: "ข้อมูลไม่เพียงพอสำหรับคำนวณสถิติ",
       rotateHint: "หมุนโทรศัพท์เป็นแนวนอนเพื่อดูตารางได้ดีขึ้น",
@@ -1596,8 +1648,8 @@
     document.getElementById('btnToggleDetails').textContent = t('btnToggleDetails');
     document.getElementById('btnToggleInsights').textContent = insightsVisible ? t('btnHideInsights') : t('btnShowInsights');
     document.getElementById('btnToggleTeeCompare').textContent = teeCompareVisible ? t('btnHideTeeCompare') : t('btnShowTeeCompare');
-    document.getElementById('btnToggleBlankCard').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
-    document.getElementById('btnToggleTeamRecap').textContent = teamRecapVisible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
+    document.getElementById('tileBlankCardLabel').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
+    document.getElementById('tileTeamRecapLabel').textContent = teamRecapVisible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
     document.getElementById('btnNotice').textContent = t('btnNotice');
     renderNotice();
     document.getElementById('thHole').textContent = t('thHole');
@@ -2663,6 +2715,19 @@
       });
     });
 
+    // Meilleur / pire total de putts all-time (seulement les manches où les putts ont été saisis)
+    let bestPutts = null, worstPutts = null;
+    players.forEach(name => {
+      state.history[name].forEach(round => {
+        const [date] = round;
+        const puttsTot = roundPutts(round).reduce((a,b)=>a+b,0);
+        if (puttsTot > 0){
+          if (bestPutts === null || puttsTot < bestPutts.tot) bestPutts = {name, date, tot: puttsTot};
+          if (worstPutts === null || puttsTot > worstPutts.tot) worstPutts = {name, date, tot: puttsTot};
+        }
+      });
+    });
+
     // Most consistent (lowest stddev of totals), min 3 rounds
     let mostConsistent = null;
     players.forEach(name => {
@@ -2728,10 +2793,29 @@
         <div style="margin:0; font-size:15px; font-weight:700; color:#111;">${desc}</div>
       </div>`;
 
+    // Carte "honneur" : vainqueurs du jour (score ET putts) encadrés ensemble, mis en valeur
+    // au-dessus des autres faits marquants (fond doré, bordure dorée, mise en avant visuelle).
+    const honorCard = (scoreWinner, puttsWinner, date) => `
+      <div style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border:2px solid var(--sand); border-radius:10px; padding:14px 16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(201,166,104,0.35);">
+        <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:10px; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
+          ${scoreWinner ? `<div style="text-align:center; min-width:130px;">
+            <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightDayWinnerScore')}</div>
+            <div style="font-size:18px; font-weight:900; color:${colorFor(scoreWinner.name)};">${scoreWinner.name}</div>
+            <div style="font-size:13px; color:#555;">${scoreWinner.tot}</div>
+          </div>` : ''}
+          ${puttsWinner ? `<div style="text-align:center; min-width:130px;">
+            <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightDayWinnerPutts')}</div>
+            <div style="font-size:18px; font-weight:900; color:${colorFor(puttsWinner.name)};">${puttsWinner.name}</div>
+            <div style="font-size:13px; color:#555;">${puttsWinner.tot} putts</div>
+          </div>` : ''}
+        </div>
+      </div>`;
+
     let html = `<h3>${t('insightsTitle')}</h3><p class="sub" style="margin-top:2px;">${t('insightsIntro')}</p>`;
 
-    // Vainqueur du jour (score et putts) : sur la date la plus récente parmi toutes les manches enregistrées
-    // Affiché en premier (score) et deuxième (putts) dans la liste des faits marquants.
+    // Vainqueur du jour (score et putts) : sur la date la plus récente parmi toutes les manches
+    // enregistrées. Affiché en tout premier, encadré ensemble façon podium.
     let latestDate = null;
     players.forEach(name => {
       state.history[name].forEach(([date]) => {
@@ -2751,18 +2835,20 @@
           if (puttsTot > 0 && (dayPuttsWinner === null || puttsTot < dayPuttsWinner.tot)) dayPuttsWinner = {name, tot: puttsTot};
         });
       });
-      if (dayScoreWinner) html += card(t('insightDayWinnerScore'), t('insightDayWinnerScoreDesc', dayScoreWinner.name, dayScoreWinner.tot, latestDate), colorFor(dayScoreWinner.name));
-      if (dayPuttsWinner) html += card(t('insightDayWinnerPutts'), t('insightDayWinnerPuttsDesc', dayPuttsWinner.name, dayPuttsWinner.tot, latestDate), colorFor(dayPuttsWinner.name));
+      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, latestDate);
     }
 
+    // Faits marquants classés du plus positif au moins positif.
     if (best) html += card(t('insightBestRoundEver'), `${best.name} — ${best.tot} (${best.date})`, colorFor(best.name));
-    if (worst) html += card(t('insightWorstRoundEver'), `${worst.name} — ${worst.tot} (${worst.date})`, colorFor(worst.name));
+    if (bestPutts) html += card(t('insightBestPuttsEver'), `${bestPutts.name} — ${bestPutts.tot} putts (${bestPutts.date})`, colorFor(bestPutts.name));
     if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
     if (biggestImprovement && biggestImprovement.improvement > 0) html += card(t('insightBiggestImprovement'), t('insightImprovementDesc', biggestImprovement.name, biggestImprovement.from, biggestImprovement.to), colorFor(biggestImprovement.name));
-    if (holeCounts[hardestHole] > 0) html += card(t('insightHardestHole'), t('insightHoleDesc', hardestHole+1, PAR[hardestHole], holeAvgs[hardestHole].toFixed(1)), '#DC3545');
-    if (holeCounts[easiestHole] > 0) html += card(t('insightEasiestHole'), t('insightHoleDesc', easiestHole+1, PAR[easiestHole], holeAvgs[easiestHole].toFixed(1)), '#28a745');
     if (hotStreak) html += card(t('insightHotStreak'), t('insightHotStreakDesc', hotStreak.name, hotStreak.avg), colorFor(hotStreak.name));
     if (mostRounds) html += card(t('insightMostRounds'), t('insightMostRoundsDesc', mostRounds.name, mostRounds.count), colorFor(mostRounds.name));
+    if (holeCounts[easiestHole] > 0) html += card(t('insightEasiestHole'), t('insightHoleDesc', easiestHole+1, PAR[easiestHole], holeAvgs[easiestHole].toFixed(1)), '#28a745');
+    if (holeCounts[hardestHole] > 0) html += card(t('insightHardestHole'), t('insightHoleDesc', hardestHole+1, PAR[hardestHole], holeAvgs[hardestHole].toFixed(1)), '#DC3545');
+    if (worstPutts) html += card(t('insightWorstPuttsEver'), `${worstPutts.name} — ${worstPutts.tot} putts (${worstPutts.date})`, '#DC3545');
+    if (worst) html += card(t('insightWorstRoundEver'), `${worst.name} — ${worst.tot} (${worst.date})`, '#DC3545');
 
     // Coût total en bahts : total équipe d'abord, puis détail par joueur (green fee + golfcar + caddie : 1000 ฿, 800 ฿ les lundis/mercredis)
     const teamCostTotal = players.reduce((sum, name) => sum + computeCostBaht(name), 0);
@@ -3516,7 +3602,7 @@
     const section = document.getElementById('teamRecapSection');
     section.classList.toggle('active', visible);
     document.body.classList.toggle('teamrecap-open', visible);
-    document.getElementById('btnToggleTeamRecap').textContent = visible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
+    document.getElementById('tileTeamRecapLabel').textContent = visible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
     if (visible){ renderTeamRecap(); wireLangSelectors(); }
   }
 
@@ -3783,7 +3869,7 @@
     const section = document.getElementById('blankCardSection');
     section.classList.toggle('active', blankCardVisible);
     document.body.classList.toggle('blankcard-open', blankCardVisible);
-    document.getElementById('btnToggleBlankCard').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
+    document.getElementById('tileBlankCardLabel').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
     if (blankCardVisible){ renderBlankCard(); wireLangSelectors(); }
   }
 
