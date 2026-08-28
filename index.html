@@ -59,6 +59,13 @@
   #app .date-slider-label { font-size:11px; color:var(--green-deep); font-weight:bold; min-width:80px; text-align:right; }
   #app .status { font-size:11px; color:var(--green-deep); margin-top:6px; min-height:14px; }
 
+  /* Récap équipe : colonne nom à largeur fixe, jamais de débordement sur les cases de score
+     (les noms longs / avec badge / bouton / date passent à la ligne dans cette largeur). */
+  #app .team-recap-table th:first-child, #app .team-recap-table td.team-recap-name-cell { width:88px; max-width:88px; }
+  @media (min-width: 700px) {
+    #app .team-recap-table th:first-child, #app .team-recap-table td.team-recap-name-cell { width:130px; max-width:130px; }
+  }
+
   /* Règle générale : toute référence à une info secondaire (notice, aide...) se pousse
      vers la droite de sa ligne, où qu'elle apparaisse dans le site. */
   #app .info-ref { margin-left:auto; }
@@ -160,6 +167,21 @@
     padding:14px;
   }
   body.teamrecap-open { overflow:hidden; }
+
+  /* Récap équipe en paysage forcé sur mobile portrait : le tableau est large (18 trous +
+     rang + nom + totaux), donc on pivote l'affichage à 90° pour l'utiliser en paysage
+     sans avoir à tourner le téléphone. Sans effet sur tablette/desktop ou si déjà en
+     paysage réel — l'orientation du téléphone n'est jamais modifiée, seul l'affichage l'est.
+     Cette règle vient volontairement après la précédente pour la remplacer en cascade. */
+  @media (orientation: portrait) and (max-width: 900px) {
+    #teamRecapSection.active {
+      top:0; left:0; right:auto; bottom:auto;
+      width:100vh; height:100vw;
+      transform-origin:top left;
+      transform:rotate(90deg) translateY(-100%);
+      overflow-y:auto; overflow-x:hidden;
+    }
+  }
 
   @media print {
     body * { visibility:hidden; }
@@ -743,7 +765,15 @@
   //                 messages de confirmation ("Carte de {0} ajoutée...", "Retirer la carte de {0}
   //                 ...") affichaient littéralement "{0}" au lieu du nom du joueur, faute d'être
   //                 écrits sous la forme fonction attendue par le système de traduction.
-  const APP_VERSION = "SuarPark - V01.004.062";
+  //   V01.004.063 — Deux corrections d'affichage sur le récapitulatif d'équipe : 1) la section
+  //                 s'affiche désormais automatiquement en paysage forcé sur téléphone tenu en
+  //                 portrait (pivot d'affichage à 90°, sans avoir à tourner le téléphone) — le grand
+  //                 tableau (18 trous + rang + nom + totaux) est nettement plus lisible ainsi ; sans
+  //                 effet sur tablette/desktop ou si le téléphone est déjà tenu en paysage. 2) la
+  //                 colonne du nom du joueur (icône départ, nom, badge "Toi", bouton Retirer, date
+  //                 de réception) est passée en largeur fixe avec retour à la ligne, corrigeant un
+  //                 débordement visuel des noms longs sur les cases de score des trous.
+  const APP_VERSION = "SuarPark - V01.004.063";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4062,13 +4092,13 @@
           return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`;
         }).join('');
         const teeIcon = entry.header.tee === 'red' ? '🔴' : entry.header.tee === 'white' ? '⚪' : '';
-        const ownTag = entry.isOwn ? ` <span style="font-size:10px; background:#1a3c34; color:#fff; padding:1px 5px; border-radius:3px;">${t('teamRecapYou')}</span>` : '';
-        const removeBtn = entry.isOwn ? '' : `<button class="btn btn-danger no-print" style="font-size:10px; padding:2px 6px; margin-left:6px;" onclick="window.teamRecapRemove('${entry.key.replace(/'/g,"\\'")}')">${t('teamRecapRemove')}</button>`;
-        const updated = entry.updatedAt ? `<div class="sub no-print" style="font-size:10px; color:#999;">${t('teamRecapUpdatedAt')} ${new Date(entry.updatedAt).toLocaleString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US')}</div>` : '';
+        const ownTag = entry.isOwn ? ` <span style="font-size:10px; background:#1a3c34; color:#fff; padding:1px 5px; border-radius:3px; white-space:nowrap;">${t('teamRecapYou')}</span>` : '';
+        const removeBtn = entry.isOwn ? '' : `<button class="btn btn-danger no-print" style="font-size:10px; padding:2px 6px; margin-top:2px;" onclick="window.teamRecapRemove('${entry.key.replace(/'/g,"\\'")}')">${t('teamRecapRemove')}</button>`;
+        const updated = entry.updatedAt ? `<div class="sub no-print" style="font-size:9px; color:#999; white-space:normal;">${t('teamRecapUpdatedAt')} ${new Date(entry.updatedAt).toLocaleString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : lang === 'th' ? 'th-TH' : 'en-US')}</div>` : '';
         return `<tr${entry.isOwn ? ' style="background:#f4f9f7;"' : ''}>
           <td style="font-weight:bold;">${rankLabel}</td>
-          <td style="text-align:left; font-weight:bold; white-space:nowrap;">
-            ${teeIcon} ${name}${ownTag}
+          <td class="team-recap-name-cell" style="text-align:left; font-weight:bold; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
+            <div>${teeIcon} ${name}${ownTag}</div>
             ${removeBtn}
             ${updated}
           </td>
@@ -4076,7 +4106,7 @@
           <td style="font-weight:bold;">${out || ''}</td><td style="font-weight:bold;">${inn || ''}</td><td style="font-weight:bold;">${tot || ''}</td>
         </tr>`;
       }).join('');
-      rowsHtml = `<div style="overflow-x:auto;"><table class="scorecard-table"><thead>${headerRow}</thead><tbody>${bodyRows}</tbody></table></div>`;
+      rowsHtml = `<div style="overflow-x:auto;"><table class="scorecard-table team-recap-table"><thead>${headerRow}</thead><tbody>${bodyRows}</tbody></table></div>`;
     }
 
     section.innerHTML = `
