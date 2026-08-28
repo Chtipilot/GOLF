@@ -97,6 +97,8 @@
 
   #app .blankcard-field { border:none; border-bottom:1px dotted #999; background:transparent; font-size:12px; padding:2px 4px; width:100%; }
   #app .blankcard-field:focus { outline:none; border-bottom:1px solid #1a3c34; background:#fff3cd; }
+  #app .blankcard-field-big { font-size:16px !important; padding:6px 6px !important; border-bottom:2px solid var(--sand) !important; font-weight:600; color:var(--green-deep); }
+  #app .blankcard-label-big { font-size:14px !important; font-weight:700 !important; }
   #app .blankcard-header-row { display:flex; flex-wrap:wrap; gap:6px 18px; margin-bottom:6px; }
   #app .blankcard-header-cell { display:flex; align-items:baseline; gap:4px; flex:1 1 220px; min-width:180px; }
   #app .blankcard-header-cell label { font-size:12px; white-space:nowrap; color:#1a3c34; font-weight:bold; }
@@ -604,7 +606,20 @@
   //                 une meilleure ergonomie mobile ; 4) polish de la section Carte de score vierge :
   //                 bouton Récap équipe et boutons de départ WHITE/RED redessinés (coins arrondis
   //                 façon marqueur de golf), nom du joueur souligné d'un filet sable.
-  const APP_VERSION = "SuarPark - V01.004.049";
+  //   V01.004.050 — Quatre ajustements demandés suite à retour visuel : 1) bouton "✕ Fermer" de la
+  //                 carte vierge renommé "← Retour" ; 2) bouton "📝 Copier en texte lisible" simplifié
+  //                 en "📝 Copier ma carte" (moins technique pour un joueur) ; 3) fiche joueur
+  //                 (Player's Name, Caddie, Date) agrandie et regroupée à gauche (nouvelle classe
+  //                 .blankcard-field-big) ; 4) météo désormais regroupée dans un cadre visuel dédié
+  //                 (bordure sable, fond sable clair), positionné à droite de la fiche joueur sur les
+  //                 écrans larges (empile proprement sous 600px de large).
+  //   V01.004.051 — Correction : le changement de langue (menu déroulant en haut) ne redéclenchait
+  //                 le rendu que de certaines sections (Historique, Éclectique, Stats, Insights,
+  //                 Comparatif Tee) — Caddies, Carte de score vierge et Récapitulatif d'équipe
+  //                 restaient affichés dans l'ancienne langue tant qu'on ne les fermait/rouvrait pas.
+  //                 Le changement de langue couvre désormais bien toutes les sections/feuilles du
+  //                 site, comme il se doit pour un réglage général.
+  const APP_VERSION = "SuarPark - V01.004.051";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -704,9 +719,9 @@
       blankCardTitle: "📋 Carte de score vierge — SuarPark",
       blankCardIntro: "À imprimer ou à remplir directement à l'écran avant/pendant la manche.",
       blankCardBtnPrint: "🖨️ Imprimer",
-      blankCardBtnClose: "Fermer",
+      blankCardBtnClose: "Retour",
       blankCardBtnExport: "📤 Copier (presse-papier)",
-      blankCardBtnExportText: "📝 Copier en texte lisible",
+      blankCardBtnExportText: "📝 Copier ma carte",
       blankCardBtnImport: "📥 Coller ma carte",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
@@ -925,9 +940,9 @@
       blankCardTitle: "📋 Blank scorecard — SuarPark",
       blankCardIntro: "Print it or fill it in directly on screen before/during the round.",
       blankCardBtnPrint: "🖨️ Print",
-      blankCardBtnClose: "Close",
+      blankCardBtnClose: "Back",
       blankCardBtnExport: "📤 Copy (clipboard)",
-      blankCardBtnExportText: "📝 Copy as readable text",
+      blankCardBtnExportText: "📝 Copy my card",
       blankCardBtnImport: "📥 Paste my card",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
@@ -1128,9 +1143,9 @@
       blankCardTitle: "📋 Leere Scorekarte — SuarPark",
       blankCardIntro: "Zum Ausdrucken oder direkt am Bildschirm vor/während der Runde ausfüllen.",
       blankCardBtnPrint: "🖨️ Drucken",
-      blankCardBtnClose: "Schließen",
+      blankCardBtnClose: "Zurück",
       blankCardBtnExport: "📤 Kopieren (Zwischenablage)",
-      blankCardBtnExportText: "📝 Als lesbaren Text kopieren",
+      blankCardBtnExportText: "📝 Meine Karte kopieren",
       blankCardBtnImport: "📥 Meine Karte einfügen",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
@@ -1331,9 +1346,9 @@
       blankCardTitle: "📋 การ์ดคะแนนเปล่า — SuarPark",
       blankCardIntro: "พิมพ์หรือกรอกโดยตรงบนหน้าจอ ก่อน/ระหว่างรอบการเล่น",
       blankCardBtnPrint: "🖨️ พิมพ์",
-      blankCardBtnClose: "ปิด",
+      blankCardBtnClose: "กลับ",
       blankCardBtnExport: "📤 คัดลอก (คลิปบอร์ด)",
-      blankCardBtnExportText: "📝 คัดลอกเป็นข้อความอ่านได้",
+      blankCardBtnExportText: "📝 คัดลอกการ์ดของฉัน",
       blankCardBtnImport: "📥 วางการ์ดของฉัน",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
@@ -3690,7 +3705,7 @@
       <p class="sub" style="margin-top:2px;">${t('blankCardIntro')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">💾 ${t('blankCardAutosaveNote')} <span id="blankCardSaveStamp"></span></p>
       <div class="toolbar no-print">
-        <button class="btn btn-secondary" id="btnBlankCardClose">✕ ${t('blankCardBtnClose')}</button>
+        <button class="btn btn-secondary" id="btnBlankCardClose">← ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
@@ -3707,41 +3722,50 @@
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">👥 ${t('teamRecapIntro')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔄 ${t('blankCardRotateHint')}</p>
 
-      <div class="blankcard-header-row" style="margin-top:10px;">
-        <div class="blankcard-header-cell" style="flex-basis:48%;">
-          <label>${t('blankCardPlayerName')}</label>
-          <select class="blankcard-field" data-field="playerName" style="width:100%;">${playerOptions}</select>
-        </div>
-        <div class="blankcard-header-cell" id="blankCardOtherNameWrap" style="flex-basis:48%; display:none;">
-          <label>${t('blankCardOtherPlayerName')}</label>
-          <input type="text" class="blankcard-field" data-field="playerNameOther">
-        </div>
-      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start; margin-top:10px;">
+        <div style="flex:1 1 300px;">
+          <div class="blankcard-header-row">
+            <div class="blankcard-header-cell" style="flex-basis:100%;">
+              <label class="blankcard-label-big">${t('blankCardPlayerName')}</label>
+              <select class="blankcard-field blankcard-field-big" data-field="playerName" style="width:100%;">${playerOptions}</select>
+            </div>
+          </div>
+          <div class="blankcard-header-row">
+            <div class="blankcard-header-cell" id="blankCardOtherNameWrap" style="flex-basis:100%; display:none;">
+              <label class="blankcard-label-big">${t('blankCardOtherPlayerName')}</label>
+              <input type="text" class="blankcard-field blankcard-field-big" data-field="playerNameOther">
+            </div>
+          </div>
 
-      <div class="blankcard-header-row">
-        <div class="blankcard-header-cell" style="flex-basis:31%;">
-          <label>${t('blankCardCaddie')}</label>
-          <select class="blankcard-field" data-field="caddieNumber" style="width:100%;">${caddieOptions}</select>
+          <div class="blankcard-header-row">
+            <div class="blankcard-header-cell" style="flex-basis:58%;">
+              <label class="blankcard-label-big">${t('blankCardCaddie')}</label>
+              <select class="blankcard-field blankcard-field-big" data-field="caddieNumber" style="width:100%;">${caddieOptions}</select>
+            </div>
+            <div class="blankcard-header-cell" id="blankCardOtherCaddieWrap" style="flex-basis:58%; display:none; gap:4px;">
+              <input type="text" class="blankcard-field blankcard-field-big" data-field="caddieOtherNumber" placeholder="${t('blankCardCaddieNumberPlaceholder')}" style="flex-basis:35%;">
+              <input type="text" class="blankcard-field blankcard-field-big" data-field="caddieOtherName" placeholder="${t('blankCardCaddieNamePlaceholder')}" style="flex-basis:60%;">
+            </div>
+            <div class="blankcard-header-cell" style="flex-basis:38%;"><label class="blankcard-label-big">${t('blankCardDate')}</label><input type="text" class="blankcard-field blankcard-field-big" data-field="date"></div>
+          </div>
         </div>
-        <div class="blankcard-header-cell" id="blankCardOtherCaddieWrap" style="flex-basis:31%; display:none; gap:4px;">
-          <input type="text" class="blankcard-field" data-field="caddieOtherNumber" placeholder="${t('blankCardCaddieNumberPlaceholder')}" style="flex-basis:35%;">
-          <input type="text" class="blankcard-field" data-field="caddieOtherName" placeholder="${t('blankCardCaddieNamePlaceholder')}" style="flex-basis:60%;">
-        </div>
-        <div class="blankcard-header-cell" style="flex-basis:31%;"><label>${t('blankCardDate')}</label><input type="text" class="blankcard-field" data-field="date"></div>
-      </div>
-      <div class="blankcard-header-row" style="margin-bottom:10px;">
-        <div class="blankcard-header-cell" style="flex-basis:100%; font-weight:bold; color:#1a3c34;">🌤️ ${t('blankCardWeatherLabel')}</div>
-      </div>
-      <div class="blankcard-header-row" style="margin-bottom:14px;">
-        <div class="blankcard-header-cell" style="flex-basis:22%;"><label>${t('weatherTemp')}</label><input type="number" class="blankcard-field" data-field="weatherTemp" placeholder="${t('weatherTempPlaceholder')}"></div>
-        <div class="blankcard-header-cell" style="flex-basis:22%;"><label>${t('weatherWind')}</label><input type="number" min="0" class="blankcard-field" data-field="weatherWind" placeholder="${t('weatherWindPlaceholder')}"></div>
-        <div class="blankcard-header-cell" style="flex-basis:22%;">
-          <label>${t('weatherWindDir')}</label>
-          <select class="blankcard-field" data-field="weatherWindDir" style="width:100%;">${windDirOptions}</select>
-        </div>
-        <div class="blankcard-header-cell" style="flex-basis:22%;">
-          <label>${t('weatherCondition')}</label>
-          <select class="blankcard-field" data-field="weatherCondition" style="width:100%;">${conditionOptions}</select>
+
+        <div style="flex:0 1 270px; border:2px solid var(--sand); background:var(--sand-pale); border-radius:12px; padding:10px 14px 12px;">
+          <div style="font-family:var(--font-display); font-weight:700; color:var(--green-deep); margin-bottom:6px; font-size:14px;">🌤️ ${t('blankCardWeatherLabel')}</div>
+          <div class="blankcard-header-row" style="margin:0 0 4px 0;">
+            <div class="blankcard-header-cell" style="flex-basis:46%;"><label>${t('weatherTemp')}</label><input type="number" class="blankcard-field" data-field="weatherTemp" placeholder="${t('weatherTempPlaceholder')}"></div>
+            <div class="blankcard-header-cell" style="flex-basis:46%;"><label>${t('weatherWind')}</label><input type="number" min="0" class="blankcard-field" data-field="weatherWind" placeholder="${t('weatherWindPlaceholder')}"></div>
+          </div>
+          <div class="blankcard-header-row" style="margin:0;">
+            <div class="blankcard-header-cell" style="flex-basis:46%;">
+              <label>${t('weatherWindDir')}</label>
+              <select class="blankcard-field" data-field="weatherWindDir" style="width:100%;">${windDirOptions}</select>
+            </div>
+            <div class="blankcard-header-cell" style="flex-basis:46%;">
+              <label>${t('weatherCondition')}</label>
+              <select class="blankcard-field" data-field="weatherCondition" style="width:100%;">${conditionOptions}</select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -3884,6 +3908,9 @@
       if (statsVisible) renderStats();
       if (insightsVisible) renderInsights();
       if (teeCompareVisible) renderTeeCompare();
+      if (caddiesVisible) renderCaddies();
+      if (blankCardVisible) renderBlankCard();
+      if (teamRecapVisible) renderTeamRecap();
     });
     document.getElementById('btnDateUp').addEventListener('click', () => goToDateIndex(dateNavIndex + 1));
     document.getElementById('btnDateDown').addEventListener('click', () => goToDateIndex(dateNavIndex - 1));
