@@ -59,6 +59,22 @@
   #app .date-slider-label { font-size:11px; color:var(--green-deep); font-weight:bold; min-width:80px; text-align:right; }
   #app .status { font-size:11px; color:var(--green-deep); margin-top:6px; min-height:14px; }
 
+  /* Règle générale : toute référence à une info secondaire (notice, aide...) se pousse
+     vers la droite de sa ligne, où qu'elle apparaisse dans le site. */
+  #app .info-ref { margin-left:auto; }
+
+  /* Ligne "SuarPark + version + langue", présente en premier en haut de chaque page. */
+  #app .page-subtitle-row { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:6px 0 4px 0; }
+  #app .brand-mark { font-family:var(--font-display); font-weight:700; color:var(--green-deep); font-size:13px; letter-spacing:0.3px; }
+
+  /* Séparation nette après le bloc langue + notice, avant le contenu de la page. */
+  #app .header-separator { border:none; border-top:2px solid var(--sand); margin:10px 0 14px 0; }
+
+  /* Cadre regroupant une section de menu (ex. Historique) : son bouton d'affichage et son
+     contenu, bien délimités visuellement du reste de la page. */
+  #app .menu-frame { border:1px solid var(--line); border-radius:10px; padding:10px 12px 12px; margin-top:10px; background:#fffdf8; }
+  #app .menu-frame > .toolbar:first-child { margin-bottom:6px; }
+
   /* --- Ergonomie mobile : cibles tactiles plus grandes, plus d'air entre les boutons --- */
   @media (max-width: 600px) {
     #app .btn { min-height:44px; padding:10px 14px; font-size:13px; }
@@ -151,13 +167,16 @@
   }
 </style>
 
-<div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
-  <h2 id="appTitle" style="margin:0;"><span id="appTitleText"></span> <span id="appVersion"></span></h2>
-  <button class="btn btn-secondary" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
+<div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
+  <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:var(--green-deep); letter-spacing:0.5px;">GOLF_TEAM</h1>
+  <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
 </div>
+<div class="page-subtitle-row" id="homeSubtitleRow"></div>
 <p class="sub" id="appSubtitle">Départs rouges · Par 72 · 18 trous</p>
 
 <div id="noticeSection" style="display:none; margin:6px 0 12px 0; background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.6; color:#1a3c34;"></div>
+
+<hr class="header-separator">
 
 <div class="rotate-hint" id="rotateHint">
   <span style="font-size:16px;">📱↻</span>
@@ -165,14 +184,7 @@
 </div>
 
 <div class="toolbar">
-  <label style="font-size:12px; margin-right:4px;" id="lblLang">🌐 Langue :</label>
-  <select id="langSelect" style="font-size:12px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; background:#fff;">
-    <option value="fr">Français</option>
-    <option value="en">English</option>
-    <option value="de">Deutsch</option>
-    <option value="th">ไทย</option>
-  </select>
-  <button class="btn btn-secondary" id="btnToggleBlankCard" style="margin-left:10px;">📋 Carte de score vierge</button>
+  <button class="btn btn-secondary" id="btnToggleBlankCard">📋 Carte de score vierge</button>
   <button class="btn btn-secondary" id="btnToggleTeamRecap" style="margin-left:6px;">👥 Récap équipe</button>
 </div>
 
@@ -253,7 +265,6 @@
 <div class="toolbar" style="margin-top:10px;">
   <button class="btn btn-secondary" id="btnToggleCaddies">🎽 Afficher les caddies</button>
   <button class="btn btn-secondary" id="btnToggleDetails">🎯 Putts</button>
-  <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
   <button class="btn btn-secondary" id="btnToggleEclectic">🏆 Afficher l'éclectique</button>
   <button class="btn btn-secondary" id="btnToggleStats">📊 Graphiques</button>
   <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
@@ -262,7 +273,14 @@
 <div class="status" id="status"></div>
 
 <div id="caddiesSection" style="display:none; margin-top:10px;"></div>
-<div id="historySection" style="display:none; margin-top:10px;"></div>
+
+<div class="menu-frame">
+  <div class="toolbar" style="margin:0;">
+    <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
+  </div>
+  <div id="historySection" style="display:none; margin-top:10px;"></div>
+</div>
+
 <div id="eclecticSection" style="display:none; margin-top:10px;"></div>
 <div id="statsSection" style="display:none; margin-top:10px;"></div>
 <div id="insightsSection" style="display:none; margin-top:10px;"></div>
@@ -619,7 +637,20 @@
   //                 restaient affichés dans l'ancienne langue tant qu'on ne les fermait/rouvrait pas.
   //                 Le changement de langue couvre désormais bien toutes les sections/feuilles du
   //                 site, comme il se doit pour un réglage général.
-  const APP_VERSION = "SuarPark - V01.004.051";
+  //   V01.004.052 — Refonte de l'en-tête, demandée pour que la structure soit cohérente sur toutes
+  //                 les pages/feuilles du site : 1) confirmation que le titre "GOLF_TEAM" est bien
+  //                 en page de garde (à la place de l'ancien "Carte de score") ; 2) la ligne
+  //                 "SuarPark + version + sélecteur de langue" apparaît désormais en tout premier,
+  //                 juste après le titre de page, sur les 3 pages du site (accueil, carte de score
+  //                 vierge, récapitulatif d'équipe) — jusque-là absente de la carte vierge ; 3)
+  //                 nouvelle règle CSS générale ".info-ref" : toute référence à une info secondaire
+  //                 (ex. "Notice utilisateur") se pousse désormais vers la droite de sa ligne,
+  //                 automatiquement, où qu'elle soit utilisée ; 4) séparateur visuel net après le
+  //                 bloc langue + notice sur les 3 pages ; 5) le bouton et le contenu de la section
+  //                 "Historique" sont désormais regroupés dans un cadre dédié, distinct des autres
+  //                 boutons de menu (Caddies, Putts, Éclectique, Graphiques, Faits marquants,
+  //                 Rouge vs Blanc).
+  const APP_VERSION = "SuarPark - V01.004.052";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -644,6 +675,7 @@
   const I18N = {
     fr: {
       title: "Carte de score — SuarPark",
+      langLabel: "Langue",
       subtitle: "Départs rouges · Par 72 · 18 trous — 📖 Fichier de consultation (lecture seule)",
       sessionDateLabel: "Date de la manche :",
       newSession: "Nouvelle manche",
@@ -865,6 +897,7 @@
     },
     en: {
       title: "Scorecard — SuarPark",
+      langLabel: "Language",
       subtitle: "Red tees · Par 72 · 18 holes — 📖 View-only file",
       sessionDateLabel: "Round date:",
       newSession: "New round",
@@ -1068,6 +1101,7 @@
     },
     de: {
       title: "Scorekarte — SuarPark",
+      langLabel: "Sprache",
       subtitle: "Rote Abschläge · Par 72 · 18 Löcher — 📖 Nur-Lese-Datei",
       sessionDateLabel: "Rundendatum:",
       newSession: "Neue Runde",
@@ -1271,6 +1305,7 @@
     },
     th: {
       title: "การ์ดสกอร์ — SuarPark",
+      langLabel: "ภาษา",
       subtitle: "ทีออกแดง · พาร์ 72 · 18 หลุม — 📖 ไฟล์สำหรับดูข้อมูลเท่านั้น",
       sessionDateLabel: "วันที่เล่น:",
       newSession: "รอบใหม่",
@@ -1498,7 +1533,7 @@
   }
 
   function applyStaticText(){
-    document.getElementById('appTitleText').textContent = t('title');
+    document.getElementById('homeSubtitleRow').innerHTML = pageSubtitleRowHTML('langSelect');
     document.getElementById('appSubtitle').textContent = t('subtitle');
     document.getElementById('lblSessionDate').textContent = t('sessionDateLabel');
     document.getElementById('btnToggleCaddies').textContent = caddiesVisible ? t('btnHideCaddies') : t('btnShowCaddies');
@@ -2029,6 +2064,49 @@
 
   async function saveLang(){
     try { localStorage.setItem(LANG_STORAGE_KEY, lang); } catch(e) { /* ignore */ }
+  }
+
+  // Bloc "SuarPark + version + sélecteur de langue" réutilisable, pour que le sélecteur de
+  // langue soit présent en haut de CHAQUE page/section (accueil, carte de score vierge, récap
+  // équipe...), et pas seulement sur la page d'accueil derrière laquelle les sections plein
+  // écran le masquaient auparavant.
+  function pageSubtitleRowHTML(selectId){
+    return `
+      <span class="brand-mark">SuarPark</span>
+      <span class="sub" style="margin:0;">${APP_VERSION.replace(/^SuarPark\s*-\s*/, "")}</span>
+      <label style="font-size:12px;">🌐 ${t('langLabel')} :</label>
+      <select id="${selectId}" class="lang-select-clone" style="font-size:12px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; background:#fff;">
+        <option value="fr"${lang==='fr'?' selected':''}>Français</option>
+        <option value="en"${lang==='en'?' selected':''}>English</option>
+        <option value="de"${lang==='de'?' selected':''}>Deutsch</option>
+        <option value="th"${lang==='th'?' selected':''}>ไทย</option>
+      </select>`;
+  }
+
+  // Changement de langue centralisé : appelable depuis n'importe quel sélecteur de langue
+  // (accueil, carte vierge, récap équipe...), synchronise tous les sélecteurs présents à
+  // l'écran et redessine toutes les sections actuellement ouvertes.
+  function changeLanguage(newLang){
+    lang = newLang;
+    saveLang();
+    applyStaticText();
+    goToDateIndex(dateNavIndex);
+    if (historyVisible) renderHistory();
+    if (eclecticVisible) renderEclectic();
+    if (statsVisible) renderStats();
+    if (insightsVisible) renderInsights();
+    if (teeCompareVisible) renderTeeCompare();
+    if (caddiesVisible) renderCaddies();
+    if (blankCardVisible) renderBlankCard();
+    if (teamRecapVisible) renderTeamRecap();
+    wireLangSelectors();
+  }
+
+  function wireLangSelectors(){
+    document.querySelectorAll('.lang-select-clone').forEach(sel => {
+      sel.value = lang;
+      sel.addEventListener('change', (e) => changeLanguage(e.target.value));
+    });
   }
 
   // Fichier de consultation : les données proviennent uniquement de DEFAULT_DATA (aucune
@@ -3358,11 +3436,13 @@
 
     section.innerHTML = `
       <div class="toolbar no-print" style="margin-bottom:8px;">
-        <button class="btn btn-secondary" id="btnTeamRecapClose">✕ ${t('teamRecapBtnClose')}</button>
+        <button class="btn btn-secondary" id="btnTeamRecapClose">← ${t('teamRecapBtnClose')}</button>
         <button class="btn btn-secondary" id="btnTeamRecapPrint">${t('teamRecapBtnPrint')}</button>
         <button class="btn btn-danger" id="btnTeamRecapClearAll">${t('teamRecapClearAll')}</button>
       </div>
       <h2>${t('teamRecapTitle')}</h2>
+      <div class="page-subtitle-row no-print">${pageSubtitleRowHTML('langSelectTeamRecap')}</div>
+      <hr class="header-separator no-print">
       <p class="sub no-print" style="margin-top:2px;">${t('teamRecapIntro')}</p>
       ${rowsHtml}
     `;
@@ -3370,6 +3450,7 @@
     document.getElementById('btnTeamRecapClose').addEventListener('click', () => teamRecapSetVisible(false));
     document.getElementById('btnTeamRecapPrint').addEventListener('click', () => window.print());
     document.getElementById('btnTeamRecapClearAll').addEventListener('click', teamRecapClearAll);
+    wireLangSelectors();
   }
 
   // Exposée globalement : les boutons "Retirer" sont générés dynamiquement en innerHTML.
@@ -3382,7 +3463,7 @@
     section.classList.toggle('active', visible);
     document.body.classList.toggle('teamrecap-open', visible);
     document.getElementById('btnToggleTeamRecap').textContent = visible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
-    if (visible) renderTeamRecap();
+    if (visible){ renderTeamRecap(); wireLangSelectors(); }
   }
 
   function blankCardComputeTotals(){
@@ -3649,7 +3730,7 @@
     section.classList.toggle('active', blankCardVisible);
     document.body.classList.toggle('blankcard-open', blankCardVisible);
     document.getElementById('btnToggleBlankCard').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
-    if (blankCardVisible) renderBlankCard();
+    if (blankCardVisible){ renderBlankCard(); wireLangSelectors(); }
   }
 
   function renderBlankCard(){
@@ -3702,6 +3783,8 @@
 
     container.innerHTML = `
       <h3>${t('blankCardTitle')}</h3>
+      <div class="page-subtitle-row no-print">${pageSubtitleRowHTML('langSelectBlankCard')}</div>
+      <hr class="header-separator no-print">
       <p class="sub" style="margin-top:2px;">${t('blankCardIntro')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">💾 ${t('blankCardAutosaveNote')} <span id="blankCardSaveStamp"></span></p>
       <div class="toolbar no-print">
@@ -3889,29 +3972,15 @@
   }
 
   function init(){
-    document.getElementById('appVersion').textContent = APP_VERSION.replace(/^SuarPark\s*-\s*/, "");
     loadLang();
-    document.getElementById('langSelect').value = lang;
     applyStaticText();
+    wireLangSelectors();
     loadState();
     renderEntryTable();
     applyStaticText();
+    wireLangSelectors();
     showLastSession();
 
-    document.getElementById('langSelect').addEventListener('change', (e) => {
-      lang = e.target.value;
-      saveLang();
-      applyStaticText();
-      goToDateIndex(dateNavIndex);
-      if (historyVisible) renderHistory();
-      if (eclecticVisible) renderEclectic();
-      if (statsVisible) renderStats();
-      if (insightsVisible) renderInsights();
-      if (teeCompareVisible) renderTeeCompare();
-      if (caddiesVisible) renderCaddies();
-      if (blankCardVisible) renderBlankCard();
-      if (teamRecapVisible) renderTeamRecap();
-    });
     document.getElementById('btnDateUp').addEventListener('click', () => goToDateIndex(dateNavIndex + 1));
     document.getElementById('btnDateDown').addEventListener('click', () => goToDateIndex(dateNavIndex - 1));
     document.getElementById('btnNotice').addEventListener('click', () => {
