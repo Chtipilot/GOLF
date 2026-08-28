@@ -722,7 +722,17 @@
   //                 les boutons "Capturer" / "Choisir une photo" / "Annuler". Repli automatique et
   //                 silencieux sur le sélecteur de fichier natif si l'accès à la caméra n'est pas
   //                 possible (refusé, indisponible, navigateur non compatible).
-  const APP_VERSION = "SuarPark - V01.004.059";
+  //   V01.004.060 — Panneau de vérification du scan : si la reconstruction échoue (rien à valider),
+  //                 le bouton "Valider" (jusque-là simplement grisé) disparaît et laisse place à
+  //                 trois choix clairs : "❌ Refuser (pourquoi ?)" / "🔄 Nouveau test" (relance
+  //                 directement le viseur) / "🚪 Quitter" (referme le panneau sans rien ajouter).
+  //   V01.004.061 — Nouveau bouton "🖨️📷 Préparer ma carte pour un scan" dans le cadre Transmission :
+  //                 affiche la carte en plein écran, en gros caractères noirs sur fond blanc, sans
+  //                 couleurs ni décoration — pensé pour être montré à une autre personne ou
+  //                 photographié directement, avec de meilleures chances de reconnaissance OCR
+  //                 qu'une capture de l'écran normal de l'app (coloré et dense). Réutilise le même
+  //                 texte que "Copier ma carte" (fonction de génération factorisée en interne).
+  const APP_VERSION = "SuarPark - V01.004.061";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -809,6 +819,10 @@
       teamRecapIntro: "Cartes reçues des joueurs, regroupées ici sans jamais écraser ta propre carte en cours.",
       blankCardBtnReceiveTeam: "👥 Recevoir la carte d'un joueur",
       blankCardBtnScanCard: "📷 Scanner une carte",
+      blankCardBtnPrepareScan: "🖨️📷 Préparer ma carte pour un scan",
+      scanReadyTitle: "🖨️📷 Carte prête à scanner",
+      scanReadyHint: "Montre cet écran à la personne qui va scanner ta carte, ou photographie-le directement. Texte volontairement gros et net pour une meilleure reconnaissance.",
+      scanReadyClose: "✕ Fermer",
       scanReviewTitle: "🔍 Vérifie avant de valider",
       scanReviewOcrLabel: "Texte détecté (brut)",
       scanReviewParsedLabel: "Données reconstituées",
@@ -824,6 +838,8 @@
       scanCameraCapture: "Capturer",
       scanCameraPickFile: "Choisir une photo",
       scanCameraCancel: "Annuler",
+      scanReviewRetry: "Nouveau test",
+      scanReviewQuit: "Quitter",
       teamRecapEmpty: "Aucune carte reçue pour l'instant. Utilise \"👥 Recevoir la carte d'un joueur\" depuis la carte de score vierge.",
       teamRecapReceiveSuccess: "Carte de {0} ajoutée au récapitulatif d'équipe !",
       teamRecapReceiveError: "Ce texte n'a pas été reconnu comme une carte SuarPark valide.",
@@ -1050,6 +1066,10 @@
       teamRecapIntro: "Cards received from players, gathered here without ever overwriting your own card in progress.",
       blankCardBtnReceiveTeam: "👥 Receive a player's card",
       blankCardBtnScanCard: "📷 Scan a card",
+      blankCardBtnPrepareScan: "🖨️📷 Prepare my card for a scan",
+      scanReadyTitle: "🖨️📷 Card ready to scan",
+      scanReadyHint: "Show this screen to whoever will scan your card, or photograph it directly. Text is deliberately large and clear for better recognition.",
+      scanReadyClose: "✕ Close",
       scanReviewTitle: "🔍 Check before validating",
       scanReviewOcrLabel: "Detected text (raw)",
       scanReviewParsedLabel: "Reconstructed data",
@@ -1065,6 +1085,8 @@
       scanCameraCapture: "Capture",
       scanCameraPickFile: "Choose a photo",
       scanCameraCancel: "Cancel",
+      scanReviewRetry: "New attempt",
+      scanReviewQuit: "Quit",
       teamRecapEmpty: "No card received yet. Use \"👥 Receive a player's card\" from the blank scorecard.",
       teamRecapReceiveSuccess: "{0}'s card added to the team recap!",
       teamRecapReceiveError: "This text wasn't recognized as a valid SuarPark card.",
@@ -1291,6 +1313,10 @@
       teamRecapIntro: "Von Spielern erhaltene Karten, hier gesammelt, ohne je die eigene laufende Karte zu überschreiben.",
       blankCardBtnReceiveTeam: "👥 Karte eines Spielers empfangen",
       blankCardBtnScanCard: "📷 Karte scannen",
+      blankCardBtnPrepareScan: "🖨️📷 Meine Karte für einen Scan vorbereiten",
+      scanReadyTitle: "🖨️📷 Karte bereit zum Scannen",
+      scanReadyHint: "Zeige diesen Bildschirm der Person, die deine Karte scannt, oder fotografiere ihn direkt. Text bewusst groß und klar für bessere Erkennung.",
+      scanReadyClose: "✕ Schließen",
       scanReviewTitle: "🔍 Vor dem Bestätigen prüfen",
       scanReviewOcrLabel: "Erkannter Text (roh)",
       scanReviewParsedLabel: "Rekonstruierte Daten",
@@ -1306,6 +1332,8 @@
       scanCameraCapture: "Aufnehmen",
       scanCameraPickFile: "Foto auswählen",
       scanCameraCancel: "Abbrechen",
+      scanReviewRetry: "Neuer Versuch",
+      scanReviewQuit: "Beenden",
       teamRecapEmpty: "Noch keine Karte empfangen. \"👥 Karte eines Spielers empfangen\" auf der leeren Scorekarte verwenden.",
       teamRecapReceiveSuccess: "Karte von {0} zur Team-Übersicht hinzugefügt!",
       teamRecapReceiveError: "Dieser Text wurde nicht als gültige SuarPark-Karte erkannt.",
@@ -1532,6 +1560,10 @@
       teamRecapIntro: "การ์ดที่ได้รับจากผู้เล่น รวบรวมไว้ที่นี่ โดยไม่เขียนทับการ์ดของคุณเองที่กำลังกรอกอยู่",
       blankCardBtnReceiveTeam: "👥 รับการ์ดของผู้เล่น",
       blankCardBtnScanCard: "📷 สแกนการ์ด",
+      blankCardBtnPrepareScan: "🖨️📷 เตรียมการ์ดของฉันสำหรับสแกน",
+      scanReadyTitle: "🖨️📷 การ์ดพร้อมสแกน",
+      scanReadyHint: "แสดงหน้าจอนี้ให้คนที่จะสแกนการ์ดของคุณดู หรือถ่ายภาพโดยตรง ข้อความตั้งใจทำให้ใหญ่และชัดเจนเพื่อการจดจำที่ดีขึ้น",
+      scanReadyClose: "✕ ปิด",
       scanReviewTitle: "🔍 ตรวจสอบก่อนยืนยัน",
       scanReviewOcrLabel: "ข้อความที่ตรวจพบ (ดิบ)",
       scanReviewParsedLabel: "ข้อมูลที่สร้างขึ้นใหม่",
@@ -1547,6 +1579,8 @@
       scanCameraCapture: "ถ่ายภาพ",
       scanCameraPickFile: "เลือกรูปภาพ",
       scanCameraCancel: "ยกเลิก",
+      scanReviewRetry: "ลองใหม่",
+      scanReviewQuit: "ออก",
       teamRecapEmpty: "ยังไม่มีการ์ดที่ได้รับ ใช้ \"👥 รับการ์ดของผู้เล่น\" จากการ์ดคะแนนเปล่า",
       teamRecapReceiveSuccess: "เพิ่มการ์ดของ {0} ในสรุปทีมแล้ว!",
       teamRecapReceiveError: "ไม่รู้จักข้อความนี้ว่าเป็นการ์ด SuarPark ที่ถูกต้อง",
@@ -3135,7 +3169,9 @@
     }
   }
 
-  function blankCardExportText(){
+  // Construit le texte lisible de la carte (utilisé pour la copie ET pour l'affichage
+  // "prête à scanner"), sans effet de bord (ne touche pas au presse-papier).
+  function buildBlankCardReadableText(){
     const draft = collectBlankCardDraftFromDOM();
     const section = document.getElementById('blankCardSection');
     const h = draft.header;
@@ -3193,13 +3229,36 @@
     lines.push('SuarPark_Fin.');
     lines.push(border);
 
-    const text = lines.join('\n');
+    return lines.join('\n');
+  }
+
+  function blankCardExportText(){
+    const text = buildBlankCardReadableText();
     const finish = () => window.alert(t('blankCardExportTextCopied'));
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(text).then(finish).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), text));
     } else {
       window.prompt(t('blankCardExportTextFallbackTitle'), text);
     }
+  }
+
+  // Affiche la carte en plein écran, en gros caractères noirs sur fond blanc, sans couleurs
+  // ni décoration — pensé pour être photographié/scanné par une autre personne (meilleure
+  // chance de reconnaissance OCR qu'une photo de l'écran normal de l'app, coloré et dense).
+  function blankCardShowScanReady(){
+    const text = buildBlankCardReadableText();
+    const panel = document.getElementById('scanReadyPanel');
+    panel.style.display = 'block';
+    panel.innerHTML = `
+      <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
+        <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
+        <p class="sub" style="margin:10px 0; color:#555;">${t('scanReadyHint')}</p>
+        <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(16px, 4.2vw, 22px); font-weight:700; line-height:1.5; color:#000; background:#fff; border:3px solid #000; border-radius:8px; padding:14px; margin:0;">${text.replace(/</g,'&lt;')}</pre>
+      </div>`;
+    document.getElementById('btnScanReadyClose').addEventListener('click', () => {
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+    });
   }
 
   // Reconnaît et relit le format "texte lisible" produit par blankCardExportText(),
@@ -3705,6 +3764,13 @@
       parsedHtml = `<p class="sub" style="color:#b23a3a;">${t('scanReviewNotRecognized')}</p>`;
     }
 
+    const buttonsHtml = pendingScanDraft
+      ? `<button class="btn" id="btnScanValidate" style="background:#28a745;">${t('scanReviewValidate')}</button>
+         <button class="btn btn-danger" id="btnScanRefuse">${t('scanReviewRefuse')}</button>`
+      : `<button class="btn btn-danger" id="btnScanRefuse">${t('scanReviewRefuse')}</button>
+         <button class="btn btn-secondary" id="btnScanRetry">🔄 ${t('scanReviewRetry')}</button>
+         <button class="btn btn-secondary" id="btnScanQuit">🚪 ${t('scanReviewQuit')}</button>`;
+
     panel.innerHTML = `
       <div style="border:2px solid #0d47a1; border-radius:10px; padding:12px 14px; margin-top:10px; background:#f4f8ff;">
         <div style="font-weight:bold; color:#0d47a1; margin-bottom:8px;">${t('scanReviewTitle')}</div>
@@ -3716,22 +3782,28 @@
         </details>
         <p class="sub" style="color:#b8860b; margin:6px 0;">${t('scanReviewWarning')}</p>
         <div class="toolbar" style="margin:6px 0 0 0; clear:both;">
-          <button class="btn" id="btnScanValidate" style="background:#28a745;" ${pendingScanDraft ? '' : 'disabled'}>${t('scanReviewValidate')}</button>
-          <button class="btn btn-danger" id="btnScanRefuse">${t('scanReviewRefuse')}</button>
+          ${buttonsHtml}
         </div>
       </div>`;
 
-    document.getElementById('btnScanValidate').addEventListener('click', () => {
-      if (!pendingScanDraft) return;
-      const result = teamRecapCommitDraft(pendingScanDraft);
-      if (result.status === 'success'){
-        window.alert(t('teamRecapReceiveSuccess', result.name));
-        renderTeamRecap();
-      } else {
-        window.alert(t('teamRecapReceiveError'));
-      }
-      closeScanReview();
-    });
+    if (pendingScanDraft){
+      document.getElementById('btnScanValidate').addEventListener('click', () => {
+        const result = teamRecapCommitDraft(pendingScanDraft);
+        if (result.status === 'success'){
+          window.alert(t('teamRecapReceiveSuccess', result.name));
+          renderTeamRecap();
+        } else {
+          window.alert(t('teamRecapReceiveError'));
+        }
+        closeScanReview();
+      });
+    } else {
+      document.getElementById('btnScanRetry').addEventListener('click', () => {
+        closeScanReview();
+        blankCardScanCard();
+      });
+      document.getElementById('btnScanQuit').addEventListener('click', closeScanReview);
+    }
     document.getElementById('btnScanRefuse').addEventListener('click', () => {
       window.prompt(t('scanReviewRefuseReasonPrompt'), "");
       window.alert(t('scanReviewRefused'));
@@ -4210,10 +4282,12 @@
           <button class="btn btn-transfer" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
           <button class="btn btn-transfer" id="btnBlankCardScanCard">${t('blankCardBtnScanCard')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardPrepareScan">${t('blankCardBtnPrepareScan')}</button>
           <input type="file" id="blankCardScanInput" accept="image/*" capture="environment" style="display:none;">
         </div>
       </fieldset>
       <div id="scanReviewPanel" style="display:none;"></div>
+      <div id="scanReadyPanel" style="display:none;"></div>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔗 ${t('blankCardExportImportNote')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">👥 ${t('teamRecapIntro')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔄 ${t('blankCardRotateHint')}</p>
@@ -4332,6 +4406,7 @@
     document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
     document.getElementById('btnBlankCardScanCard').addEventListener('click', blankCardScanCard);
+    document.getElementById('btnBlankCardPrepareScan').addEventListener('click', blankCardShowScanReady);
     document.getElementById('blankCardScanInput').addEventListener('change', (e) => {
       handleScanFileSelected(e.target.files && e.target.files[0]);
     });
