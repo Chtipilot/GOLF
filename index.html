@@ -571,7 +571,11 @@
   //                 manquer pendant la saisie. Les 3 boutons de transmission sont désormais
   //                 regroupés dans un vrai cadre visuel dédié (encadré avec le titre "Transmission"),
   //                 plutôt qu'un simple intitulé au-dessus d'eux.
-  const APP_VERSION = "SuarPark - V01.004.047";
+  //   V01.004.048 — Le nom du joueur de la carte de score vierge s'affiche désormais en très gros
+  //                 (30px, gras) juste sous le bouton "👥 Récapitulatif de l'équipe" et juste
+  //                 au-dessus du tableau de score, pour être identifiable en un coup d'œil. Mis à
+  //                 jour en direct dès que le nom change (liste des joueurs ou saisie "Autre").
+  const APP_VERSION = "SuarPark - V01.004.048";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2754,6 +2758,23 @@
     otherWrap.style.display = select.value === BLANKCARD_OTHER_VALUE ? 'flex' : 'none';
   }
 
+  // Met à jour en direct le gros affichage du nom du joueur (au-dessus de la carte de score),
+  // à chaque changement de nom, sans attendre un rechargement complet de la section.
+  function blankCardUpdateBigName(){
+    const section = document.getElementById('blankCardSection');
+    const big = document.getElementById('blankCardBigName');
+    if (!section || !big) return;
+    const nameSel = section.querySelector('[data-field="playerName"]');
+    const otherInp = section.querySelector('[data-field="playerNameOther"]');
+    let name = '?';
+    if (nameSel && nameSel.value && nameSel.value !== BLANKCARD_OTHER_VALUE){
+      name = nameSel.value;
+    } else if (otherInp && otherInp.value){
+      name = otherInp.value;
+    }
+    big.textContent = name;
+  }
+
   function blankCardUpdateOtherCaddieVisibility(){
     const section = document.getElementById('blankCardSection');
     const select = section.querySelector('[data-field="caddieNumber"]');
@@ -3699,6 +3720,8 @@
 
       <button class="btn no-print" id="btnToggleTeamRecapFromCard" style="display:block; width:100%; font-size:18px; padding:14px 10px; background:#0d47a1; border:3px solid #0a3880; margin-bottom:14px;">👥 ${t('teamRecapTitle')}</button>
 
+      <div id="blankCardBigName" style="text-align:center; font-size:30px; font-weight:900; color:#1a3c34; margin:2px 0 16px 0; letter-spacing:0.5px;">${teamRecapDisplayName(draft.header)}</div>
+
       <h3 style="margin:0 0 4px 0; color:#1a3c34;">⛳ ${t('blankCardScorecardSectionTitle')}</h3>
 
       <div class="blankcard-header-row" style="align-items:flex-start;">
@@ -3776,6 +3799,7 @@
     container.querySelector('[data-field="playerName"]').addEventListener('change', () => {
       blankCardUpdateOtherNameVisibility();
       persistBlankCardDraft();
+      blankCardUpdateBigName();
     });
     container.querySelector('[data-field="caddieNumber"]').addEventListener('change', () => {
       blankCardUpdateOtherCaddieVisibility();
@@ -3797,7 +3821,7 @@
       });
     });
     container.querySelectorAll('[data-field]').forEach(inp => {
-      inp.addEventListener('input', persistBlankCardDraft);
+      inp.addEventListener('input', () => { persistBlankCardDraft(); blankCardUpdateBigName(); });
     });
 
     blankCardFocusHole = blankCardFirstEmptyHole(draft.scores);
