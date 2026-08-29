@@ -822,7 +822,17 @@
   //                 visible, jusqu'à TOT. 2) Le rond de marquage PAR/EAGLE est réduit (1.9em → 1.5em)
   //                 et aminci (bordure 2px → 1px, anneaux EAGLE resserrés), pour un rendu plus discret
   //                 partout où il apparaît (carte principale, historique, éclectique, récap équipe).
-  const APP_VERSION = "SuarPark - V01.004.069";
+  //   V01.004.070 — Les boutons "Fermer"/"Retour" (récap équipe, carte de score vierge, carte prête
+  //                 à scanner) affichent désormais une icône porte de sortie 🚪 au lieu de ✕/←, dans
+  //                 les 4 langues du site. Même changement appliqué à "briefing.html" (bouton qui
+  //                 ramène vers index.html, sur chaque diapositive).
+  //   V01.004.071 — Un bouton avait échappé au passage précédent : "✕ Annuler" dans le viseur caméra
+  //                 du scan (qui referme la caméra) affiche désormais lui aussi 🚪, comme tous les
+  //                 autres boutons de sortie/fermeture de l'app — vérifié qu'il n'en reste aucun
+  //                 sans porte, dans les deux fichiers (index.html et briefing.html). Nettoyage
+  //                 associé : suppression de deux anciennes clés de traduction ("briefingTitle",
+  //                 "briefingCloseBtn") devenues mortes depuis que le briefing a sa propre page.
+  const APP_VERSION = "SuarPark - V01.004.071";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -912,7 +922,7 @@
       blankCardBtnPrepareScan: "🖨️📷 Préparer ma carte pour un scan",
       scanReadyTitle: "🖨️📷 Carte prête à scanner",
       scanReadyHint: "Montre cet écran à la personne qui va scanner ta carte, ou photographie-le directement. Texte volontairement gros et net pour une meilleure reconnaissance.",
-      scanReadyClose: "✕ Fermer",
+      scanReadyClose: "🚪 Fermer",
       scanReviewTitle: "🔍 Vérifie avant de valider",
       scanReviewOcrLabel: "Texte détecté (brut)",
       scanReviewParsedLabel: "Données reconstituées",
@@ -1058,8 +1068,6 @@
       restoreNoPlayers: "⚠️ Aucun joueur trouvé dans ce fichier.",
       btnNotice: "📖 Notice utilisateur",
       btnBriefing: "🎓 Briefing Directeur",
-      briefingTitle: "🎓 Briefing d'avant partie — Directeur de Session",
-      briefingCloseBtn: "✕ Fermer le briefing",
       noticeTitle: "📖 Notice d'utilisation rapide",
       noticeItems: [
         "<strong>Fichier de consultation :</strong> ce fichier n'accepte aucune saisie ni sauvegarde — il présente simplement les données au moment de son envoi.",
@@ -1165,7 +1173,7 @@
       blankCardBtnPrepareScan: "🖨️📷 Prepare my card for a scan",
       scanReadyTitle: "🖨️📷 Card ready to scan",
       scanReadyHint: "Show this screen to whoever will scan your card, or photograph it directly. Text is deliberately large and clear for better recognition.",
-      scanReadyClose: "✕ Close",
+      scanReadyClose: "🚪 Close",
       scanReviewTitle: "🔍 Check before validating",
       scanReviewOcrLabel: "Detected text (raw)",
       scanReviewParsedLabel: "Reconstructed data",
@@ -1311,8 +1319,6 @@
       restoreNoPlayers: "⚠️ No players found in this file.",
       btnNotice: "📖 User guide",
       btnBriefing: "🎓 Director briefing",
-      briefingTitle: "🎓 Pre-round briefing — Session Director",
-      briefingCloseBtn: "✕ Close briefing",
       noticeTitle: "📖 Quick user guide",
       noticeItems: [
         "<strong>View-only file:</strong> this file accepts no input and saves nothing — it simply shows the data as of when it was sent.",
@@ -1418,7 +1424,7 @@
       blankCardBtnPrepareScan: "🖨️📷 Meine Karte für einen Scan vorbereiten",
       scanReadyTitle: "🖨️📷 Karte bereit zum Scannen",
       scanReadyHint: "Zeige diesen Bildschirm der Person, die deine Karte scannt, oder fotografiere ihn direkt. Text bewusst groß und klar für bessere Erkennung.",
-      scanReadyClose: "✕ Schließen",
+      scanReadyClose: "🚪 Schließen",
       scanReviewTitle: "🔍 Vor dem Bestätigen prüfen",
       scanReviewOcrLabel: "Erkannter Text (roh)",
       scanReviewParsedLabel: "Rekonstruierte Daten",
@@ -1564,8 +1570,6 @@
       restoreNoPlayers: "⚠️ Keine Spieler in dieser Datei gefunden.",
       btnNotice: "📖 Bedienungsanleitung",
       btnBriefing: "🎓 Direktor-Briefing",
-      briefingTitle: "🎓 Briefing vor der Runde — Session-Direktor",
-      briefingCloseBtn: "✕ Briefing schließen",
       noticeTitle: "📖 Kurzanleitung",
       noticeItems: [
         "<strong>Nur-Lese-Datei:</strong> diese Datei erlaubt keine Eingabe und speichert nichts — sie zeigt lediglich die Daten zum Zeitpunkt des Versands.",
@@ -1671,7 +1675,7 @@
       blankCardBtnPrepareScan: "🖨️📷 เตรียมการ์ดของฉันสำหรับสแกน",
       scanReadyTitle: "🖨️📷 การ์ดพร้อมสแกน",
       scanReadyHint: "แสดงหน้าจอนี้ให้คนที่จะสแกนการ์ดของคุณดู หรือถ่ายภาพโดยตรง ข้อความตั้งใจทำให้ใหญ่และชัดเจนเพื่อการจดจำที่ดีขึ้น",
-      scanReadyClose: "✕ ปิด",
+      scanReadyClose: "🚪 ปิด",
       scanReviewTitle: "🔍 ตรวจสอบก่อนยืนยัน",
       scanReviewOcrLabel: "ข้อความที่ตรวจพบ (ดิบ)",
       scanReviewParsedLabel: "ข้อมูลที่สร้างขึ้นใหม่",
@@ -1817,8 +1821,6 @@
       restoreNoPlayers: "⚠️ ไม่พบผู้เล่นในไฟล์นี้",
       btnNotice: "📖 คู่มือการใช้งาน",
       btnBriefing: "🎓 บรีฟฟิ่งผู้อำนวยการ",
-      briefingTitle: "🎓 บรีฟฟิ่งก่อนเริ่มรอบ — ผู้อำนวยการเซสชัน",
-      briefingCloseBtn: "✕ ปิดบรีฟฟิ่ง",
       noticeTitle: "📖 คู่มือการใช้งานฉบับย่อ",
       noticeItems: [
         "<strong>ไฟล์สำหรับดูข้อมูลเท่านั้น:</strong> ไฟล์นี้ไม่รับการกรอกหรือบันทึกข้อมูลใดๆ — เพียงแสดงข้อมูล ณ เวลาที่ส่งไฟล์เท่านั้น",
@@ -3939,7 +3941,7 @@
         <div class="toolbar" style="justify-content:center; margin:6px 0 0 0;">
           <button class="btn" id="btnScanCapture" style="background:#28a745;">📸 ${t('scanCameraCapture')}</button>
           <button class="btn btn-secondary" id="btnScanPickFile">🖼️ ${t('scanCameraPickFile')}</button>
-          <button class="btn btn-danger" id="btnScanCameraCancel">✕ ${t('scanCameraCancel')}</button>
+          <button class="btn btn-danger" id="btnScanCameraCancel">🚪 ${t('scanCameraCancel')}</button>
         </div>
       </div>`;
 
@@ -4188,7 +4190,7 @@
 
     section.innerHTML = `
       <div class="toolbar no-print" style="margin-bottom:8px;">
-        <button class="btn btn-secondary" id="btnTeamRecapClose">← ${t('teamRecapBtnClose')}</button>
+        <button class="btn btn-secondary" id="btnTeamRecapClose">🚪 ${t('teamRecapBtnClose')}</button>
         <button class="btn btn-secondary" id="btnTeamRecapPrint">${t('teamRecapBtnPrint')}</button>
         <button class="btn btn-transfer" id="btnTeamRecapCopyAll">${t('teamRecapCopyAll')}</button>
         <button class="btn btn-danger" id="btnTeamRecapClearAll">${t('teamRecapClearAll')}</button>
@@ -4542,7 +4544,7 @@
       <p class="sub" style="margin-top:2px;">${t('blankCardIntro')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">💾 ${t('blankCardAutosaveNote')} <span id="blankCardSaveStamp"></span></p>
       <div class="toolbar no-print">
-        <button class="btn btn-secondary" id="btnBlankCardClose">← ${t('blankCardBtnClose')}</button>
+        <button class="btn btn-secondary" id="btnBlankCardClose">🚪 ${t('blankCardBtnClose')}</button>
         <button class="btn btn-secondary" id="btnBlankCardPrint">${t('blankCardBtnPrint')}</button>
         <button class="btn btn-danger" id="btnBlankCardClear">${t('blankCardBtnClear')}</button>
       </div>
