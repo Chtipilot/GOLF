@@ -73,6 +73,16 @@
   .closing-slide h1 { font-family:var(--font-display); font-weight:900; font-size:clamp(28px,7vw,42px); margin:14px 0 8px 0; }
   .closing-slide p { font-size:13px; color:var(--sand-pale); max-width:520px; }
 
+  /* Photo réelle du parcours en fond du titre et de la clôture, avec un voile vert
+     translucide par-dessus pour garder le texte blanc bien lisible. Le vert plein reste
+     défini sur .slide.dark comme repli si l'image ne se charge pas (aucune interruption
+     visuelle, juste retour à l'ancien style). */
+  .slide.dark.title-slide, .slide.dark.closing-slide {
+    background-image: linear-gradient(rgba(26,60,52,0.78), rgba(26,60,52,0.78)), url('golf-course.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
   .flag { width:56px; height:56px; }
 
   .navbar {
@@ -121,7 +131,7 @@
 
   const CONTENT = {
     fr: {
-      brand: "SuarPark · GOLF_TEAM", close: "✕ Fermer",
+      brand: "SuarPark · GOLF_TEAM", close: "🚪 Fermer",
       slides: [
         { type:"title", kicker:"GOLF_TEAM", title:"Briefing d'avant partie", sub:"Le rôle du Directeur de Session — pense-bête complet, écran par écran" },
         { type:"content", kicker:"Vue d'ensemble", title:"Le rôle du Directeur de Session", items:[
@@ -181,7 +191,7 @@
       ]
     },
     en: {
-      brand: "SuarPark · GOLF_TEAM", close: "✕ Close",
+      brand: "SuarPark · GOLF_TEAM", close: "🚪 Close",
       slides: [
         { type:"title", kicker:"GOLF_TEAM", title:"Pre-round briefing", sub:"The Session Director's role — a full cheat sheet, screen by screen" },
         { type:"content", kicker:"Overview", title:"The Session Director's role", items:[
@@ -241,7 +251,7 @@
       ]
     },
     de: {
-      brand: "SuarPark · GOLF_TEAM", close: "✕ Schließen",
+      brand: "SuarPark · GOLF_TEAM", close: "🚪 Schließen",
       slides: [
         { type:"title", kicker:"GOLF_TEAM", title:"Briefing vor der Runde", sub:"Die Rolle des Session-Direktors — die vollständige Übersicht, Bildschirm für Bildschirm" },
         { type:"content", kicker:"Überblick", title:"Die Rolle des Session-Direktors", items:[
@@ -301,7 +311,7 @@
       ]
     },
     th: {
-      brand: "SuarPark · GOLF_TEAM", close: "✕ ปิด",
+      brand: "SuarPark · GOLF_TEAM", close: "🚪 ปิด",
       slides: [
         { type:"title", kicker:"GOLF_TEAM", title:"บรีฟฟิ่งก่อนเริ่มรอบ", sub:"บทบาทของผู้อำนวยการเซสชัน — คู่มือฉบับสมบูรณ์ ทีละหน้าจอ" },
         { type:"content", kicker:"ภาพรวม", title:"บทบาทของผู้อำนวยการเซสชัน", items:[

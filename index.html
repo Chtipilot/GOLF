@@ -201,10 +201,12 @@
   }
 </style>
 
-<div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
-  <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:var(--green-deep); letter-spacing:0.5px;">GOLF_TEAM</h1>
-  <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
-  <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
+<div style="background-image: linear-gradient(rgba(26,60,52,0.55), rgba(26,60,52,0.8)), url('golf-course.jpg'); background-size:cover; background-position:center 65%; border-radius:12px; padding:16px 18px; margin-bottom:6px;">
+  <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
+    <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;">GOLF_TEAM</h1>
+    <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
+    <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
+  </div>
 </div>
 <div class="page-subtitle-row" id="homeSubtitleRow"></div>
 <p class="sub" id="appSubtitle">Départs rouges · Par 72 · 18 trous</p>
@@ -832,7 +834,14 @@
   //                 sans porte, dans les deux fichiers (index.html et briefing.html). Nettoyage
   //                 associé : suppression de deux anciennes clés de traduction ("briefingTitle",
   //                 "briefingCloseBtn") devenues mortes depuis que le briefing a sa propre page.
-  const APP_VERSION = "SuarPark - V01.004.071";
+  //   V01.004.072 — Photo réelle du parcours (fournie par le Directeur de session) intégrée en
+  //                 bandeau d'en-tête de la page d'accueil (voile vert translucide, titre en blanc
+  //                 par-dessus), ainsi qu'en fond du titre et de la clôture de "briefing.html". Le
+  //                 vert plein reste utilisé comme repli automatique si l'image ne se charge pas.
+  //                 Nécessite d'ajouter le fichier "golf-course.jpg" (fourni séparément, à côté de
+  //                 index.html et briefing.html sur GitHub) — sans lui, ces zones restent en vert
+  //                 uni, sans rien casser.
+  const APP_VERSION = "SuarPark - V01.004.072";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
