@@ -862,7 +862,12 @@
   //                 réel) que le masquage de la ligne de distance une fois verrouillé et le marquage
   //                 des scores par cercles (PAR simple, EAGLE double) fonctionnent bien tous les
   //                 deux sur la carte de score vierge, sans régression.
-  const APP_VERSION = "SuarPark - V01.004.076";
+  //   V01.004.077 — Ajustement suite à retour : la ligne de distance disparaissait entièrement une
+  //                 fois le départ verrouillé (V01.004.074), ce qui n'était pas souhaité. Seuls les
+  //                 boutons WHITE/RED restent masqués une fois verrouillé ; la ligne de distance du
+  //                 départ réellement retenu redevient visible sous HCP (utile pendant le jeu),
+  //                 seule celle du départ non joué reste masquée. Vérifié par rendu réel.
+  const APP_VERSION = "SuarPark - V01.004.077";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4358,16 +4363,17 @@
       note.innerHTML = `🔒 ${t('blankCardTeeLocked', teeLabel)}`;
     }
 
-    // Une fois le départ verrouillé (1er score saisi), plus besoin des boutons de choix ni
-    // des lignes de distances (rouge et blanc) — le départ ne peut plus changer pour cette
-    // manche, la note de verrouillage suffit à le rappeler.
+    // Une fois le départ verrouillé (1er score saisi), plus besoin des boutons de choix — le
+    // départ ne peut plus changer pour cette manche, la note de verrouillage suffit à le
+    // rappeler. La ligne de distance du départ RETENU reste affichée (info utile pendant le
+    // jeu) ; seule celle du départ non joué disparaît, devenue sans objet.
     const rowW = document.getElementById('blankCardTeeRowWhite');
     const rowR = document.getElementById('blankCardTeeRowRed');
     if (started){
       if (btnW) btnW.style.display = 'none';
       if (btnR) btnR.style.display = 'none';
-      if (rowW) rowW.style.display = 'none';
-      if (rowR) rowR.style.display = 'none';
+      if (rowW) rowW.style.display = (val === 'white') ? '' : 'none';
+      if (rowR) rowR.style.display = (val === 'red') ? '' : 'none';
     } else {
       if (btnW) btnW.style.display = '';
       if (btnR) btnR.style.display = '';
