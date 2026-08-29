@@ -857,7 +857,12 @@
   //   V01.004.075 — Ajout demandé : la note "🔒 Départ verrouillé" précise maintenant la couleur
   //                 retenue (ex. "🔒 Départ verrouillé : 🔴 RED"), pour ne pas perdre ce rappel une
   //                 fois les boutons et lignes de distance masqués.
-  const APP_VERSION = "SuarPark - V01.004.075";
+  //   V01.004.076 — Bouton "📋 Afficher la carte de score vierge" renommé en "📋 Afficher ma carte"
+  //                 (et "Masquer..." en cohérence), dans les 4 langues. Vérifié par ailleurs (rendu
+  //                 réel) que le masquage de la ligne de distance une fois verrouillé et le marquage
+  //                 des scores par cercles (PAR simple, EAGLE double) fonctionnent bien tous les
+  //                 deux sur la carte de score vierge, sans régression.
+  const APP_VERSION = "SuarPark - V01.004.076";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -936,8 +941,8 @@
       teeChanged: (n, d) => `Départ modifié pour ${n} (${d}).`,
       btnShowTeeCompare: "🔴⚪ Afficher Rouge vs Blanc",
       btnHideTeeCompare: "🔴⚪ Masquer Rouge vs Blanc",
-      btnShowBlankCard: "📋 Afficher la carte de score vierge",
-      btnHideBlankCard: "📋 Masquer la carte de score vierge",
+      btnShowBlankCard: "📋 Afficher ma carte",
+      btnHideBlankCard: "📋 Masquer ma carte",
       btnShowTeamRecap: "👥 Afficher le récap équipe",
       btnHideTeamRecap: "👥 Masquer le récap équipe",
       teamRecapTitle: "👥 Récapitulatif de l'équipe",
@@ -1187,8 +1192,8 @@
       teeChanged: (n, d) => `Tee changed for ${n} (${d}).`,
       btnShowTeeCompare: "🔴⚪ Show Red vs White",
       btnHideTeeCompare: "🔴⚪ Hide Red vs White",
-      btnShowBlankCard: "📋 Show blank scorecard",
-      btnHideBlankCard: "📋 Hide blank scorecard",
+      btnShowBlankCard: "📋 Show my card",
+      btnHideBlankCard: "📋 Hide my card",
       btnShowTeamRecap: "👥 Show team recap",
       btnHideTeamRecap: "👥 Hide team recap",
       teamRecapTitle: "👥 Team recap",
@@ -1438,8 +1443,8 @@
       teeChanged: (n, d) => `Abschlag geändert für ${n} (${d}).`,
       btnShowTeeCompare: "🔴⚪ Rot vs. Weiß anzeigen",
       btnHideTeeCompare: "🔴⚪ Rot vs. Weiß ausblenden",
-      btnShowBlankCard: "📋 Leere Scorekarte anzeigen",
-      btnHideBlankCard: "📋 Leere Scorekarte ausblenden",
+      btnShowBlankCard: "📋 Meine Karte anzeigen",
+      btnHideBlankCard: "📋 Meine Karte ausblenden",
       btnShowTeamRecap: "👥 Team-Übersicht anzeigen",
       btnHideTeamRecap: "👥 Team-Übersicht ausblenden",
       teamRecapTitle: "👥 Team-Übersicht",
@@ -1689,8 +1694,8 @@
       teeChanged: (n, d) => `เปลี่ยนทีออกสำหรับ ${n} (${d}) แล้ว`,
       btnShowTeeCompare: "🔴⚪ แสดงเปรียบเทียบ แดง vs ขาว",
       btnHideTeeCompare: "🔴⚪ ซ่อนเปรียบเทียบ แดง vs ขาว",
-      btnShowBlankCard: "📋 แสดงการ์ดคะแนนเปล่า",
-      btnHideBlankCard: "📋 ซ่อนการ์ดคะแนนเปล่า",
+      btnShowBlankCard: "📋 แสดงการ์ดของฉัน",
+      btnHideBlankCard: "📋 ซ่อนการ์ดของฉัน",
       btnShowTeamRecap: "👥 แสดงสรุปทีม",
       btnHideTeamRecap: "👥 ซ่อนสรุปทีม",
       teamRecapTitle: "👥 สรุปทีม",
