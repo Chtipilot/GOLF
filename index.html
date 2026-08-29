@@ -854,7 +854,10 @@
   //                 joué restaient visibles ; désormais tout disparaît une fois le choix figé,
   //                 l'information de distance restant accessible trou par trou dans le grand panneau
   //                 tactile (qui continue d'utiliser le départ verrouillé, sans changement).
-  const APP_VERSION = "SuarPark - V01.004.074";
+  //   V01.004.075 — Ajout demandé : la note "🔒 Départ verrouillé" précise maintenant la couleur
+  //                 retenue (ex. "🔒 Départ verrouillé : 🔴 RED"), pour ne pas perdre ce rappel une
+  //                 fois les boutons et lignes de distance masqués.
+  const APP_VERSION = "SuarPark - V01.004.075";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1021,7 +1024,7 @@
       blankCardCaddieNamePlaceholder: "Nom",
       blankCardWeatherLabel: "Météo (au moment du départ)",
       blankCardTeeChoiceLabel: "Départ pour la partie :",
-      blankCardTeeLocked: "Départ verrouillé (la manche est commencée)",
+      blankCardTeeLocked: (tee) => `Départ verrouillé : ${tee} (la manche est commencée)`,
       blankCardHoleLabel: "Trou n°",
       blankCardScorecardSectionTitle: "Carte de score",
       blankCardScoreRowLabel: "Score",
@@ -1272,7 +1275,7 @@
       blankCardCaddieNamePlaceholder: "Name",
       blankCardWeatherLabel: "Weather (at tee-off)",
       blankCardTeeChoiceLabel: "Tee for this round:",
-      blankCardTeeLocked: "Tee locked (round already started)",
+      blankCardTeeLocked: (tee) => `Tee locked: ${tee} (round already started)`,
       blankCardHoleLabel: "Hole no.",
       blankCardScorecardSectionTitle: "Scorecard",
       blankCardScoreRowLabel: "Score",
@@ -1523,7 +1526,7 @@
       blankCardCaddieNamePlaceholder: "Name",
       blankCardWeatherLabel: "Wetter (beim Abschlag)",
       blankCardTeeChoiceLabel: "Abschlag für diese Runde:",
-      blankCardTeeLocked: "Abschlag gesperrt (Runde bereits begonnen)",
+      blankCardTeeLocked: (tee) => `Abschlag gesperrt: ${tee} (Runde bereits begonnen)`,
       blankCardHoleLabel: "Loch Nr.",
       blankCardScorecardSectionTitle: "Scorekarte",
       blankCardScoreRowLabel: "Score",
@@ -1774,7 +1777,7 @@
       blankCardCaddieNamePlaceholder: "ชื่อ",
       blankCardWeatherLabel: "สภาพอากาศ (ขณะออกรอบ)",
       blankCardTeeChoiceLabel: "ทีออกสำหรับรอบนี้:",
-      blankCardTeeLocked: "ทีออกถูกล็อก (รอบเริ่มแล้ว)",
+      blankCardTeeLocked: (tee) => `ทีออกถูกล็อก: ${tee} (รอบเริ่มแล้ว)`,
       blankCardHoleLabel: "หลุมที่",
       blankCardScorecardSectionTitle: "การ์ดคะแนน",
       blankCardScoreRowLabel: "สกอร์",
@@ -4342,7 +4345,13 @@
     const note = document.getElementById('blankCardTeeLockNote');
     if (btnW){ btnW.style.background = val === 'white' ? '#1a3c34' : ''; btnW.style.color = val === 'white' ? '#fff' : ''; btnW.disabled = started; }
     if (btnR){ btnR.style.background = val === 'red' ? '#DC3545' : ''; btnR.style.color = val === 'red' ? '#fff' : ''; btnR.disabled = started; }
-    if (note) note.style.display = started ? 'block' : 'none';
+    if (note){
+      note.style.display = started ? 'block' : 'none';
+      // Rappel de la couleur choisie, même une fois les boutons masqués : sans ça, plus
+      // aucune trace du départ retenu pour la manche n'était visible à l'écran.
+      const teeLabel = val === 'red' ? '🔴 RED' : val === 'white' ? '⚪ WHITE' : '';
+      note.innerHTML = `🔒 ${t('blankCardTeeLocked', teeLabel)}`;
+    }
 
     // Une fois le départ verrouillé (1er score saisi), plus besoin des boutons de choix ni
     // des lignes de distances (rouge et blanc) — le départ ne peut plus changer pour cette
@@ -4647,7 +4656,7 @@
             <button type="button" id="btnBlankCardTeeRed" class="btn btn-secondary no-print" style="flex:1; border-radius:20px;">🔴 RED</button>
           </div>
           <input type="hidden" data-field="tee">
-          <p class="sub no-print" id="blankCardTeeLockNote" style="font-size:11px; color:#888; margin-top:4px; display:none;">🔒 ${t('blankCardTeeLocked')}</p>
+          <p class="sub no-print" id="blankCardTeeLockNote" style="font-size:11px; color:#888; margin-top:4px; display:none;"></p>
         </div>
       </div>
 
