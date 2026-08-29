@@ -42,12 +42,20 @@
 
   #deck { position:fixed; top:52px; left:0; right:0; bottom:60px; overflow:hidden; }
   .slide {
-    position:absolute; inset:0; display:none; flex-direction:column;
+    position:absolute; top:12px; left:12px; right:12px; bottom:12px; display:none; flex-direction:column;
     padding: 18px 32px;
-    background:#fff; color:var(--ink);
+    border-radius:18px;
+    color:var(--ink);
+    background-image: linear-gradient(rgba(255,255,255,0.90), rgba(255,255,255,0.90)), url('golf-course.jpg');
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 2px 14px rgba(26,60,52,0.18);
   }
   .slide.active { display:flex; }
-  .slide.dark { background:var(--green-deep); color:#fff; }
+  .slide.dark {
+    color:#fff;
+    background-image: linear-gradient(rgba(26,60,52,0.80), rgba(26,60,52,0.80)), url('golf-course.jpg');
+  }
 
   .kicker { font-size:11px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:var(--sand); margin:6px 0 2px 0; }
   .slide.dark .kicker { color:var(--sand); }
@@ -55,7 +63,7 @@
   .slide.dark h2.slide-title { color:#fff; }
 
   .content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:10px; }
-  .item { display:flex; gap:12px; margin-bottom:16px; align-items:flex-start; }
+  .item { display:flex; gap:12px; margin-bottom:14px; align-items:flex-start; background:rgba(255,255,255,0.72); border-radius:12px; padding:10px 12px; }
   .item .num {
     flex:0 0 auto; width:34px; height:34px; border-radius:50%; background:var(--green-deep); color:#fff;
     display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px;
@@ -72,16 +80,6 @@
   .closing-slide { justify-content:center; align-items:center; text-align:center; }
   .closing-slide h1 { font-family:var(--font-display); font-weight:900; font-size:clamp(28px,7vw,42px); margin:14px 0 8px 0; }
   .closing-slide p { font-size:13px; color:var(--sand-pale); max-width:520px; }
-
-  /* Photo réelle du parcours en fond du titre et de la clôture, avec un voile vert
-     translucide par-dessus pour garder le texte blanc bien lisible. Le vert plein reste
-     défini sur .slide.dark comme repli si l'image ne se charge pas (aucune interruption
-     visuelle, juste retour à l'ancien style). */
-  .slide.dark.title-slide, .slide.dark.closing-slide {
-    background-image: linear-gradient(rgba(26,60,52,0.78), rgba(26,60,52,0.78)), url('golf-course.jpg');
-    background-size: cover;
-    background-position: center;
-  }
 
   .flag { width:56px; height:56px; }
 
