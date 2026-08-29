@@ -867,7 +867,14 @@
   //                 boutons WHITE/RED restent masqués une fois verrouillé ; la ligne de distance du
   //                 départ réellement retenu redevient visible sous HCP (utile pendant le jeu),
   //                 seule celle du départ non joué reste masquée. Vérifié par rendu réel.
-  const APP_VERSION = "SuarPark - V01.004.077";
+  //   V01.004.078 — Carte de score vierge : ajout du bouton "⛳ Afficher le trou" à côté de
+  //                 "Afficher le plan". Ouvre une page plein écran dédiée au trou actuellement joué
+  //                 (numéro en grand, Par/HCP/distance, difficultés du trou, club standard conseillé),
+  //                 avec navigation précédent/suivant et bouton de retour ("porte de sortie"). Les
+  //                 descriptifs de difficulté (bunkers/eau approximatifs) et le club conseillé sont
+  //                 des repères indicatifs établis à partir du plan du parcours déjà intégré à
+  //                 l'appli (COURSE_MAP_IMG) et des données Par/HCP/distance, dans les 4 langues.
+  const APP_VERSION = "SuarPark - V01.004.078";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -883,6 +890,122 @@
     {player: "SANDY", date: "22/07/2026", red: false}
   ];
   const IDX  = [16,11,3,18,13,2,8,10,4,12,7,15,6,14,17,1,5,9];
+
+  // Descriptifs des difficultés de chaque trou (1 phrase par trou, par langue), établis à partir
+  // du plan du parcours (COURSE_MAP_IMG) et des données Par/HCP/distance déjà connues. Ce sont des
+  // repères généraux (position approximative des bunkers/eau) et non une description officielle du
+  // club : à corriger/affiner par l'équipe si besoin.
+  const HOLE_DIFFICULTY = {
+    fr: [
+      "Trou d'ouverture assez long : le fairway courbe légèrement à droite, le green est protégé par un bunker sur la gauche.",
+      "Fairway étroit bordé d'arbres des deux côtés ; petit bunker près du green — viser le centre du fairway.",
+      "Grand plan d'eau sur toute la gauche, du départ jusqu'au green : éviter de tirer à gauche.",
+      "Trou court mais green proche de l'eau (plan d'eau du 3) et de bunkers : privilégier la précision à la distance.",
+      "Fairway assez généreux en légère courbe ; un bunker garde l'accès au green.",
+      "Dogleg avec une zone d'eau près du green (secteur du 16) : trou exigeant, l'un des index les plus bas.",
+      "Long par 5 traversé par un ruisseau/zone humide : bien négocier l'obstacle au 2e ou 3e coup.",
+      "Green proche de l'eau et d'un ruisseau : club maîtrisé recommandé, éviter de rester court.",
+      "Fairway parallèle au 1 ; le green se trouve près du plan d'eau du club-house, sur la droite.",
+      "Départ proche du plan d'eau du club-house, sur la gauche : rester dans l'axe du fairway.",
+      "Fairway étroit et boisé des deux côtés, bunkers autour du green : trou technique de longueur moyenne.",
+      "Green entouré d'eau (ruisseau/étang) à droite : trou court mais piégeux, viser prudemment le centre du green.",
+      "Long par 5 en bord d'eau dès le départ : fairway étroit à négocier avant d'attaquer le green.",
+      "Green bordé par un grand plan d'eau sur la droite : trou court mais dangereux en cas de coup poussé à droite.",
+      "Par 4 le plus court avec le 6 : fairway direct, un bunker à surveiller près du green.",
+      "Trou le plus long du parcours, avec une zone d'eau à négocier en approche du green : bien gérer la distance en 3 coups.",
+      "Index n°1 du parcours : fairway long et étroit avec de l'eau sur le côté — le trou le plus difficile de SuarPark.",
+      "Trou de clôture près du club-house, plan d'eau à proximité du green sur la droite : à jouer avec prudence.",
+    ],
+    en: [
+      "Fairly long opening hole: the fairway bends slightly right, the green is guarded by a bunker on the left.",
+      "Narrow, tree-lined fairway; small bunker near the green — aim for the center of the fairway.",
+      "A large water hazard runs along the entire left side from tee to green: avoid pulling left.",
+      "Short hole, but the green sits close to water (hole 3's pond) and bunkers: prioritize accuracy over distance.",
+      "Fairly generous fairway with a gentle bend; a bunker guards the approach to the green.",
+      "Dogleg with water near the green (hole 16 area): a demanding hole, one of the lowest handicap indexes.",
+      "Long par 5 crossed by a stream/wetland: navigate the hazard carefully on your 2nd or 3rd shot.",
+      "Green close to water and a stream: club selection matters — avoid coming up short.",
+      "Fairway runs parallel to hole 1; the green sits near the clubhouse pond, on the right.",
+      "Tee close to the clubhouse pond, on the left: stay on the fairway line.",
+      "Narrow, tree-lined fairway on both sides with bunkers around the green: a technical mid-length hole.",
+      "Green surrounded by water (stream/pond) on the right: short but tricky — play safely to the center of the green.",
+      "Long par 5 running along water from the tee: a narrow fairway to negotiate before attacking the green.",
+      "Green bordered by a large pond on the right: short hole but dangerous if the shot drifts right.",
+      "Shortest par 4 along with hole 6: straightforward fairway, watch the bunker near the green.",
+      "Longest hole on the course, with water to negotiate on the approach: manage the distance across three shots.",
+      "Course's #1 handicap hole: a long, narrow fairway with water alongside — the toughest hole at SuarPark.",
+      "Closing hole near the clubhouse, water close to the green on the right: finish with care.",
+    ],
+    de: [
+      "Recht langes Eröffnungsloch: Das Fairway biegt leicht nach rechts, das Grün wird links von einem Bunker geschützt.",
+      "Schmales, baumgesäumtes Fairway; kleiner Bunker am Grün — auf die Fairwaymitte zielen.",
+      "Ein großes Wasserhindernis zieht sich die gesamte linke Seite entlang, vom Abschlag bis zum Grün: nicht nach links ziehen.",
+      "Kurzes Loch, aber das Grün liegt nahe am Wasser (Teich von Loch 3) und an Bunkern: Präzision vor Weite.",
+      "Recht großzügiges Fairway mit leichter Biegung; ein Bunker sichert den Zugang zum Grün.",
+      "Dogleg mit Wasser nahe dem Grün (Bereich Loch 16): anspruchsvolles Loch, einer der niedrigsten Vorgaben-Indizes.",
+      "Langes Par 5, von einem Bach/Feuchtgebiet durchquert: das Hindernis beim 2. oder 3. Schlag sorgfältig überwinden.",
+      "Grün nahe Wasser und Bach: passende Schlägerwahl wichtig — nicht zu kurz spielen.",
+      "Fairway verläuft parallel zu Loch 1; das Grün liegt nahe dem Clubhaus-Teich, rechts.",
+      "Abschlag nahe dem Clubhaus-Teich, links: auf der Fairwaylinie bleiben.",
+      "Schmales, beidseitig baumgesäumtes Fairway mit Bunkern rund ums Grün: technisches Loch mittlerer Länge.",
+      "Grün von Wasser umgeben (Bach/Teich), rechts: kurz, aber tückisch — sicher zur Grünmitte spielen.",
+      "Langes Par 5 entlang des Wassers ab Abschlag: schmales Fairway, bevor das Grün angegriffen wird.",
+      "Grün von einem großen Teich rechts begrenzt: kurzes, aber gefährliches Loch bei Schlägen nach rechts.",
+      "Kürzestes Par 4 neben Loch 6: direktes Fairway, Bunker am Grün beachten.",
+      "Längstes Loch der Anlage, Wasser beim Anspiel zu überwinden: Distanz über drei Schläge einteilen.",
+      "Vorgabe-Index 1 der Anlage: langes, schmales Fairway mit Wasser seitlich — das schwerste Loch von SuarPark.",
+      "Schlussloch nahe dem Clubhaus, Wasser rechts nahe dem Grün: mit Vorsicht abschließen.",
+    ],
+    th: [
+      "หลุมเปิดค่อนข้างยาว แฟร์เวย์โค้งขวาเล็กน้อย กรีนมีบังเกอร์ป้องกันด้านซ้าย",
+      "แฟร์เวย์แคบมีต้นไม้ขนาบสองข้าง มีบังเกอร์เล็กใกล้กรีน ให้เล็งกลางแฟร์เวย์",
+      "มีบ่อน้ำขนาดใหญ่ตลอดฝั่งซ้ายตั้งแต่ทีจนถึงกรีน หลีกเลี่ยงตีไปทางซ้าย",
+      "หลุมสั้นแต่กรีนอยู่ใกล้น้ำ (บ่อของหลุม 3) และบังเกอร์ เน้นความแม่นยำมากกว่าระยะ",
+      "แฟร์เวย์ค่อนข้างกว้างโค้งเล็กน้อย มีบังเกอร์ป้องกันช่วงเข้ากรีน",
+      "หลุมโดกเล็กมีน้ำใกล้กรีน (โซนหลุม 16) หลุมที่ท้าทาย เป็นหนึ่งในหลุมที่มีแฮนดิแคปต่ำที่สุด",
+      "พาร์ 5 ระยะไกล มีลำธาร/พื้นที่ชื้นตัดผ่าน ต้องระวังช่วงตีลูกที่ 2 หรือ 3",
+      "กรีนอยู่ใกล้น้ำและลำธาร ควรเลือกไม้ให้เหมาะสม อย่าตีสั้นเกินไป",
+      "แฟร์เวย์ขนานกับหลุม 1 กรีนอยู่ใกล้บ่อน้ำหน้าคลับเฮาส์ด้านขวา",
+      "ทีอยู่ใกล้บ่อน้ำหน้าคลับเฮาส์ด้านซ้าย ให้รักษาแนวแฟร์เวย์",
+      "แฟร์เวย์แคบมีต้นไม้ขนาบสองข้าง มีบังเกอร์รอบกรีน หลุมที่ต้องใช้เทคนิคระยะกลาง",
+      "กรีนล้อมรอบด้วยน้ำ (ลำธาร/บ่อ) ด้านขวา หลุมสั้นแต่มีอุปสรรค เล่นอย่างปลอดภัยไปกลางกรีน",
+      "พาร์ 5 ระยะไกลเลียบน้ำจากจุดที ต้องผ่านแฟร์เวย์แคบก่อนเข้าตีกรีน",
+      "กรีนติดบ่อน้ำขนาดใหญ่ด้านขวา หลุมสั้นแต่อันตรายหากตีลูกออกขวา",
+      "พาร์ 4 ที่สั้นที่สุดร่วมกับหลุม 6 แฟร์เวย์ตรงไปตรงมา ระวังบังเกอร์ใกล้กรีน",
+      "หลุมที่ยาวที่สุดในสนาม มีน้ำต้องผ่านช่วงเข้ากรีน บริหารระยะด้วยการตี 3 ครั้ง",
+      "แฮนดิแคปอันดับ 1 ของสนาม แฟร์เวย์ยาวแคบมีน้ำด้านข้าง หลุมที่ยากที่สุดของ SuarPark",
+      "หลุมปิดท้ายใกล้คลับเฮาส์ มีน้ำใกล้กรีนด้านขวา ให้จบรอบด้วยความระมัดระวัง",
+    ],
+  };
+
+  // Club "standard" suggéré, par trou et par départ retenu — heuristique générique basée sur la
+  // distance et le par (pas une recommandation individualisée), donnée à titre indicatif.
+  const CLUB_LABELS = {
+    fr: {driver:"🏌️ Driver", wood3:"🏌️ Bois 3 / Hybride", wedge:"⛳ Wedge", iron_short:"⛳ Fer court (8-9)", iron_mid:"⛳ Fer moyen (6-7)", iron_long:"⛳ Fer long (4-5)", hybrid:"⛳ Hybride / Bois 5"},
+    en: {driver:"🏌️ Driver", wood3:"🏌️ 3-Wood / Hybrid", wedge:"⛳ Wedge", iron_short:"⛳ Short iron (8-9)", iron_mid:"⛳ Mid iron (6-7)", iron_long:"⛳ Long iron (4-5)", hybrid:"⛳ Hybrid / 5-Wood"},
+    de: {driver:"🏌️ Driver", wood3:"🏌️ Holz 3 / Hybrid", wedge:"⛳ Wedge", iron_short:"⛳ Kurzes Eisen (8-9)", iron_mid:"⛳ Mittleres Eisen (6-7)", iron_long:"⛳ Langes Eisen (4-5)", hybrid:"⛳ Hybrid / Holz 5"},
+    th: {driver:"🏌️ ไดรเวอร์", wood3:"🏌️ ไม้ 3 / ไฮบริด", wedge:"⛳ เวดจ์", iron_short:"⛳ เหล็กสั้น (8-9)", iron_mid:"⛳ เหล็กกลาง (6-7)", iron_long:"⛳ เหล็กยาว (4-5)", hybrid:"⛳ ไฮบริด / ไม้ 5"},
+  };
+
+  function clubKeyForHole(holeIdx, tee){
+    const dist = tee === 'white' ? DIST_WHITE[holeIdx] : DIST[holeIdx];
+    const par = PAR[holeIdx];
+    if (par === 3){
+      if (dist < 100) return 'wedge';
+      if (dist < 130) return 'iron_short';
+      if (dist < 160) return 'iron_mid';
+      if (dist < 190) return 'iron_long';
+      return 'hybrid';
+    }
+    // Par 4/5 : suggestion pour le coup de départ.
+    return dist <= 300 ? 'wood3' : 'driver';
+  }
+
+  function clubLabelForHole(holeIdx, tee){
+    const labels = CLUB_LABELS[lang] || CLUB_LABELS.fr;
+    return labels[clubKeyForHole(holeIdx, tee)];
+  }
+
   const COLORS = {"ALAN":"#2E86AB","LOUIS":"#A23B72","MARCUS":"#F18F01","PATRICK":"#3B7A57"};
   const PALETTE = ["#2E86AB","#A23B72","#F18F01","#3B7A57","#7A5195","#EF5675","#665191","#B0A160"];
 
@@ -1024,6 +1147,11 @@
       blankCardCourseLayout: "Plan du parcours",
       blankCardBtnShowMap: "Afficher le plan",
       blankCardBtnHideMap: "Masquer le plan",
+      blankCardBtnShowHole: "Afficher le trou",
+      holeViewBtnBack: "🚪 Retour",
+      holeViewDifficultyTitle: "⚠️ Difficultés du trou",
+      holeViewClubTitle: "🎯 Club standard conseillé",
+      holeViewNote: "Repères indicatifs établis à partir du plan du parcours — à ajuster selon votre expérience du trou.",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
@@ -1275,6 +1403,11 @@
       blankCardCourseLayout: "Course layout",
       blankCardBtnShowMap: "Show map",
       blankCardBtnHideMap: "Hide map",
+      blankCardBtnShowHole: "Show hole",
+      holeViewBtnBack: "🚪 Back",
+      holeViewDifficultyTitle: "⚠️ Hole difficulties",
+      holeViewClubTitle: "🎯 Suggested standard club",
+      holeViewNote: "Indicative pointers based on the course map — adjust to your own experience of the hole.",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
@@ -1526,6 +1659,11 @@
       blankCardCourseLayout: "Platzplan",
       blankCardBtnShowMap: "Plan anzeigen",
       blankCardBtnHideMap: "Plan ausblenden",
+      blankCardBtnShowHole: "Loch anzeigen",
+      holeViewBtnBack: "🚪 Zurück",
+      holeViewDifficultyTitle: "⚠️ Schwierigkeiten des Lochs",
+      holeViewClubTitle: "🎯 Empfohlener Standardschläger",
+      holeViewNote: "Richtwerte auf Basis des Platzplans — an die eigene Erfahrung mit dem Loch anpassen.",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
@@ -1777,6 +1915,11 @@
       blankCardCourseLayout: "แผนผังสนาม",
       blankCardBtnShowMap: "แสดงแผนผัง",
       blankCardBtnHideMap: "ซ่อนแผนผัง",
+      blankCardBtnShowHole: "แสดงหลุม",
+      holeViewBtnBack: "🚪 กลับ",
+      holeViewDifficultyTitle: "⚠️ ความยากของหลุม",
+      holeViewClubTitle: "🎯 ไม้กอล์ฟที่แนะนำ",
+      holeViewNote: "ข้อมูลอ้างอิงคร่าวๆ จากแผนผังสนาม — ปรับตามประสบการณ์จริงของคุณในหลุมนี้",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
@@ -4411,6 +4554,77 @@
       </div>`;
   }
 
+  // --- Vue plein écran d'un trou (page indépendante avec porte de sortie) ---------------------
+  // Affiche en grand le trou actuellement joué (blankCardFocusHole), avec ses difficultés et un
+  // club standard conseillé. Overlay plein écran superposé à toute l'appli, avec navigation
+  // précédent/suivant et un bouton de retour explicite (porte de sortie).
+  function holeViewHTML(holeIdx){
+    const tee = blankCardGetTee() || 'red';
+    const dist = tee === 'white' ? DIST_WHITE[holeIdx] : DIST[holeIdx];
+    const difficulty = (HOLE_DIFFICULTY[lang] || HOLE_DIFFICULTY.fr)[holeIdx];
+    const club = clubLabelForHole(holeIdx, tee);
+    return `
+      <div style="max-width:520px; margin:0 auto; padding:18px 16px 40px; color:#fff;">
+        <button type="button" id="btnHoleViewBack" class="btn no-print" style="background:#fff; color:var(--green-deep); font-weight:700; margin-bottom:14px;">${t('holeViewBtnBack')}</button>
+
+        <div style="text-align:center; background:rgba(255,255,255,0.08); border-radius:16px; padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <button type="button" id="btnHoleViewPrev" class="btn btn-secondary no-print" style="font-size:26px; padding:6px 18px;" ${holeIdx===0?'disabled':''}>‹</button>
+            <div>
+              <div style="font-size:14px; opacity:.85;">${t('blankCardHoleLabel')}</div>
+              <div style="font-size:88px; font-weight:900; line-height:1;">${holeIdx+1}</div>
+            </div>
+            <button type="button" id="btnHoleViewNext" class="btn btn-secondary no-print" style="font-size:26px; padding:6px 18px;" ${holeIdx===17?'disabled':''}>›</button>
+          </div>
+          <div style="margin-top:10px; font-size:24px; font-weight:bold;">
+            Par ${PAR[holeIdx]} · HCP ${IDX[holeIdx]} · ${dist} m
+          </div>
+        </div>
+
+        <div style="margin-top:18px; background:#fff3cd; color:#5c4300; border-radius:14px; padding:16px;">
+          <div style="font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:8px;">${t('holeViewDifficultyTitle')}</div>
+          <div style="font-size:15px; line-height:1.5;">${difficulty}</div>
+        </div>
+
+        <div style="margin-top:14px; background:#fff; color:var(--green-deep); border-radius:14px; padding:16px; text-align:center;">
+          <div style="font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:8px;">${t('holeViewClubTitle')}</div>
+          <div style="font-size:26px; font-weight:900;">${club}</div>
+        </div>
+
+        <p style="font-size:11px; opacity:.75; text-align:center; margin-top:16px;">${t('holeViewNote')}</p>
+      </div>`;
+  }
+
+  function openHoleView(holeIdx){
+    let overlay = document.getElementById('holeViewOverlay');
+    if (!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'holeViewOverlay';
+      overlay.style.cssText = 'position:fixed; inset:0; z-index:9999; background:linear-gradient(160deg, var(--green-deep), var(--green-mid)); overflow-y:auto;';
+      document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    renderHoleView(holeIdx);
+  }
+
+  function closeHoleView(){
+    const overlay = document.getElementById('holeViewOverlay');
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function renderHoleView(holeIdx){
+    const overlay = document.getElementById('holeViewOverlay');
+    if (!overlay) return;
+    overlay.innerHTML = holeViewHTML(holeIdx);
+    document.getElementById('btnHoleViewBack').addEventListener('click', closeHoleView);
+    const prevBtn = document.getElementById('btnHoleViewPrev');
+    const nextBtn = document.getElementById('btnHoleViewNext');
+    if (prevBtn) prevBtn.addEventListener('click', () => { if (holeIdx > 0) renderHoleView(holeIdx - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { if (holeIdx < 17) renderHoleView(holeIdx + 1); });
+  }
+
   // --- Son de victoire (Par ou mieux) — généré directement, aucun fichier audio requis ---
   let blankCardAudioCtx = null;
   function blankCardPlayVictorySound(){
@@ -4700,6 +4914,7 @@
 
       <div class="no-print" style="margin-top:16px;">
         <button type="button" class="btn btn-secondary" id="btnBlankCardMap">🗺️ ${t('blankCardBtnShowMap')}</button>
+        <button type="button" class="btn btn-secondary" id="btnBlankCardHoleView">⛳ ${t('blankCardBtnShowHole')}</button>
       </div>
       <div id="blankCardMapWrap" style="display:none;">
         <p class="sub" style="margin-top:12px; font-weight:bold; color:#1a3c34;">🗺️ ${t('blankCardCourseLayout')}</p>
@@ -4734,6 +4949,9 @@
       const showing = wrap.style.display !== 'none';
       wrap.style.display = showing ? 'none' : 'block';
       btn.textContent = `🗺️ ${showing ? t('blankCardBtnShowMap') : t('blankCardBtnHideMap')}`;
+    });
+    document.getElementById('btnBlankCardHoleView').addEventListener('click', () => {
+      openHoleView(blankCardFocusHole);
     });
 
     container.querySelector('[data-field="playerName"]').addEventListener('change', () => {
