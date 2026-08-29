@@ -847,7 +847,14 @@
   //                 contenu (texte sombre bien lisible, photo visible en filigrane), voile vert sur
   //                 titre/clôture (inchangé). Les encadrés d'items (numéro + texte) ont eux aussi un
   //                 fond blanc légèrement transparent, laissant deviner la photo derrière.
-  const APP_VERSION = "SuarPark - V01.004.073";
+  //   V01.004.074 — Carte de score vierge : une fois la manche commencée (1er score saisi), les
+  //                 boutons WHITE/RED ET les deux lignes de distances (celle jouée comme celle non
+  //                 jouée) sont désormais masqués ensemble — seule la note "🔒 Départ verrouillé"
+  //                 reste affichée. Avant cette version, le bouton et la ligne du départ réellement
+  //                 joué restaient visibles ; désormais tout disparaît une fois le choix figé,
+  //                 l'information de distance restant accessible trou par trou dans le grand panneau
+  //                 tactile (qui continue d'utiliser le départ verrouillé, sans changement).
+  const APP_VERSION = "SuarPark - V01.004.074";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4337,20 +4344,16 @@
     if (btnR){ btnR.style.background = val === 'red' ? '#DC3545' : ''; btnR.style.color = val === 'red' ? '#fff' : ''; btnR.disabled = started; }
     if (note) note.style.display = started ? 'block' : 'none';
 
-    // Une fois le départ verrouillé (1er score saisi), on ne montre plus le bouton
-    // ni la ligne de distances du départ non joué.
+    // Une fois le départ verrouillé (1er score saisi), plus besoin des boutons de choix ni
+    // des lignes de distances (rouge et blanc) — le départ ne peut plus changer pour cette
+    // manche, la note de verrouillage suffit à le rappeler.
     const rowW = document.getElementById('blankCardTeeRowWhite');
     const rowR = document.getElementById('blankCardTeeRowRed');
-    if (started && val === 'white'){
-      if (btnR) btnR.style.display = 'none';
-      if (rowR) rowR.style.display = 'none';
-      if (btnW) btnW.style.display = '';
-      if (rowW) rowW.style.display = '';
-    } else if (started && val === 'red'){
+    if (started){
       if (btnW) btnW.style.display = 'none';
+      if (btnR) btnR.style.display = 'none';
       if (rowW) rowW.style.display = 'none';
-      if (btnR) btnR.style.display = '';
-      if (rowR) rowR.style.display = '';
+      if (rowR) rowR.style.display = 'none';
     } else {
       if (btnW) btnW.style.display = '';
       if (btnR) btnR.style.display = '';
