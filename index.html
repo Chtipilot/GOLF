@@ -1101,7 +1101,15 @@
   //                 mentionnent plus "scan" (trompeur, laissait croire à une reconnaissance
   //                 automatique) mais "photographier" — "📸 Préparer ma carte à photographier" et
   //                 "📸 Carte prête à photographier", dans les 4 langues.
-  const APP_VERSION = "SuarPark - V01.005.033";
+  //   V01.005.034 — Nouveau : les points de chute enregistrés via "Afficher le trou" sont désormais
+  //                 archivés localement par joueur+date (indépendamment du brouillon en cours, donc
+  //                 non perdus après "Effacer ma carte"). Un bouton "🎬" apparaît dans "📜 Afficher
+  //                 l'historique", sur chaque manche où des coups ont été enregistrés sur cet
+  //                 appareil, ouvrant un lecteur de replay plein écran (lecture seule, navigation
+  //                 trou par trou). Limite assumée et documentée en commentaire : cette archive reste
+  //                 locale à l'appareil utilisé pendant la manche — elle n'est pas synchronisée entre
+  //                 appareils comme l'historique officiel des scores.
+  const APP_VERSION = "SuarPark - V01.005.034";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1403,6 +1411,9 @@
       holeViewBtnValidate: "✓ Valider",
       holeViewShotsHint: "Touchez la photo à l'endroit où la balle atterrit, coup après coup.",
       holeViewNoShots: "Touchez la photo pour marquer le 1er coup.",
+      shotReplayHint: "Revoir les coups (lecture seule) — enregistré sur cet appareil au moment du jeu.",
+      shotReplayNoDataHole: "Aucun coup enregistré sur ce trou.",
+      historyReplayBtn: "🎬 Revoir les coups",
       holeViewPenaltyArmedHint: "⚠️ Touchez la photo à l'endroit où la balle est sortie (eau, hors-limites...) : ce coup partira en pénalité, +1 coup ajouté automatiquement.",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
@@ -1673,6 +1684,9 @@
       holeViewBtnValidate: "✓ Save",
       holeViewShotsHint: "Tap the photo where the ball lands, shot after shot.",
       holeViewNoShots: "Tap the photo to mark shot 1.",
+      shotReplayHint: "Replay of shots (read-only) — recorded on this device while playing.",
+      shotReplayNoDataHole: "No shot recorded on this hole.",
+      historyReplayBtn: "🎬 Replay shots",
       holeViewPenaltyArmedHint: "⚠️ Tap the photo where the ball went (water, out of bounds...): this shot will carry a penalty, +1 stroke added automatically.",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
@@ -1943,6 +1957,9 @@
       holeViewBtnValidate: "✓ Speichern",
       holeViewShotsHint: "Auf das Foto tippen, wo der Ball landet, Schlag für Schlag.",
       holeViewNoShots: "Auf das Foto tippen, um Schlag 1 zu markieren.",
+      shotReplayHint: "Schläge ansehen (nur Lesen) — auf diesem Gerät beim Spielen erfasst.",
+      shotReplayNoDataHole: "Kein Schlag für dieses Loch erfasst.",
+      historyReplayBtn: "🎬 Schläge ansehen",
       holeViewPenaltyArmedHint: "⚠️ Auf das Foto tippen, wo der Ball hinging (Wasser, Aus...): dieser Schlag erhält eine Strafe, +1 Schlag automatisch hinzugefügt.",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
@@ -2213,6 +2230,9 @@
       holeViewBtnValidate: "✓ บันทึก",
       holeViewShotsHint: "แตะที่ภาพตรงจุดที่ลูกตก ทีละช็อต",
       holeViewNoShots: "แตะที่ภาพเพื่อบันทึกช็อตที่ 1",
+      shotReplayHint: "ดูช็อตย้อนหลัง (อ่านอย่างเดียว) — บันทึกไว้บนอุปกรณ์นี้ขณะเล่น",
+      shotReplayNoDataHole: "ไม่มีช็อตที่บันทึกไว้ในหลุมนี้",
+      historyReplayBtn: "🎬 ดูช็อตย้อนหลัง",
       holeViewPenaltyArmedHint: "⚠️ แตะที่ภาพตรงจุดที่ลูกไป (น้ำ, นอกสนาม...) ช็อตนี้จะมีเพนัลตี้ เพิ่ม 1 แต้มโดยอัตโนมัติ",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
@@ -3150,13 +3170,16 @@
         <span class="date-slider-label" id="sliderLabel-${name}">${teeBadge(roundIsRed(rounds[lastIdx], rounds[lastIdx][0], name), name, rounds[lastIdx][0])}${rounds[lastIdx][0]}</span>
       </div>`;
       let rows = "";
+      const replays = loadShotReplays();
       rounds.forEach((r, i) => {
         const [date, scores] = r;
         const {out, inn, tot} = computeOutInTot(scores);
         const caddieNum = roundCaddie(r);
         const caddieTag = caddieNum ? ` <span style="font-weight:normal; color:#888; font-size:9px;">/${caddieDisplayText(caddieNum)}</span>` : '';
+        const hasReplay = !!replays[shotReplayKey(name, date)];
+        const replayBtn = hasReplay ? ` <button type="button" class="btn btn-secondary no-print history-replay-btn" data-name="${name}" data-date="${date}" style="font-size:9px; padding:1px 6px; margin-left:4px; vertical-align:middle;">🎬</button>` : '';
         rows += `<tr id="row-${name}-${i}" style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
-          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:nowrap;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}</td>
+          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:nowrap;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}</td>
           ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
           <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
           <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
@@ -3167,6 +3190,13 @@
         scorecardTableHTML(name, rows, parHeaderRow()) + `</div>`;
     });
     container.innerHTML = html;
+
+    document.querySelectorAll('.history-replay-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openShotReplay(btn.dataset.name, btn.dataset.date);
+      });
+    });
 
     // Wire up sliders after DOM insertion
     state.players.forEach(name => {
@@ -3189,6 +3219,77 @@
       // scroll to latest round by default
       scrollBox.scrollTop = scrollBox.scrollHeight;
     });
+  }
+
+  // --- Replay des coups (lecture seule) depuis l'historique -----------------------------------
+  // Rouvre, pour un joueur + une date donnés, les points de chute archivés localement sur cet
+  // appareil (voir archiveCurrentShotPoints), trou par trou, sans possibilité d'édition. N'affiche
+  // rien pour un trou sans point archivé.
+  let shotReplayCurrentHole = 0;
+  let shotReplayCurrentPoints = null;
+
+  function openShotReplay(name, date){
+    const data = loadShotReplays();
+    const points = data[shotReplayKey(name, date)];
+    if (!points) return;
+    shotReplayCurrentPoints = points;
+    let overlay = document.getElementById('shotReplayOverlay');
+    if (!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'shotReplayOverlay';
+      overlay.style.cssText = 'position:fixed; inset:0; z-index:9999; background:var(--green-deep); overflow:hidden;';
+      document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    // Ouvre sur le premier trou qui a effectivement des points archivés, plus utile qu'un trou 1
+    // systématiquement vide.
+    shotReplayCurrentHole = Math.max(0, points.findIndex(h => (h || []).length > 0));
+    renderShotReplay(name, date);
+  }
+
+  function closeShotReplay(){
+    const overlay = document.getElementById('shotReplayOverlay');
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function renderShotReplay(name, date){
+    const overlay = document.getElementById('shotReplayOverlay');
+    if (!overlay) return;
+    const holeIdx = shotReplayCurrentHole;
+    const points = (shotReplayCurrentPoints && shotReplayCurrentPoints[holeIdx]) || [];
+    const bgImg = HOLE_MAP_IMG[holeIdx];
+    const totalStrokes = holeViewStrokeTotal(points);
+    overlay.innerHTML = `
+      <div style="position:fixed; inset:0; z-index:0; display:flex; flex-direction:column; background:#0a1914;">
+        <div style="flex:0 0 auto; z-index:2; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.55);">
+          <button type="button" id="btnShotReplayBack" class="btn no-print" style="background:rgba(255,255,255,0.92); color:var(--green-deep); font-weight:700; margin:0;">${t('holeViewBtnBack')}</button>
+          <div style="display:flex; align-items:center; gap:8px; background:rgba(10,25,20,0.55); border-radius:20px; padding:4px 6px 4px 14px; color:#fff;">
+            <div style="text-align:right; line-height:1.15;">
+              <div style="font-size:16px; font-weight:900;">${name} — ${date}</div>
+              <div style="font-size:12px; opacity:.9;">${t('blankCardHoleLabel')} ${holeIdx+1} · Par ${PAR[holeIdx]} · ${t('holeViewShotsLabel')} : ${totalStrokes || '—'}</div>
+            </div>
+            <button type="button" id="btnShotReplayPrev" class="btn btn-secondary no-print" style="font-size:18px; padding:4px 10px; margin:0;" ${holeIdx===0?'disabled':''}>‹</button>
+            <button type="button" id="btnShotReplayNext" class="btn btn-secondary no-print" style="font-size:18px; padding:4px 10px; margin:0;" ${holeIdx===17?'disabled':''}>›</button>
+          </div>
+        </div>
+        <div id="shotReplayImageArea" style="flex:1 1 auto; position:relative; min-height:0; overflow:hidden;">
+          <div style="position:absolute; inset:0; background-image:url('${bgImg}'); background-size:contain; background-repeat:no-repeat; background-position:center;"></div>
+          <div id="shotReplayMarkers" style="position:absolute; inset:0; pointer-events:none;">${shotMarkersHTML(points, getImageRectFor('shotReplayImageArea', holeIdx))}</div>
+        </div>
+        <div style="flex:0 0 auto; z-index:2; padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:rgba(0,0,0,0.55); text-align:center;">
+          <p class="sub" style="margin:0; color:#fff; opacity:.85; font-size:11px;">${points.length === 0 ? t('shotReplayNoDataHole') : t('shotReplayHint')}</p>
+        </div>
+      </div>`;
+    document.getElementById('btnShotReplayBack').addEventListener('click', closeShotReplay);
+    const prevBtn = document.getElementById('btnShotReplayPrev');
+    const nextBtn = document.getElementById('btnShotReplayNext');
+    if (prevBtn) prevBtn.addEventListener('click', () => { shotReplayCurrentHole--; renderShotReplay(name, date); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { shotReplayCurrentHole++; renderShotReplay(name, date); });
+    // Recalcule la position exacte des marqueurs une fois le rectangle réel de la photo mesurable.
+    const markers = document.getElementById('shotReplayMarkers');
+    if (markers) markers.innerHTML = shotMarkersHTML(points, getImageRectFor('shotReplayImageArea', holeIdx));
   }
 
   function renderEclectic(){
@@ -3709,6 +3810,51 @@
   }
 
   const BLANKCARD_DRAFT_KEY = "suarpark-blankcard-draft";
+  const SHOT_REPLAY_KEY = "suarpark-shot-replays";
+
+  // Archive locale (sur cet appareil) des points de chute par manche, indépendante du brouillon en
+  // cours : contrairement à blankCardShotPointsByHole (remis à zéro par "Effacer ma carte"), cette
+  // archive persiste par joueur+date, pour permettre un "replay" des coups depuis le tableau
+  // "📜 Afficher l'historique" même après le début d'une nouvelle manche. Limite assumée : cette
+  // archive reste locale à l'appareil utilisé au moment du clic (pas partagée entre appareils, à la
+  // différence de l'historique officiel des scores).
+  function loadShotReplays(){
+    try {
+      const raw = localStorage.getItem(SHOT_REPLAY_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e){ return {}; }
+  }
+
+  function saveShotReplays(data){
+    try { localStorage.setItem(SHOT_REPLAY_KEY, JSON.stringify(data)); }
+    catch(e){ /* stockage indisponible : on ignore silencieusement */ }
+  }
+
+  function shotReplayKey(name, date){
+    return `${name}|${date}`;
+  }
+
+  // Archive les points actuellement enregistrés pour la manche en cours (nom + date du brouillon),
+  // s'il y en a au moins un. Appelé à chaque sauvegarde du brouillon, pour rester à jour en continu
+  // sans étape manuelle.
+  function archiveCurrentShotPoints(){
+    const section = document.getElementById('blankCardSection');
+    if (!section) return;
+    const nameSel = section.querySelector('[data-field="playerName"]');
+    const otherInp = section.querySelector('[data-field="playerNameOther"]');
+    const dateInp = section.querySelector('[data-field="date"]');
+    let name = '';
+    if (nameSel && nameSel.value && nameSel.value !== BLANKCARD_OTHER_VALUE) name = nameSel.value;
+    else if (otherInp && otherInp.value) name = otherInp.value;
+    const date = dateInp ? dateInp.value : '';
+    if (!name || !date) return;
+    const hasAny = (blankCardShotPointsByHole || []).some(h => (h || []).length > 0);
+    if (!hasAny) return;
+    const data = loadShotReplays();
+    data[shotReplayKey(name, date)] = blankCardShotPointsByHole;
+    saveShotReplays(data);
+  }
+
   const BLANKCARD_HEADER_FIELDS = ["playerName","playerNameOther","date","tee","caddieNumber","caddieOtherNumber","caddieOtherName","weatherTemp","weatherWind","weatherWindDir","weatherCondition"];
   const BLANKCARD_OTHER_VALUE = "__OTHER__";
 
@@ -3772,6 +3918,7 @@
 
   function persistBlankCardDraft(){
     saveBlankCardDraft(collectBlankCardDraftFromDOM());
+    archiveCurrentShotPoints();
   }
 
   function applyBlankCardDraftToDOM(draft){
@@ -4875,8 +5022,8 @@
   // Calcule le rectangle réellement occupé par la photo à l'écran (background-size:contain peut
   // laisser des bandes vides si l'écran n'a pas le même ratio que la photo). Nécessaire pour placer
   // les marqueurs de coups au bon endroit sur la photo, et non sur l'écran entier.
-  function holeViewGetImageRect(holeIdx){
-    const layer = document.getElementById('holeViewClickLayer');
+  function getImageRectFor(layerId, holeIdx){
+    const layer = document.getElementById(layerId);
     if (!layer) return null;
     const rect = layer.getBoundingClientRect();
     const img = new Image();
@@ -4888,9 +5035,15 @@
     return {offX:(rect.width-dispW)/2, offY:(rect.height-dispH)/2, dispW, dispH};
   }
 
-  function holeViewShotMarkersHTML(rect){
+  function holeViewGetImageRect(holeIdx){
+    return getImageRectFor('holeViewClickLayer', holeIdx);
+  }
+
+  // Rendu des marqueurs de coups pour une liste de points donnée (réutilisé par la vue d'édition
+  // "Afficher le trou" ET par le lecteur de replay en lecture seule de l'historique).
+  function shotMarkersHTML(points, rect){
     let strokeNum = 1; // numéro de coup réel, décalé par les pénalités (+1 automatique) déjà passées
-    return holeViewShotPoints.map((p) => {
+    return (points || []).map((p) => {
       const myNum = strokeNum;
       strokeNum += p.penaltyAfter ? 2 : 1;
       // Anciennes pénalités sans coordonnées (saisies avant cette version) : ignorées pour
@@ -4906,6 +5059,10 @@
       const size = p.penaltyAfter ? 30 : 26;
       return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-50%); width:${size}px; height:${size}px; border-radius:50%; background:${bg}; color:${fg}; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.6); border:2px solid #fff;">${label}</div>`;
     }).join('');
+  }
+
+  function holeViewShotMarkersHTML(rect){
+    return shotMarkersHTML(holeViewShotPoints, rect);
   }
 
   function holeViewHTML(holeIdx){
