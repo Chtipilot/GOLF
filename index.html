@@ -1166,7 +1166,14 @@
   //                 la date sélectionnée ou avant — au lieu de toujours utiliser l'historique complet.
   //                 Seul le coût en bahts reste calculé sur l'historique complet (non concerné par la
   //                 notion d'instantané).
-  const APP_VERSION = "SuarPark - V01.005.043";
+  //   V01.005.044 — Correction : la synchronisation avait été branchée sur le mauvais sélecteur (le
+  //                 curseur de "📜 Afficher l'historique") — c'est en réalité le sélecteur "Date de la
+  //                 manche" en haut du tableau principal (flèches ▲▼) qui doit piloter "📌 Faits
+  //                 marquants". Corrigé dans goToDateIndex() : chaque changement de date via ce
+  //                 sélecteur met désormais à jour insightsSelectedDate et rafraîchit Faits marquants
+  //                 s'il est ouvert. La synchronisation via le curseur de l'historique reste active
+  //                 en complément (les deux mènent au même résultat).
+  const APP_VERSION = "SuarPark - V01.005.044";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3019,6 +3026,10 @@
     document.getElementById('sessionDate').value = frToIso(dateFr);
     fillEntryForDateFr(dateFr);
     fillWeatherForDateFr(dateFr);
+    // Synchronise "📌 Faits marquants" (si ouvert) sur cette date : la section devient un
+    // instantané "à cette date-là" plutôt que de toujours utiliser l'historique complet.
+    insightsSelectedDate = dateFr;
+    if (insightsVisible) renderInsights();
   }
 
   function showLastSession(){
