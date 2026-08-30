@@ -1015,7 +1015,14 @@
   //                 étiquette), avec procédure et pénalité, plus un lien vers l'outil officiel de
   //                 recherche des règles du R&A pour les cas complexes ou les compétitions.
   //                 Disponible dans les 4 langues.
-  const APP_VERSION = "SuarPark - V01.005.020";
+  //   V01.005.021 — "Afficher le trou" : les points de chute de chaque coup (marqueurs posés en
+  //                 cliquant sur la photo) sont désormais conservés pour TOUTE la manche (18 trous),
+  //                 persistés avec le brouillon de carte (localStorage) — plus jamais effacés à la
+  //                 fermeture, au changement de trou, ou même après "✓ Valider". Objectif : pouvoir
+  //                 revoir plus tard le point de chute de chaque coup de chaque trou de la manche en
+  //                 rouvrant simplement "Afficher le trou". Réinitialisés uniquement avec le reste de
+  //                 la carte (bouton "Effacer ma carte").
+  const APP_VERSION = "SuarPark - V01.005.021";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3688,7 +3695,8 @@
     return {
       header: Object.fromEntries(BLANKCARD_HEADER_FIELDS.map(f => [f, ""])),
       scores: Array(18).fill(""),
-      putts: Array(18).fill("")
+      putts: Array(18).fill(""),
+      shotPoints: Array.from({length:18}, () => [])
     };
   }
 
@@ -3705,7 +3713,8 @@
       const result = {
         header: Object.assign(empty.header, parsed.header || {}),
         scores: (parsed.scores && parsed.scores.length === 18) ? parsed.scores : empty.scores,
-        putts: (parsed.putts && parsed.putts.length === 18) ? parsed.putts : empty.putts
+        putts: (parsed.putts && parsed.putts.length === 18) ? parsed.putts : empty.putts,
+        shotPoints: (Array.isArray(parsed.shotPoints) && parsed.shotPoints.length === 18) ? parsed.shotPoints : empty.shotPoints
       };
       if (!result.header.date) result.header.date = todayFrDate(); // proposée si jamais renseignée
       return result;
@@ -3731,7 +3740,7 @@
     section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => { scores[Number(inp.dataset.hole)] = inp.value; });
     const putts = Array(18).fill("");
     section.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => { putts[Number(inp.dataset.hole)] = inp.value; });
-    return {header, scores, putts};
+    return {header, scores, putts, shotPoints: blankCardShotPointsByHole};
   }
 
   function persistBlankCardDraft(){
@@ -4938,11 +4947,14 @@
 
   // --- Vue plein écran d'un trou (page indépendante avec porte de sortie) ---------------------
   // Affiche en grand le trou actuellement joué (blankCardFocusHole). La photo occupe tout l'écran ;
-  // les infos (générées par Claude.AI à partir du plan du parcours) sont cachées par défaut dans un
-  // panneau repliable, pour ne jamais masquer la photo — elles ne font que la compléter, sur demande.
-  // En tapant/cliquant sur la photo, le Directeur de session marque le point de chute de chaque coup
-  // (marqueurs numérotés) ; le nombre de coups ainsi comptés peut être reporté directement dans la
-  // carte de score sur validation.
+  // les infos (générées par Claude Caddie Assistant à partir du plan du parcours) sont cachées par
+  // défaut dans un panneau repliable, pour ne jamais masquer la photo — elles ne font que la
+  // compléter, sur demande. En tapant/cliquant sur la photo, le Directeur de session marque le point
+  // de chute de chaque coup (marqueurs numérotés) ; le nombre de coups ainsi comptés peut être
+  // reporté directement dans la carte de score sur validation. Les points sont conservés pour TOUTE
+  // la manche (18 trous), persistés avec le brouillon de carte (localStorage), afin de pouvoir
+  // revoir plus tard le point de chute de chaque coup de chaque trou.
+  let blankCardShotPointsByHole = Array.from({length:18}, () => []);
   let holeViewShotPoints = [];
   let holeViewInfoExpanded = false;
 
@@ -5063,7 +5075,8 @@
       blankCardCheckParSound(holeIdx, count);
       blankCardCheckEclecticRecord(holeIdx, count);
     }
-    holeViewShotPoints = [];
+    // Les points restent en mémoire (persistés) pour pouvoir revoir le point de chute de chaque
+    // coup plus tard — on ne les efface plus après validation.
     closeHoleView();
   }
 
@@ -5077,7 +5090,11 @@
     }
     overlay.style.display = 'block';
     document.body.style.overflow = 'hidden';
-    holeViewShotPoints = [];
+    // Recharge les points déjà marqués pour ce trou (même référence de tableau : les push/pop
+    // suivants mettent donc directement à jour blankCardShotPointsByHole, persisté à chaque
+    // modification).
+    if (!Array.isArray(blankCardShotPointsByHole[holeIdx])) blankCardShotPointsByHole[holeIdx] = [];
+    holeViewShotPoints = blankCardShotPointsByHole[holeIdx];
     holeViewInfoExpanded = false;
     renderHoleView(holeIdx);
   }
@@ -5095,8 +5112,8 @@
     document.getElementById('btnHoleViewBack').addEventListener('click', closeHoleView);
     const prevBtn = document.getElementById('btnHoleViewPrev');
     const nextBtn = document.getElementById('btnHoleViewNext');
-    if (prevBtn) prevBtn.addEventListener('click', () => { holeViewShotPoints = []; renderHoleView(holeIdx - 1); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { holeViewShotPoints = []; renderHoleView(holeIdx + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { if (!Array.isArray(blankCardShotPointsByHole[holeIdx-1])) blankCardShotPointsByHole[holeIdx-1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx-1]; renderHoleView(holeIdx - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { if (!Array.isArray(blankCardShotPointsByHole[holeIdx+1])) blankCardShotPointsByHole[holeIdx+1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx+1]; renderHoleView(holeIdx + 1); });
 
     // Précharge l'image pour connaître ses dimensions naturelles : nécessaire pour convertir un clic
     // en coordonnées relatives à la PHOTO (et non à l'écran entier), puisqu'avec background-size:
@@ -5114,6 +5131,7 @@
         relX = (relX/rect.width) * 100; relY = (relY/rect.height) * 100;
       }
       holeViewShotPoints.push({x: relX.toFixed(2), y: relY.toFixed(2)});
+      persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
     });
 
@@ -5127,11 +5145,17 @@
     const undoBtn = document.getElementById('btnHoleViewUndo');
     if (undoBtn) undoBtn.addEventListener('click', () => {
       holeViewShotPoints.pop();
+      persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
     });
 
     const validateBtn = document.getElementById('btnHoleViewValidate');
     if (validateBtn) validateBtn.addEventListener('click', () => holeViewValidateScore(holeIdx));
+
+    // Repositionne précisément les marqueurs déjà existants (trou déjà joué/annoté précédemment),
+    // le premier rendu utilisant un positionnement approximatif tant que le rectangle exact de la
+    // photo affichée (bandes vides éventuelles) n'a pas pu être mesuré dans le DOM.
+    if (holeViewShotPoints.length > 0) holeViewUpdateShotsUI(holeIdx);
   }
 
   // --- Son de victoire (Par ou mieux) — généré directement, aucun fichier audio requis ---
@@ -5323,6 +5347,9 @@
     if (!container) return;
 
     const draft = loadBlankCardDraft();
+    blankCardShotPointsByHole = Array.isArray(draft.shotPoints) && draft.shotPoints.length === 18
+      ? draft.shotPoints
+      : Array.from({length:18}, () => []);
 
     const idxRow = `<tr style="background:#e8f0ee; color:#1a3c34; font-weight:bold;">
       <th>HCP</th>${IDX.map(i=>`<th>${i}</th>`).join("")}<th colspan="3"></th>
