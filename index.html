@@ -1063,7 +1063,14 @@
   //                 marqueur (ambre, "⚠️N") indique directement qu'il entraîne une pénalité ET ajoute
   //                 automatiquement +1 coup, sans clic séparé pour la pénalité elle-même. La
   //                 numérotation des coups suivants tient compte de ce décalage automatique.
-  const APP_VERSION = "SuarPark - V01.005.028";
+  //   V01.005.029 — Correction de séquence (retour terrain précisé) : l'ordre exact est maintenant
+  //                 respecté — 1) clic normal sur la photo à la chute de la balle (marqueur rouge
+  //                 habituel), 2) SI c'est une pénalité, bouton "⚠️ + Pénalité" qui bascule
+  //                 RÉTROACTIVEMENT ce dernier coup posé en marqueur ambre (+1 coup automatique),
+  //                 au lieu d'exiger d'anticiper la pénalité avant de cliquer. Un second appui sur le
+  //                 bouton annule la bascule en cas d'erreur ; le bouton est grisé tant qu'aucun coup
+  //                 n'a encore été posé sur le trou.
+  const APP_VERSION = "SuarPark - V01.005.029";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5101,7 +5108,6 @@
   let blankCardShotPointsByHole = Array.from({length:18}, () => []);
   let holeViewShotPoints = [];
   let holeViewInfoExpanded = false;
-  let holeViewPenaltyArmed = false; // vrai juste après un clic sur "+ Pénalité" : le PROCHAIN clic sur la photo pose un marqueur de pénalité (au lieu d'un coup normal)
 
   // Calcule le rectangle réellement occupé par la photo à l'écran (background-size:contain peut
   // laisser des bandes vides si l'écran n'a pas le même ratio que la photo). Nécessaire pour placer
@@ -5199,7 +5205,7 @@
                 <button type="button" id="btnHoleViewValidate" class="btn no-print" style="margin:0; font-size:12px; padding:6px 12px; white-space:nowrap; background:#2E7D32;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnValidate')}</button>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <button type="button" id="btnHoleViewPenalty" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;">${t('holeViewBtnPenalty')}</button>
+                <button type="button" id="btnHoleViewPenalty" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap; ${holeViewShotPoints.length && holeViewShotPoints[holeViewShotPoints.length-1].penaltyAfter ? 'background:#e6b800; color:#1a1a1a;' : ''}" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnPenalty')}</button>
                 <button type="button" id="btnHoleViewUndo" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnUndo')}</button>
               </div>
             </div>
@@ -5227,18 +5233,16 @@
     if (validateBtn) validateBtn.disabled = holeViewShotPoints.length === 0;
     const penaltyBtn = document.getElementById('btnHoleViewPenalty');
     if (penaltyBtn){
-      penaltyBtn.style.background = holeViewPenaltyArmed ? '#e6b800' : '';
-      penaltyBtn.style.color = holeViewPenaltyArmed ? '#1a1a1a' : '';
+      const last = holeViewShotPoints[holeViewShotPoints.length - 1];
+      const lastIsPenalty = last && last.penaltyAfter;
+      penaltyBtn.disabled = holeViewShotPoints.length === 0;
+      penaltyBtn.style.background = lastIsPenalty ? '#e6b800' : '';
+      penaltyBtn.style.color = lastIsPenalty ? '#1a1a1a' : '';
     }
     const hint = document.getElementById('holeViewShotsHint');
     if (hint){
-      if (holeViewPenaltyArmed){
-        hint.style.display = 'block';
-        hint.textContent = t('holeViewPenaltyArmedHint');
-      } else {
-        hint.style.display = holeViewShotPoints.length === 0 ? 'block' : 'none';
-        hint.textContent = t('holeViewNoShots');
-      }
+      hint.style.display = holeViewShotPoints.length === 0 ? 'block' : 'none';
+      hint.textContent = t('holeViewNoShots');
     }
   }
 
@@ -5258,7 +5262,6 @@
     }
     // Les points restent en mémoire (persistés) pour pouvoir revoir le point de chute de chaque
     // coup plus tard — on ne les efface plus après validation.
-    holeViewPenaltyArmed = false;
     closeHoleView();
   }
 
@@ -5278,7 +5281,6 @@
     if (!Array.isArray(blankCardShotPointsByHole[holeIdx])) blankCardShotPointsByHole[holeIdx] = [];
     holeViewShotPoints = blankCardShotPointsByHole[holeIdx];
     holeViewInfoExpanded = false;
-    holeViewPenaltyArmed = false;
     renderHoleView(holeIdx);
   }
 
@@ -5297,8 +5299,8 @@
     document.getElementById('btnHoleViewBack').addEventListener('click', closeHoleView);
     const prevBtn = document.getElementById('btnHoleViewPrev');
     const nextBtn = document.getElementById('btnHoleViewNext');
-    if (prevBtn) prevBtn.addEventListener('click', () => { holeViewPenaltyArmed = false; if (!Array.isArray(blankCardShotPointsByHole[holeIdx-1])) blankCardShotPointsByHole[holeIdx-1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx-1]; renderHoleView(holeIdx - 1); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { holeViewPenaltyArmed = false; if (!Array.isArray(blankCardShotPointsByHole[holeIdx+1])) blankCardShotPointsByHole[holeIdx+1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx+1]; renderHoleView(holeIdx + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { if (!Array.isArray(blankCardShotPointsByHole[holeIdx-1])) blankCardShotPointsByHole[holeIdx-1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx-1]; renderHoleView(holeIdx - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { if (!Array.isArray(blankCardShotPointsByHole[holeIdx+1])) blankCardShotPointsByHole[holeIdx+1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx+1]; renderHoleView(holeIdx + 1); });
 
     // Précharge l'image pour connaître ses dimensions naturelles : nécessaire pour convertir un clic
     // en coordonnées relatives à la PHOTO (et non à l'écran entier), puisqu'avec background-size:
@@ -5316,10 +5318,6 @@
         relX = (relX/rect.width) * 100; relY = (relY/rect.height) * 100;
       }
       const point = {x: relX.toFixed(2), y: relY.toFixed(2)};
-      if (holeViewPenaltyArmed){
-        point.penaltyAfter = true; // ce coup part en pénalité : +1 coup automatique, même marqueur
-        holeViewPenaltyArmed = false;
-      }
       holeViewShotPoints.push(point);
       persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
@@ -5339,12 +5337,16 @@
       holeViewUpdateShotsUI(holeIdx);
     });
 
-    // Une pénalité (balle à l'eau, hors-limites...) doit aussi être visible sur la photo : ce
-    // bouton "arme" le prochain clic, qui posera un marqueur ambre ⚠️ à l'endroit de l'incident
-    // (au lieu d'un marqueur rouge normal), tout en comptant comme un coup dans le total.
+    // Le coup qui part en pénalité (balle à l'eau, hors-limites...) est d'abord cliqué normalement
+    // sur la photo (là où la balle atterrit), PUIS ce bouton bascule ce dernier coup posé en
+    // marqueur pénalité (ambre ⚠️) et ajoute automatiquement +1 coup — sans exiger de second clic.
+    // Un nouvel appui annule la bascule (au cas où le joueur se serait trompé).
     const penaltyBtn = document.getElementById('btnHoleViewPenalty');
     if (penaltyBtn) penaltyBtn.addEventListener('click', () => {
-      holeViewPenaltyArmed = !holeViewPenaltyArmed;
+      if (holeViewShotPoints.length === 0) return;
+      const last = holeViewShotPoints[holeViewShotPoints.length - 1];
+      last.penaltyAfter = !last.penaltyAfter;
+      persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
     });
 
