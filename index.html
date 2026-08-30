@@ -1140,7 +1140,11 @@
   //                 nouveau record individuel (le plus récent en cas de plusieurs joueurs
   //                 concernés). Affiche désormais joueur + trou concerné + ancien → nouveau score +
   //                 date, ex. "LOUIS — Trou 16 : 6 → 5 le 29/08/2026".
-  const APP_VERSION = "SuarPark - V01.005.038";
+  //   V01.005.039 — Nettoyage : suppression de l'entrée de test LOUIS 01/01/2023 (départ WHITE,
+  //                 caddie 136, scores/putts/pénalités de démonstration) de l'historique officiel —
+  //                 elle avait rempli son rôle pour tester la nouvelle détection de record éclectique
+  //                 individuel. La date reste disponible/libre pour de futurs tests si besoin.
+  const APP_VERSION = "SuarPark - V01.005.039";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2518,11 +2522,6 @@
         ["26/08/2026",[7,7,11,4,5,7,7,7,8,7,7,5,7,4,10,10,7,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,1,2,2,1,2,1,2,2,2,3,3,2,2,2,1,1,2],"white","19"]
       ],
       LOUIS: [
-        // 01/01/2023 — Date réservée aux tests du site (nouvelles saisies, historique, replay,
-        // etc.) : à ne jamais utiliser comme vraie manche pour les statistiques. Données de test
-        // fournies par le Directeur de session (carte "SuarPark_début..." collée, corrigée pour la
-        // date 014/01/23 → 01/01/2023).
-        ["01/01/2023",[7,5,4,4,5,5,7,2,4,6,5,3,7,5,4,9,7,7],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,1,1,2,1,1,2,1,1,1,1,1,2,1,0,2,3,2],"white","136"],
         ["01/01/2024",[8,6,6,5,5,6,5,7,5,5,6,5,7,3,6,10,5,7]],
         ["10/01/2024",[7,5,12,5,6,9,7,5,5,6,6,3,8,8,11,6,7,5]],
         ["15/01/2024",[7,8,6,5,7,6,7,5,8,6,5,4,10,4,6,10,8,6]],
