@@ -1132,7 +1132,15 @@
   //                 première (⏮) ou la dernière (⏭) manche enregistrée pour ce joueur, plus pratique
   //                 que de faire glisser précisément le curseur sur mobile quand l'historique compte
   //                 beaucoup de manches.
-  const APP_VERSION = "SuarPark - V01.005.037";
+  //   V01.005.038 — "📌 Faits marquants" : la carte "🏆 Nouveau record éclectique" affichait un
+  //                 classement ("qui a le meilleur éclectique total de toute l'équipe"), pas un
+  //                 vrai "nouveau record" — remplacée par une vraie détection : pour chaque joueur,
+  //                 comparaison de son éclectique avec/sans sa dernière manche ; si cette dernière
+  //                 manche a fait progresser le score sur au moins un trou, c'est retenu comme
+  //                 nouveau record individuel (le plus récent en cas de plusieurs joueurs
+  //                 concernés). Affiche désormais joueur + trou concerné + ancien → nouveau score +
+  //                 date, ex. "LOUIS — Trou 16 : 6 → 5 le 29/08/2026".
+  const APP_VERSION = "SuarPark - V01.005.038";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1469,6 +1477,10 @@
       insightsIntro: "Calculés automatiquement sur l'ensemble des manches enregistrées.",
       insightBestRoundEver: "🏅 Meilleure manche all-time",
       insightBestPuttsEver: "🎯 Record de putts all-time",
+      insightBestEclecticEver: "🏆 Nouveau record éclectique",
+      insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
+        ? `${name} — Trou ${hole} : premier score enregistré (${newS}) le ${date}`
+        : `${name} — Trou ${hole} : ${oldS} → ${newS} le ${date}`,
       insightWorstPuttsEver: "😅 Pire total de putts",
       insightWorstRoundEver: "🥴 Manche la plus difficile",
       insightMostConsistent: "🎯 Joueur le plus régulier",
@@ -1744,6 +1756,10 @@
       insightsIntro: "Automatically computed from all recorded rounds.",
       insightBestRoundEver: "🏅 Best round all-time",
       insightBestPuttsEver: "🎯 All-time putts record",
+      insightBestEclecticEver: "🏆 New eclectic record",
+      insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
+        ? `${name} — Hole ${hole}: first score recorded (${newS}) on ${date}`
+        : `${name} — Hole ${hole}: ${oldS} → ${newS} on ${date}`,
       insightWorstPuttsEver: "😅 Worst putts total",
       insightWorstRoundEver: "🥴 Toughest round",
       insightMostConsistent: "🎯 Most consistent player",
@@ -2019,6 +2035,10 @@
       insightsIntro: "Automatisch aus allen erfassten Runden berechnet.",
       insightBestRoundEver: "🏅 Beste Runde aller Zeiten",
       insightBestPuttsEver: "🎯 Putt-Rekord aller Zeiten",
+      insightBestEclecticEver: "🏆 Neuer Eklektik-Rekord",
+      insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
+        ? `${name} — Loch ${hole}: erster erfasster Score (${newS}) am ${date}`
+        : `${name} — Loch ${hole}: ${oldS} → ${newS} am ${date}`,
       insightWorstPuttsEver: "😅 Schlechteste Putt-Summe",
       insightWorstRoundEver: "🥴 Schwierigste Runde",
       insightMostConsistent: "🎯 Konstantester Spieler",
@@ -2294,6 +2314,10 @@
       insightsIntro: "คำนวณโดยอัตโนมัติจากรอบที่บันทึกไว้ทั้งหมด",
       insightBestRoundEver: "🏅 รอบที่ดีที่สุดตลอดกาล",
       insightBestPuttsEver: "🎯 สถิติพัตต์ตลอดกาล",
+      insightBestEclecticEver: "🏆 สถิติเอคเลกติกใหม่",
+      insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
+        ? `${name} — หลุม ${hole}: บันทึกคะแนนแรก (${newS}) เมื่อ ${date}`
+        : `${name} — หลุม ${hole}: ${oldS} → ${newS} เมื่อ ${date}`,
       insightWorstPuttsEver: "😅 พัตต์รวมแย่ที่สุด",
       insightWorstRoundEver: "🥴 รอบที่ยากที่สุด",
       insightMostConsistent: "🎯 ผู้เล่นที่สม่ำเสมอที่สุด",
@@ -3646,6 +3670,43 @@
       });
     });
 
+    // Nouveau record éclectique INDIVIDUEL : pour chaque joueur, on compare son éclectique calculé
+    // sans sa dernière manche à son éclectique avec — si la dernière manche a fait baisser le score
+    // sur au moins un trou, c'est un nouveau record personnel fraîchement battu (et non un
+    // classement "qui a le meilleur éclectique total de toute l'équipe"). Si plusieurs joueurs ont
+    // battu leur record lors de leur dernière manche respective, on retient celui dont cette manche
+    // est la plus récente (date la plus tardive). En cas d'amélioration sur plusieurs trous la même
+    // manche, on met en avant le trou où le gain est le plus important.
+    let newEclecticRecord = null;
+    players.forEach(name => {
+      const rounds = (state.history[name] || []).slice().sort((a,b) => new Date(frToIso(a[0])) - new Date(frToIso(b[0])));
+      if (rounds.length === 0) return;
+      const lastRound = rounds[rounds.length - 1];
+      const [lastDate, lastScores] = lastRound;
+      const priorRounds = rounds.slice(0, -1);
+      const before = Array(18).fill(null);
+      priorRounds.forEach(([d, scores]) => {
+        scores.forEach((s, h) => {
+          const n = Number(s);
+          if (s !== "" && s !== null && s !== undefined && !isNaN(n) && (before[h] === null || n < before[h])) before[h] = n;
+        });
+      });
+      let bestGain = null;
+      lastScores.forEach((s, h) => {
+        const n = Number(s);
+        if (s === "" || s === null || s === undefined || isNaN(n)) return;
+        if (before[h] === null || n < before[h]){
+          const gain = before[h] === null ? null : before[h] - n;
+          if (bestGain === null || (gain !== null && (bestGain.gain === null || gain > bestGain.gain))){
+            bestGain = {hole: h, oldScore: before[h], newScore: n, gain};
+          }
+        }
+      });
+      if (bestGain && (newEclecticRecord === null || new Date(frToIso(lastDate)) > new Date(frToIso(newEclecticRecord.date)))){
+        newEclecticRecord = {name, date: lastDate, hole: bestGain.hole, oldScore: bestGain.oldScore, newScore: bestGain.newScore};
+      }
+    });
+
     // Most consistent (lowest stddev of totals), min 3 rounds
     let mostConsistent = null;
     players.forEach(name => {
@@ -3759,6 +3820,7 @@
     // Faits marquants classés du plus positif au moins positif.
     if (best) html += card(t('insightBestRoundEver'), `${best.name} — ${best.tot} (${best.date})`, colorFor(best.name));
     if (bestPutts) html += card(t('insightBestPuttsEver'), `${bestPutts.name} — ${bestPutts.tot} putts (${bestPutts.date})`, colorFor(bestPutts.name));
+    if (newEclecticRecord) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
     if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
     if (biggestImprovement && biggestImprovement.improvement > 0) html += card(t('insightBiggestImprovement'), t('insightImprovementDesc', biggestImprovement.name, biggestImprovement.from, biggestImprovement.to), colorFor(biggestImprovement.name));
     if (hotStreak) html += card(t('insightHotStreak'), t('insightHotStreakDesc', hotStreak.name, hotStreak.avg), colorFor(hotStreak.name));
