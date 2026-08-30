@@ -1070,7 +1070,14 @@
   //                 au lieu d'exiger d'anticiper la pénalité avant de cliquer. Un second appui sur le
   //                 bouton annule la bascule en cas d'erreur ; le bouton est grisé tant qu'aucun coup
   //                 n'a encore été posé sur le trou.
-  const APP_VERSION = "SuarPark - V01.005.029";
+  //   V01.005.030 — Correction "Coller ma carte" (scan photo) : le pack de langue Tesseract.js était
+  //                 figé sur l'anglais ("eng"), rendant la reconnaissance des caractères accentués
+  //                 français quasiment impossible — corrigé pour suivre la langue actuellement
+  //                 sélectionnée dans l'appli (fr→fra, en→eng, de→deu, th→tha). Le problème signalé
+  //                 en parallèle sur le COLLAGE DE TEXTE ("non reconnu") reste à investiguer : aucun
+  //                 bug identifié à la relecture du code, en attente d'un exemple de texte qui
+  //                 échoue pour reproduire précisément le problème.
+  const APP_VERSION = "SuarPark - V01.005.030";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4720,7 +4727,12 @@
       </div>`;
 
     loadTesseract().then(() => {
-      return Tesseract.recognize(file, 'eng');
+      // Le pack de langue Tesseract doit correspondre à la langue du texte de la carte (labels
+      // traduits, accents) : était figé sur l'anglais ("eng"), ce qui empêchait toute
+      // reconnaissance correcte des caractères accentués français — corrigé pour suivre la langue
+      // actuellement sélectionnée dans l'appli.
+      const TESSERACT_LANG = {fr: 'fra', en: 'eng', de: 'deu', th: 'tha'};
+      return Tesseract.recognize(file, TESSERACT_LANG[lang] || 'fra');
     }).then(({data: {text}}) => {
       const draft = blankCardParseReadableText(text);
       renderScanReview(photoUrl, text, draft);
