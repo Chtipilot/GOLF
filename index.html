@@ -1043,7 +1043,22 @@
   //                 d'avertissement (couleur ambre, technique CSS bordures triangulaires, sans image
   //                 ni SVG) contenant le chiffre, à la place du simple numéro — dans le grand panneau
   //                 de la carte ET dans le bandeau du haut de "Afficher le trou".
-  const APP_VERSION = "SuarPark - V01.005.025";
+  //   V01.005.026 — Étape 3/3 : les pénalités sont désormais transmises avec la carte. "📝 Copier ma
+  //                 carte" (texte lisible) ajoute une ligne "⚠️ Pénalités : ... (Total)" par trou
+  //                 quand il y en a, et le code technique (base64) embarquait déjà tout — mais
+  //                 l'IMPORT (carte personnelle ET réception carte joueur/récap équipe) ignorait ce
+  //                 champ : corrigé pour les deux (le nombre de pénalités par trou est reconstruit à
+  //                 la réception, même si le point de chute exact n'est pas transmis). Correction
+  //                 annexe : la ligne pénalités ne peut plus être confondue avec la ligne Putts lors
+  //                 de l'analyse du texte lisible (repérage par l'emoji ⚠️, indépendant de la langue),
+  //                 même quand la ligne Putts est absente.
+  //   V01.005.027 — Le coup de pénalité s'affiche désormais aussi sur la photo : le bouton
+  //                 "⚠️ + Pénalité" arme le PROCHAIN clic (bouton mis en surbrillance ambre, message
+  //                 d'aide dédié), qui pose un marqueur ambre "⚠️N" à l'endroit de l'incident (balle
+  //                 à l'eau, hors-limites...) au lieu d'un marqueur rouge normal — tout en comptant
+  //                 comme un coup dans le total et la ligne Pénalités du tableau. L'état "armé" se
+  //                 réinitialise en changeant de trou ou en validant.
+  const APP_VERSION = "SuarPark - V01.005.027";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1337,6 +1352,7 @@
       blankCardTextLabelTotal: "Total",
       blankCardTextLabelPutts: "Putts",
       blankCardTextLabelTotalPutts: "Total putts",
+      blankCardTextLabelPenalties: "Pénalités",
       blankCardTextLabelPar: "Par",
       blankCardImportPrompt: "Colle ici le code reçu de l'autre joueur :",
       blankCardImportSuccess: "Données importées avec succès !",
@@ -1362,6 +1378,7 @@
       holeViewBtnValidate: "✓ Valider",
       holeViewShotsHint: "Touchez la photo à l'endroit où la balle atterrit, coup après coup.",
       holeViewNoShots: "Touchez la photo pour marquer le 1er coup.",
+      holeViewPenaltyArmedHint: "⚠️ Touchez la photo à l'endroit de la pénalité (balle à l'eau, hors-limites...).",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
@@ -1623,6 +1640,7 @@
       blankCardTextLabelTotal: "Total",
       blankCardTextLabelPutts: "Putts",
       blankCardTextLabelTotalPutts: "Total putts",
+      blankCardTextLabelPenalties: "Penalties",
       blankCardTextLabelPar: "Par",
       blankCardImportPrompt: "Paste the code received from the other player here:",
       blankCardImportSuccess: "Data imported successfully!",
@@ -1648,6 +1666,7 @@
       holeViewBtnValidate: "✓ Save",
       holeViewShotsHint: "Tap the photo where the ball lands, shot after shot.",
       holeViewNoShots: "Tap the photo to mark shot 1.",
+      holeViewPenaltyArmedHint: "⚠️ Tap the photo where the penalty occurred (water, out of bounds...).",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
@@ -1909,6 +1928,7 @@
       blankCardTextLabelTotal: "Gesamt",
       blankCardTextLabelPutts: "Putts",
       blankCardTextLabelTotalPutts: "Putts gesamt",
+      blankCardTextLabelPenalties: "Strafschläge",
       blankCardTextLabelPar: "Par",
       blankCardImportPrompt: "Füge hier den vom anderen Spieler erhaltenen Code ein:",
       blankCardImportSuccess: "Daten erfolgreich importiert!",
@@ -1934,6 +1954,7 @@
       holeViewBtnValidate: "✓ Speichern",
       holeViewShotsHint: "Auf das Foto tippen, wo der Ball landet, Schlag für Schlag.",
       holeViewNoShots: "Auf das Foto tippen, um Schlag 1 zu markieren.",
+      holeViewPenaltyArmedHint: "⚠️ Auf das Foto tippen, wo die Strafe entstand (Wasser, Aus...).",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
@@ -2195,6 +2216,7 @@
       blankCardTextLabelTotal: "รวม",
       blankCardTextLabelPutts: "พัตต์",
       blankCardTextLabelTotalPutts: "รวมพัตต์",
+      blankCardTextLabelPenalties: "เพนัลตี้",
       blankCardTextLabelPar: "พาร์",
       blankCardImportPrompt: "วางโค้ดที่ได้รับจากผู้เล่นอีกคนที่นี่:",
       blankCardImportSuccess: "นำเข้าข้อมูลสำเร็จ!",
@@ -2220,6 +2242,7 @@
       holeViewBtnValidate: "✓ บันทึก",
       holeViewShotsHint: "แตะที่ภาพตรงจุดที่ลูกตก ทีละช็อต",
       holeViewNoShots: "แตะที่ภาพเพื่อบันทึกช็อตที่ 1",
+      holeViewPenaltyArmedHint: "⚠️ แตะที่ภาพตรงจุดที่เกิดเพนัลตี้ (น้ำ, นอกสนาม...)",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
@@ -3992,6 +4015,13 @@
       lines.push(`${t('blankCardTextLabelPutts')} : ${puttsOut} | ${puttsIn}`);
       lines.push(`${t('blankCardTextLabelTotalPutts')} : ${pOut} + ${pIn} = ${pTot}`);
     }
+    const penaltyCounts = blankCardPenaltyCounts();
+    const penTotal = penaltyCounts.reduce((a,b)=>a+b,0);
+    if (penTotal > 0){
+      const penOut = penaltyCounts.slice(0,9).map(v => v || '–').join(' ');
+      const penIn = penaltyCounts.slice(9,18).map(v => v || '–').join(' ');
+      lines.push(`⚠️ ${t('blankCardTextLabelPenalties')} : ${penOut} | ${penIn}  (${penTotal})`);
+    }
     lines.push('SuarPark_Fin.');
     lines.push(border);
 
@@ -4043,6 +4073,14 @@
     if (pOut !== 0 || pIn !== 0){
       lines.push(`${t('blankCardTextLabelPutts')} : ${puttsOut} | ${puttsIn}`);
       lines.push(`${t('blankCardTextLabelTotalPutts')} : ${pOut} + ${pIn} = ${pTot}`);
+    }
+    const dShotPoints2 = Array.isArray(draft.shotPoints) ? draft.shotPoints : [];
+    const penaltyCounts2 = Array.from({length:18}, (_,hh) => (dShotPoints2[hh] || []).filter(p => p && p.penalty).length);
+    const penTotal2 = penaltyCounts2.reduce((a,b)=>a+b,0);
+    if (penTotal2 > 0){
+      const penOut2 = penaltyCounts2.slice(0,9).map(v => v || '–').join(' ');
+      const penIn2 = penaltyCounts2.slice(9,18).map(v => v || '–').join(' ');
+      lines.push(`⚠️ ${t('blankCardTextLabelPenalties')} : ${penOut2} | ${penIn2}  (${penTotal2})`);
     }
     lines.push('SuarPark_Fin.');
     return lines.join('\n');
@@ -4238,8 +4276,9 @@
       }
     }
 
-    // Lignes de scores/putts trou par trou : toutes les lignes contenant "|",
-    // dans l'ordre où elles sont générées (Score en premier, Putts ensuite).
+    // Lignes de scores/putts trou par trou : toutes les lignes contenant "|". La ligne de
+    // pénalités (marquée par l'emoji ⚠️, indépendant de la langue) est repérée à part pour ne
+    // jamais être confondue avec la ligne Putts, qu'elle soit présente ou non juste avant.
     function parsePipeLine(line){
       let core = line.replace(/\(.*$/, '');
       const colonIdx = core.indexOf(':');
@@ -4253,14 +4292,22 @@
       return out.concat(inn);
     }
 
-    const pipeLines = lines.filter(l => l.indexOf('|') !== -1);
+    const allPipeLines = lines.filter(l => l.indexOf('|') !== -1);
+    const penaltyLine = allPipeLines.find(l => l.indexOf('⚠️') !== -1);
+    const pipeLines = allPipeLines.filter(l => l.indexOf('⚠️') === -1);
     let scores = empty.scores, putts = empty.putts;
     if (pipeLines[0]){ const p = parsePipeLine(pipeLines[0]); if (p) scores = p; }
     if (pipeLines[1]){ const p = parsePipeLine(pipeLines[1]); if (p) putts = p; }
 
+    let shotPoints = empty.shotPoints;
+    if (penaltyLine){
+      const p = parsePipeLine(penaltyLine);
+      if (p) shotPoints = p.map(v => Array(Number(v) || 0).fill(null).map(() => ({penalty: true})));
+    }
+
     if (scores === empty.scores && namePart === "" && !dateMatch) return null; // rien d'exploitable
 
-    return {header, scores, putts};
+    return {header, scores, putts, shotPoints};
   }
 
   // Applique un texte reçu (code technique ou texte lisible) à la carte vierge.
@@ -4302,7 +4349,8 @@
       const merged = {
         header: Object.assign(empty.header, draft.header || {}),
         scores: (draft.scores.length === 18) ? draft.scores : empty.scores,
-        putts: (draft.putts && draft.putts.length === 18) ? draft.putts : empty.putts
+        putts: (draft.putts && draft.putts.length === 18) ? draft.putts : empty.putts,
+        shotPoints: (Array.isArray(draft.shotPoints) && draft.shotPoints.length === 18) ? draft.shotPoints : empty.shotPoints
       };
       saveBlankCardDraft(merged);
       renderBlankCard();
@@ -5035,6 +5083,7 @@
   let blankCardShotPointsByHole = Array.from({length:18}, () => []);
   let holeViewShotPoints = [];
   let holeViewInfoExpanded = false;
+  let holeViewPenaltyArmed = false; // vrai juste après un clic sur "+ Pénalité" : le PROCHAIN clic sur la photo pose un marqueur de pénalité (au lieu d'un coup normal)
 
   // Calcule le rectangle réellement occupé par la photo à l'écran (background-size:contain peut
   // laisser des bandes vides si l'écran n'a pas le même ratio que la photo). Nécessaire pour placer
@@ -5054,12 +5103,18 @@
 
   function holeViewShotMarkersHTML(rect){
     return holeViewShotPoints.map((p,i) => {
-      if (p.penalty) return ''; // une pénalité n'a pas de point de chute sur la photo
+      // Anciennes pénalités sans coordonnées (saisies avant cette version, ou +Pénalité sans
+      // position) : ignorées pour l'affichage, elles restent comptées dans le total des coups.
+      if (p.penalty && (p.x === undefined || p.y === undefined)) return '';
       const left = rect ? (rect.offX + (p.x/100)*rect.dispW) : p.x + '%';
       const top = rect ? (rect.offY + (p.y/100)*rect.dispH) : p.y + '%';
       const leftCss = typeof left === 'number' ? left + 'px' : left;
       const topCss = typeof top === 'number' ? top + 'px' : top;
-      return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-50%); width:26px; height:26px; border-radius:50%; background:#dc3545; color:#fff; font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.6); border:2px solid #fff;">${i+1}</div>`;
+      const bg = p.penalty ? '#e6b800' : '#dc3545';
+      const fg = p.penalty ? '#1a1a1a' : '#fff';
+      const label = p.penalty ? `⚠️${i+1}` : `${i+1}`;
+      const size = p.penalty ? 30 : 26;
+      return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-50%); width:${size}px; height:${size}px; border-radius:50%; background:${bg}; color:${fg}; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.6); border:2px solid #fff;">${label}</div>`;
     }).join('');
   }
 
@@ -5149,8 +5204,21 @@
     if (undoBtn) undoBtn.disabled = holeViewShotPoints.length === 0;
     const validateBtn = document.getElementById('btnHoleViewValidate');
     if (validateBtn) validateBtn.disabled = holeViewShotPoints.length === 0;
+    const penaltyBtn = document.getElementById('btnHoleViewPenalty');
+    if (penaltyBtn){
+      penaltyBtn.style.background = holeViewPenaltyArmed ? '#e6b800' : '';
+      penaltyBtn.style.color = holeViewPenaltyArmed ? '#1a1a1a' : '';
+    }
     const hint = document.getElementById('holeViewShotsHint');
-    if (hint) hint.style.display = holeViewShotPoints.length === 0 ? 'block' : 'none';
+    if (hint){
+      if (holeViewPenaltyArmed){
+        hint.style.display = 'block';
+        hint.textContent = t('holeViewPenaltyArmedHint');
+      } else {
+        hint.style.display = holeViewShotPoints.length === 0 ? 'block' : 'none';
+        hint.textContent = t('holeViewNoShots');
+      }
+    }
   }
 
   // Reporte le nombre de coups comptés dans la carte de score (même logique que la saisie normale).
@@ -5169,6 +5237,7 @@
     }
     // Les points restent en mémoire (persistés) pour pouvoir revoir le point de chute de chaque
     // coup plus tard — on ne les efface plus après validation.
+    holeViewPenaltyArmed = false;
     closeHoleView();
   }
 
@@ -5188,6 +5257,7 @@
     if (!Array.isArray(blankCardShotPointsByHole[holeIdx])) blankCardShotPointsByHole[holeIdx] = [];
     holeViewShotPoints = blankCardShotPointsByHole[holeIdx];
     holeViewInfoExpanded = false;
+    holeViewPenaltyArmed = false;
     renderHoleView(holeIdx);
   }
 
@@ -5206,8 +5276,8 @@
     document.getElementById('btnHoleViewBack').addEventListener('click', closeHoleView);
     const prevBtn = document.getElementById('btnHoleViewPrev');
     const nextBtn = document.getElementById('btnHoleViewNext');
-    if (prevBtn) prevBtn.addEventListener('click', () => { if (!Array.isArray(blankCardShotPointsByHole[holeIdx-1])) blankCardShotPointsByHole[holeIdx-1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx-1]; renderHoleView(holeIdx - 1); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { if (!Array.isArray(blankCardShotPointsByHole[holeIdx+1])) blankCardShotPointsByHole[holeIdx+1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx+1]; renderHoleView(holeIdx + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { holeViewPenaltyArmed = false; if (!Array.isArray(blankCardShotPointsByHole[holeIdx-1])) blankCardShotPointsByHole[holeIdx-1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx-1]; renderHoleView(holeIdx - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { holeViewPenaltyArmed = false; if (!Array.isArray(blankCardShotPointsByHole[holeIdx+1])) blankCardShotPointsByHole[holeIdx+1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx+1]; renderHoleView(holeIdx + 1); });
 
     // Précharge l'image pour connaître ses dimensions naturelles : nécessaire pour convertir un clic
     // en coordonnées relatives à la PHOTO (et non à l'écran entier), puisqu'avec background-size:
@@ -5224,7 +5294,12 @@
       } else {
         relX = (relX/rect.width) * 100; relY = (relY/rect.height) * 100;
       }
-      holeViewShotPoints.push({x: relX.toFixed(2), y: relY.toFixed(2)});
+      const point = {x: relX.toFixed(2), y: relY.toFixed(2)};
+      if (holeViewPenaltyArmed){
+        point.penalty = true;
+        holeViewPenaltyArmed = false;
+      }
+      holeViewShotPoints.push(point);
       persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
     });
@@ -5243,12 +5318,12 @@
       holeViewUpdateShotsUI(holeIdx);
     });
 
-    // Une pénalité (balle à l'eau, hors-limites...) ajoute un coup SANS point de chute réel sur la
-    // photo — ce bouton l'incrémente donc directement, sans exiger de clic sur l'image.
+    // Une pénalité (balle à l'eau, hors-limites...) doit aussi être visible sur la photo : ce
+    // bouton "arme" le prochain clic, qui posera un marqueur ambre ⚠️ à l'endroit de l'incident
+    // (au lieu d'un marqueur rouge normal), tout en comptant comme un coup dans le total.
     const penaltyBtn = document.getElementById('btnHoleViewPenalty');
     if (penaltyBtn) penaltyBtn.addEventListener('click', () => {
-      holeViewShotPoints.push({penalty: true});
-      persistBlankCardDraft();
+      holeViewPenaltyArmed = !holeViewPenaltyArmed;
       holeViewUpdateShotsUI(holeIdx);
     });
 
