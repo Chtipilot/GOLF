@@ -1159,7 +1159,14 @@
   //                 permet de voir qui a gagné un jour donné en parcourant l'historique. Un bouton
   //                 "↩ Revenir à la date la plus récente" apparaît dès qu'une date spécifique est
   //                 sélectionnée, pour revenir facilement au comportement par défaut.
-  const APP_VERSION = "SuarPark - V01.005.042";
+  //   V01.005.043 — Correction (suite) : la date sélectionnée ne pilotait que le podium — étendue à
+  //                 TOUTE la section "📌 Faits marquants" (meilleure/pire manche, putts, éclectique,
+  //                 régularité, progression, série en cours, trou le plus dur/facile, nombre de
+  //                 manches...), recalculée comme un instantané n'utilisant que les manches jouées à
+  //                 la date sélectionnée ou avant — au lieu de toujours utiliser l'historique complet.
+  //                 Seul le coût en bahts reste calculé sur l'historique complet (non concerné par la
+  //                 notion d'instantané).
+  const APP_VERSION = "SuarPark - V01.005.043";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3682,6 +3689,17 @@
     const container = document.getElementById('insightsSection');
     const players = state.players.filter(name => (state.history[name] || []).length > 0);
 
+    // Historique filtré pour "Faits marquants" : si une date a été sélectionnée dans le curseur
+    // de "📜 Afficher l'historique" (insightsSelectedDate), ne garde que les manches jouées à
+    // cette date ou avant — pour recalculer TOUTE la section comme un instantané "à cette date-là"
+    // plutôt que d'utiliser systématiquement l'historique complet.
+    function insightsHistoryFor(name){
+      const rounds = state.history[name] || [];
+      if (!insightsSelectedDate) return rounds;
+      const cutoff = new Date(frToIso(insightsSelectedDate));
+      return rounds.filter(r => new Date(frToIso(r[0])) <= cutoff);
+    }
+
     if (players.length === 0){
       container.innerHTML = `<h3>${t('insightsTitle')}</h3><p class="sub">${t('noDataForInsights')}</p>`;
       return;
@@ -3690,7 +3708,7 @@
     // Best / worst round all-time
     let best = null, worst = null;
     players.forEach(name => {
-      state.history[name].forEach(([date, scores]) => {
+      insightsHistoryFor(name).forEach(([date, scores]) => {
         const tot = scores.reduce((a,b)=>a+b,0);
         if (best === null || tot < best.tot) best = {name, date, tot};
         if (worst === null || tot > worst.tot) worst = {name, date, tot};
@@ -3700,7 +3718,7 @@
     // Meilleur / pire total de putts all-time (seulement les manches où les putts ont été saisis)
     let bestPutts = null, worstPutts = null;
     players.forEach(name => {
-      state.history[name].forEach(round => {
+      insightsHistoryFor(name).forEach(round => {
         const [date] = round;
         const puttsTot = roundPutts(round).reduce((a,b)=>a+b,0);
         if (puttsTot > 0){
@@ -3719,7 +3737,7 @@
     // manche, on met en avant le trou où le gain est le plus important.
     let newEclecticRecord = null;
     players.forEach(name => {
-      const rounds = (state.history[name] || []).slice().sort((a,b) => new Date(frToIso(a[0])) - new Date(frToIso(b[0])));
+      const rounds = (insightsHistoryFor(name) || []).slice().sort((a,b) => new Date(frToIso(a[0])) - new Date(frToIso(b[0])));
       if (rounds.length === 0) return;
       const lastRound = rounds[rounds.length - 1];
       const [lastDate, lastScores] = lastRound;
@@ -3750,7 +3768,7 @@
     // Most consistent (lowest stddev of totals), min 3 rounds
     let mostConsistent = null;
     players.forEach(name => {
-      const rounds = state.history[name];
+      const rounds = insightsHistoryFor(name);
       if (rounds.length < 3) return;
       const totals = rounds.map(([d,s]) => s.reduce((a,b)=>a+b,0));
       const sd = stddev(totals);
@@ -3760,7 +3778,7 @@
     // Biggest improvement: compare avg of first 3 vs last 3 rounds, min 6 rounds
     let biggestImprovement = null;
     players.forEach(name => {
-      const rounds = state.history[name];
+      const rounds = insightsHistoryFor(name);
       if (rounds.length < 6) return;
       const totals = rounds.map(([d,s]) => s.reduce((a,b)=>a+b,0));
       const firstAvg = totals.slice(0,3).reduce((a,b)=>a+b,0) / 3;
@@ -3775,7 +3793,7 @@
     const holeSums = Array(18).fill(0);
     const holeCounts = Array(18).fill(0);
     players.forEach(name => {
-      state.history[name].forEach(([d, scores]) => {
+      insightsHistoryFor(name).forEach(([d, scores]) => {
         scores.forEach((s,h) => { holeSums[h] += s; holeCounts[h] += 1; });
       });
     });
@@ -3790,7 +3808,7 @@
     // Hot streak: best average over last 5 rounds, min 5 rounds
     let hotStreak = null;
     players.forEach(name => {
-      const rounds = state.history[name];
+      const rounds = insightsHistoryFor(name);
       if (rounds.length < 5) return;
       const last5 = rounds.slice(-5).map(([d,s]) => s.reduce((a,b)=>a+b,0));
       const avg = last5.reduce((a,b)=>a+b,0) / 5;
@@ -3800,11 +3818,11 @@
     // Most rounds played
     let mostRounds = null;
     players.forEach(name => {
-      const count = state.history[name].length;
+      const count = insightsHistoryFor(name).length;
       if (mostRounds === null || count > mostRounds.count) mostRounds = {name, count};
     });
 
-    const totalRounds = players.reduce((sum,name) => sum + state.history[name].length, 0);
+    const totalRounds = players.reduce((sum,name) => sum + insightsHistoryFor(name).length, 0);
 
     const card = (title, desc, color) => `
       <div style="background:#f4f7f6; border-left:4px solid ${color}; border-radius:6px; padding:10px 14px; margin-bottom:10px;">
@@ -3839,7 +3857,7 @@
     // en tout premier, encadré ensemble façon podium.
     let latestDate = null;
     players.forEach(name => {
-      state.history[name].forEach(([date]) => {
+      insightsHistoryFor(name).forEach(([date]) => {
         if (latestDate === null || new Date(frToIso(date)) > new Date(frToIso(latestDate))) latestDate = date;
       });
     });
@@ -3847,7 +3865,7 @@
     if (podiumDate){
       let dayScoreWinner = null, dayPuttsWinner = null;
       players.forEach(name => {
-        state.history[name].forEach(round => {
+        insightsHistoryFor(name).forEach(round => {
           const [date, scores] = round;
           if (date !== podiumDate) return;
           const tot = scores.reduce((a,b)=>a+b,0);
