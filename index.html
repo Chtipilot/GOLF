@@ -977,7 +977,12 @@
   //                 avec Out/In/Tot et le même code couleur/marquage (PAR cerclé, EAGLE
   //                 double-cerclé) que le tableau éclectique de l'équipe. Se met à jour en direct au
   //                 changement de joueur ou de départ, comme la ligne résumé déjà existante.
-  const APP_VERSION = "SuarPark - V01.005.013";
+  //   V01.005.014 — Correction : la ligne "Éclectique" (et la ligne résumé sous le nom) ne se
+  //                 mettaient à jour que lors d'un CHANGEMENT de joueur, jamais à l'ouverture
+  //                 initiale de la carte quand un joueur était déjà pré-sélectionné (brouillon
+  //                 restauré depuis une session précédente) — d'où l'absence de données constatée.
+  //                 Ajout de l'appel manquant à l'initialisation (dans applyBlankCardDraftToDOM).
+  const APP_VERSION = "SuarPark - V01.005.014";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3605,6 +3610,7 @@
     });
     blankCardUpdateOtherNameVisibility();
     blankCardUpdateOtherCaddieVisibility();
+    blankCardUpdateBigName();
     section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
       inp.value = draft.scores[Number(inp.dataset.hole)] || "";
     });
