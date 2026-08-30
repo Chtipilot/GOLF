@@ -988,7 +988,12 @@
   //                 Directeur de session" (4 langues). La mise à jour effective de l'éclectique
   //                 reste manuelle (import de manche par le Directeur de session) — ce bandeau est
   //                 une simple annonce en direct, pas une modification automatique des données.
-  const APP_VERSION = "SuarPark - V01.005.015";
+  //   V01.005.016 — Correction : le bandeau de record éclectique ne se déclenchait pas quand le
+  //                 score était saisi via le comptage de coups par clic (vue "Afficher le trou" →
+  //                 "✓ Valider"), car cette voie met à jour le champ score par programmation (sans
+  //                 déclencher l'événement "change" du champ, seul point d'accroche de la
+  //                 vérification). Appel ajouté directement dans holeViewValidateScore.
+  const APP_VERSION = "SuarPark - V01.005.016";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4939,6 +4944,7 @@
       blankCardOnHoleInput(holeIdx);
       blankCardUpdateTeeButtons();
       blankCardCheckParSound(holeIdx, count);
+      blankCardCheckEclecticRecord(holeIdx, count);
     }
     holeViewShotPoints = [];
     closeHoleView();
