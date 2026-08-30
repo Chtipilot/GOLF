@@ -1144,7 +1144,10 @@
   //                 caddie 136, scores/putts/pénalités de démonstration) de l'historique officiel —
   //                 elle avait rempli son rôle pour tester la nouvelle détection de record éclectique
   //                 individuel. La date reste disponible/libre pour de futurs tests si besoin.
-  const APP_VERSION = "SuarPark - V01.005.039";
+  //   V01.005.040 — "📌 Faits marquants" : réordonné à la demande du Directeur de session — le
+  //                 podium du jour reste en premier, suivi directement par "🏆 Nouveau record
+  //                 éclectique", puis les meilleures manches (score, putts).
+  const APP_VERSION = "SuarPark - V01.005.040";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3817,9 +3820,9 @@
     }
 
     // Faits marquants classés du plus positif au moins positif.
+    if (newEclecticRecord) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
     if (best) html += card(t('insightBestRoundEver'), `${best.name} — ${best.tot} (${best.date})`, colorFor(best.name));
     if (bestPutts) html += card(t('insightBestPuttsEver'), `${bestPutts.name} — ${bestPutts.tot} putts (${bestPutts.date})`, colorFor(bestPutts.name));
-    if (newEclecticRecord) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
     if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
     if (biggestImprovement && biggestImprovement.improvement > 0) html += card(t('insightBiggestImprovement'), t('insightImprovementDesc', biggestImprovement.name, biggestImprovement.from, biggestImprovement.to), colorFor(biggestImprovement.name));
     if (hotStreak) html += card(t('insightHotStreak'), t('insightHotStreakDesc', hotStreak.name, hotStreak.avg), colorFor(hotStreak.name));
