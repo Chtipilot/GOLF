@@ -1122,7 +1122,12 @@
   //                 (4) "✓ Valider" colore désormais le DERNIER coup en VERT (trou "fait") et attend
   //                     3 secondes (boutons désactivés entre-temps) avant de reporter le score et de
   //                     fermer la vue.
-  const APP_VERSION = "SuarPark - V01.005.035";
+  //   V01.005.036 — Entrée de test LOUIS 01/01/2023 remplacée par les vraies données fournies par le
+  //                 Directeur de session (carte "SuarPark_début..." collée) : Score 43+53=96, Putts
+  //                 11+13=24, départ WHITE, caddie 136 (YUI). Note : la date de la carte source
+  //                 contenait une coquille ("014/01/23") corrigée en 01/01/2023 pour correspondre à
+  //                 la date de test réservée.
+  const APP_VERSION = "SuarPark - V01.005.036";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2477,9 +2482,10 @@
       ],
       LOUIS: [
         // 01/01/2023 — Date réservée aux tests du site (nouvelles saisies, historique, replay,
-        // etc.), scores placeholder (= Par sur chaque trou, facilement reconnaissables comme
-        // données de test) : à ne jamais utiliser comme vraie manche pour les statistiques.
-        ["01/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4]],
+        // etc.) : à ne jamais utiliser comme vraie manche pour les statistiques. Données de test
+        // fournies par le Directeur de session (carte "SuarPark_début..." collée, corrigée pour la
+        // date 014/01/23 → 01/01/2023).
+        ["01/01/2023",[7,5,4,4,5,5,7,2,4,6,5,3,7,5,4,9,7,7],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,1,1,2,1,1,2,1,1,1,1,1,2,1,0,2,3,2],"white","136"],
         ["01/01/2024",[8,6,6,5,5,6,5,7,5,5,6,5,7,3,6,10,5,7]],
         ["10/01/2024",[7,5,12,5,6,9,7,5,5,6,6,3,8,8,11,6,7,5]],
         ["15/01/2024",[7,8,6,5,7,6,7,5,8,6,5,4,10,4,6,10,8,6]],
