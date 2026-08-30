@@ -1153,7 +1153,13 @@
   //                 réception d'une carte joueur, suppression d'une manche du récap équipe, ou
   //                 réinitialisation du récap — plus besoin de les fermer/rouvrir manuellement pour
   //                 voir les données à jour.
-  const APP_VERSION = "SuarPark - V01.005.041";
+  //   V01.005.042 — "📌 Faits marquants" : le podium "Vainqueurs du jour" se synchronise désormais en
+  //                 direct sur la date cliquée/glissée dans le curseur de "📜 Afficher l'historique"
+  //                 (n'importe quel joueur), au lieu d'afficher toujours la date la plus récente —
+  //                 permet de voir qui a gagné un jour donné en parcourant l'historique. Un bouton
+  //                 "↩ Revenir à la date la plus récente" apparaît dès qu'une date spécifique est
+  //                 sélectionnée, pour revenir facilement au comportement par défaut.
+  const APP_VERSION = "SuarPark - V01.005.042";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1516,6 +1522,7 @@
       insightDayWinnerPutts: "🎯 Vainqueur du jour (putts)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} putts (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 Vainqueurs du jour — ${date}`,
+      insightBackToLatest: "↩ Revenir à la date la plus récente",
       totalPuttsLabel: "Total putts : ",
       noDataForInsights: "Pas assez de données pour calculer des statistiques.",
       rotateHint: "Tourne ton téléphone en mode paysage pour un meilleur affichage du tableau.",
@@ -1795,6 +1802,7 @@
       insightDayWinnerPutts: "🎯 Winner of the day (putts)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} putts (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 Winners of the day — ${date}`,
+      insightBackToLatest: "↩ Back to latest date",
       totalPuttsLabel: "Total putts: ",
       noDataForInsights: "Not enough data to compute statistics.",
       rotateHint: "Rotate your phone to landscape for a better view of the table.",
@@ -2074,6 +2082,7 @@
       insightDayWinnerPutts: "🎯 Tagessieger (Putts)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} Putts (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 Tagessieger — ${date}`,
+      insightBackToLatest: "↩ Zum neuesten Datum zurückkehren",
       totalPuttsLabel: "Putts gesamt: ",
       noDataForInsights: "Nicht genügend Daten für Statistiken.",
       rotateHint: "Drehe dein Handy ins Querformat für eine bessere Tabellenansicht.",
@@ -2353,6 +2362,7 @@
       insightDayWinnerPutts: "🎯 ผู้ชนะประจำวัน (พัตต์)",
       insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} พัตต์ (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 ผู้ชนะประจำวัน — ${date}`,
+      insightBackToLatest: "↩ กลับไปยังวันที่ล่าสุด",
       totalPuttsLabel: "รวมพัตต์: ",
       noDataForInsights: "ข้อมูลไม่เพียงพอสำหรับคำนวณสถิติ",
       rotateHint: "หมุนโทรศัพท์เป็นแนวนอนเพื่อดูตารางได้ดีขึ้น",
@@ -2684,6 +2694,11 @@
   let caddiesVisible = false;
   let blankCardVisible = false;
   let blankCardFocusHole = 0;
+  // Date sélectionnée en cliquant/glissant le curseur dans "📜 Afficher l'historique" (n'importe
+  // quel joueur) : quand renseignée, le podium du jour dans "📌 Faits marquants" affiche les
+  // vainqueurs de CETTE date plutôt que la plus récente par défaut — permet de "cliquer une date
+  // pour voir qui a gagné ce jour-là".
+  let insightsSelectedDate = null;
 
   // Rafraîchit toutes les sections agrégées (dérivées de state.history / du récap équipe) déjà
   // ouvertes sur la page principale — à appeler après toute action qui change les données qu'elles
@@ -3296,6 +3311,10 @@
           document.querySelectorAll(`#scroll-${CSS.escape(name)} tr`).forEach(tr => tr.style.outline = '');
           row.style.outline = '2px solid #1a3c34';
         }
+        // Synchronise le podium du jour dans "📌 Faits marquants" (si ouvert) sur la date
+        // sélectionnée ici, pour voir en direct qui a gagné ce jour-là.
+        insightsSelectedDate = rounds[i][0];
+        if (insightsVisible) renderInsights();
       };
       slider.addEventListener('input', () => updateToIndex(Number(slider.value)));
       document.querySelectorAll(`.history-jump-btn[data-name="${CSS.escape(name)}"]`).forEach(btn => {
@@ -3795,9 +3814,10 @@
 
     // Carte "honneur" : vainqueurs du jour (score ET putts) encadrés ensemble, mis en valeur
     // au-dessus des autres faits marquants (fond doré, bordure dorée, mise en avant visuelle).
-    const honorCard = (scoreWinner, puttsWinner, date) => `
+    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate) => `
       <div style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border:2px solid var(--sand); border-radius:10px; padding:14px 16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(201,166,104,0.35);">
-        <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:10px; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
+        <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:${isCustomDate ? '2px' : '10px'}; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
+        ${isCustomDate ? `<div style="text-align:center; margin-bottom:8px;"><button type="button" id="btnInsightsResetDate" class="btn btn-secondary no-print" style="font-size:10px; padding:2px 10px; margin:0;">${t('insightBackToLatest')}</button></div>` : ''}
         <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
           ${scoreWinner ? `<div style="text-align:center; min-width:130px;">
             <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightDayWinnerScore')}</div>
@@ -3814,20 +3834,22 @@
 
     let html = `<h3>${t('insightsTitle')}</h3><p class="sub" style="margin-top:2px;">${t('insightsIntro')}</p>`;
 
-    // Vainqueur du jour (score et putts) : sur la date la plus récente parmi toutes les manches
-    // enregistrées. Affiché en tout premier, encadré ensemble façon podium.
+    // Vainqueur du jour (score et putts) : sur la date sélectionnée dans l'historique (curseur
+    // cliqué/glissé), ou par défaut la plus récente parmi toutes les manches enregistrées. Affiché
+    // en tout premier, encadré ensemble façon podium.
     let latestDate = null;
     players.forEach(name => {
       state.history[name].forEach(([date]) => {
         if (latestDate === null || new Date(frToIso(date)) > new Date(frToIso(latestDate))) latestDate = date;
       });
     });
-    if (latestDate){
+    const podiumDate = insightsSelectedDate || latestDate;
+    if (podiumDate){
       let dayScoreWinner = null, dayPuttsWinner = null;
       players.forEach(name => {
         state.history[name].forEach(round => {
           const [date, scores] = round;
-          if (date !== latestDate) return;
+          if (date !== podiumDate) return;
           const tot = scores.reduce((a,b)=>a+b,0);
           if (dayScoreWinner === null || tot < dayScoreWinner.tot) dayScoreWinner = {name, tot};
           const puttsArr = roundPutts(round);
@@ -3835,7 +3857,7 @@
           if (puttsTot > 0 && (dayPuttsWinner === null || puttsTot < dayPuttsWinner.tot)) dayPuttsWinner = {name, tot: puttsTot};
         });
       });
-      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, latestDate);
+      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate);
     }
 
     // Faits marquants classés du plus positif au moins positif.
@@ -3859,6 +3881,11 @@
     html += card(t('insightTeamTotal'), t('insightTeamTotalDesc', totalRounds), '#1a3c34');
 
     container.innerHTML = html;
+    const resetBtn = document.getElementById('btnInsightsResetDate');
+    if (resetBtn) resetBtn.addEventListener('click', () => {
+      insightsSelectedDate = null;
+      renderInsights();
+    });
   }
 
   // Statistiques par joueur (et pour l'équipe) selon le départ réellement joué (rouge/blanc)
