@@ -1039,7 +1039,11 @@
   //                 le numéro du trou reste affiché, seul le style change), dans le grand panneau de
   //                 la carte ET dans le bandeau du haut de "Afficher le trou". Mis à jour à la
   //                 fermeture de "Afficher le trou" et à l'ouverture de la carte.
-  const APP_VERSION = "SuarPark - V01.005.024";
+  //   V01.005.025 — Le numéro du trou en pénalité est désormais affiché dans un vrai triangle
+  //                 d'avertissement (couleur ambre, technique CSS bordures triangulaires, sans image
+  //                 ni SVG) contenant le chiffre, à la place du simple numéro — dans le grand panneau
+  //                 de la carte ET dans le bandeau du haut de "Afficher le trou".
+  const APP_VERSION = "SuarPark - V01.005.025";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3881,6 +3885,19 @@
     return (blankCardShotPointsByHole[holeIdx] || []).some(p => p.penalty);
   }
 
+  // Badge triangle d'avertissement contenant le numéro du trou, affiché à la place du numéro
+  // "nu" quand ce trou a au moins une pénalité — la géométrie utilise la technique CSS classique
+  // des bordures triangulaires (sans image ni SVG).
+  function holePenaltyTriangleHTML(holeIdx, size){
+    const w = size, h = Math.round(size * 0.87), half = Math.round(size/2);
+    const fontSize = Math.round(size * 0.42);
+    return `
+      <div style="position:relative; width:${w}px; height:${h}px;">
+        <div style="width:0; height:0; border-left:${half}px solid transparent; border-right:${half}px solid transparent; border-bottom:${h}px solid #e6b800;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:2px; text-align:center; font-size:${fontSize}px; font-weight:900; color:#1a1a1a; line-height:1;">${holeIdx+1}</div>
+      </div>`;
+  }
+
   // Remplit la ligne "Pénalités" du tableau (sous Putts) avec le nombre de pénalités comptées sur
   // chaque trou pour la manche en cours ; vide (—) si aucune pénalité sur le trou.
   function blankCardUpdatePenaltyRow(){
@@ -4984,7 +5001,9 @@
           <button type="button" id="btnBcPrevHole" class="btn btn-secondary no-print" style="font-size:22px; padding:4px 16px;" ${holeIdx===0?'disabled':''}>‹</button>
           <div>
             <div style="font-size:13px; opacity:.85;">${t('blankCardHoleLabel')}${penalty ? ' ⚠️' : ''}</div>
-            <div style="font-size:56px; font-weight:900; line-height:1; color:${penalty ? '#ffcc33' : '#fff'};">${holeIdx+1}</div>
+            ${penalty
+              ? `<div style="display:flex; justify-content:center;">${holePenaltyTriangleHTML(holeIdx, 64)}</div>`
+              : `<div style="font-size:56px; font-weight:900; line-height:1; color:#fff;">${holeIdx+1}</div>`}
           </div>
           <button type="button" id="btnBcNextHole" class="btn btn-secondary no-print" style="font-size:22px; padding:4px 16px;" ${holeIdx===17?'disabled':''}>›</button>
         </div>
@@ -5062,8 +5081,9 @@
         <div style="flex:0 0 auto; z-index:2; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.55);">
           <button type="button" id="btnHoleViewBack" class="btn no-print" style="background:rgba(255,255,255,0.92); color:var(--green-deep); font-weight:700; margin:0; box-shadow:0 2px 6px rgba(0,0,0,0.35);">${t('holeViewBtnBack')}</button>
           <div style="display:flex; align-items:center; gap:8px; background:${penalty ? 'rgba(74,32,32,0.85)' : 'rgba(10,25,20,0.55)'}; backdrop-filter:blur(2px); border-radius:20px; padding:4px 6px 4px 14px; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.35); border:${penalty ? '2px solid #e6b800' : 'none'};">
+            ${penalty ? holePenaltyTriangleHTML(holeIdx, 34) : ''}
             <div style="text-align:right; line-height:1.15;">
-              <div style="font-size:20px; font-weight:900; color:${penalty ? '#ffcc33' : '#fff'};">${t('blankCardHoleLabel')} ${holeIdx+1}${penalty ? ' ⚠️' : ''}</div>
+              <div style="font-size:20px; font-weight:900;">${t('blankCardHoleLabel')}${penalty ? '' : ' ' + (holeIdx+1)}</div>
               <div style="font-size:11px; opacity:.9;">Par ${PAR[holeIdx]} · HCP ${IDX[holeIdx]} · ${dist} m</div>
             </div>
             <button type="button" id="btnHoleViewPrev" class="btn btn-secondary no-print" style="font-size:18px; padding:4px 10px; margin:0;" ${holeIdx===0?'disabled':''}>‹</button>
