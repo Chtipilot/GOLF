@@ -1194,7 +1194,13 @@
   //                 mais le bouton "🎬" restait invisible tant qu'on ne fermait/rouvrait pas la
   //                 section à la main. Ajout de refreshOpenSections() après validation d'un trou, sur
   //                 le même principe que pour le récap équipe.
-  const APP_VERSION = "SuarPark - V01.005.048";
+  //   V01.005.049 — Correction (suite) : la troncature en "…" ajoutée en V01.005.046 masquait le
+  //                 bouton "🎬" dans la cellule date de l'historique dès que le contenu était trop
+  //                 long pour la colonne (rond + date + caddie + replay). Remplacé par un retour à
+  //                 la ligne naturel dans la cellule (le bouton "🎬" passe sur sa propre ligne quand
+  //                 nécessaire) : la cellule grandit en hauteur plutôt que de couper ou déborder du
+  //                 contenu, rien n'est plus jamais caché.
+  const APP_VERSION = "SuarPark - V01.005.049";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3316,9 +3322,9 @@
         const caddieNum = roundCaddie(r);
         const caddieTag = caddieNum ? ` <span style="font-weight:normal; color:#888; font-size:9px;">/${caddieDisplayText(caddieNum)}</span>` : '';
         const hasReplay = !!replays[shotReplayKey(name, date)];
-        const replayBtn = hasReplay ? ` <button type="button" class="btn btn-secondary no-print history-replay-btn" data-name="${name}" data-date="${date}" style="font-size:9px; padding:1px 6px; margin-left:4px; vertical-align:middle;">🎬</button>` : '';
+        const replayBtn = hasReplay ? `<br> <button type="button" class="btn btn-secondary no-print history-replay-btn" data-name="${name}" data-date="${date}" style="font-size:9px; padding:1px 6px; margin-top:2px;">🎬</button>` : '';
         rows += `<tr id="row-${name}-${i}" style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
-          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}</td>
+          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}</td>
           ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
           <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
           <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
