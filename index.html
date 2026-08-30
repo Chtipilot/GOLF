@@ -1029,7 +1029,12 @@
   //                 moins une pénalité a été ajoutée. Les marqueurs numérotés sur la photo restent
   //                 réservés aux coups réellement joués (avec point de chute) ; la numérotation tient
   //                 compte de la position réelle dans la séquence, pénalités incluses.
-  const APP_VERSION = "SuarPark - V01.005.022";
+  //   V01.005.023 — Étape 1/3 (demande "trou pénalité, tableau, transmission Directeur de session) :
+  //                 nouvelle ligne "↳ Pénalités" dans le tableau de "Afficher ma carte", juste sous
+  //                 la ligne Putts, affichant le nombre de pénalités comptées par trou (via le
+  //                 bouton "+ Pénalité") pour la manche en cours, avec Out/In/Tot. Se met à jour à
+  //                 la fermeture de "Afficher le trou" et à l'ouverture de la carte.
+  const APP_VERSION = "SuarPark - V01.005.023";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1363,6 +1368,7 @@
       blankCardScorecardSectionTitle: "Carte de score",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
+      blankCardPenaltyRowLabel: "↳ Pénalités",
       teeCompareTitle: "🔴⚪ Comparaison Rouge / Blanc",
       teeCompareSubtitle: "Statistiques par joueur, selon le départ réellement joué (voir le repère de couleur ⚪/🔴 dans le tableau ou l'historique).",
       teeCompareRounds: "Manches",
@@ -1648,6 +1654,7 @@
       blankCardScorecardSectionTitle: "Scorecard",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
+      blankCardPenaltyRowLabel: "↳ Penalties",
       teeCompareTitle: "🔴⚪ Red / White comparison",
       teeCompareSubtitle: "Per-player stats, by tee actually played (see the ⚪/🔴 color marker in the table or in history).",
       teeCompareRounds: "Rounds",
@@ -1933,6 +1940,7 @@
       blankCardScorecardSectionTitle: "Scorekarte",
       blankCardScoreRowLabel: "Score",
       blankCardPuttRowLabel: "↳ Putt",
+      blankCardPenaltyRowLabel: "↳ Strafschläge",
       teeCompareTitle: "🔴⚪ Vergleich Rot / Weiß",
       teeCompareSubtitle: "Statistik pro Spieler, nach tatsächlich gespieltem Abschlag (siehe Farbmarkierung ⚪/🔴 in der Tabelle oder im Verlauf).",
       teeCompareRounds: "Runden",
@@ -2218,6 +2226,7 @@
       blankCardScorecardSectionTitle: "การ์ดคะแนน",
       blankCardScoreRowLabel: "สกอร์",
       blankCardPuttRowLabel: "↳ พัตต์",
+      blankCardPenaltyRowLabel: "↳ เพนัลตี้",
       teeCompareTitle: "🔴⚪ เปรียบเทียบ ทีแดง / ทีขาว",
       teeCompareSubtitle: "สถิติต่อผู้เล่น ตามทีออกที่เล่นจริง (ดูสัญลักษณ์สี ⚪/🔴 ในตารางหรือในประวัติ)",
       teeCompareRounds: "จำนวนรอบ",
@@ -3771,6 +3780,7 @@
     blankCardUpdateOtherNameVisibility();
     blankCardUpdateOtherCaddieVisibility();
     blankCardUpdateBigName();
+    blankCardUpdatePenaltyRow();
     section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => {
       inp.value = draft.scores[Number(inp.dataset.hole)] || "";
     });
@@ -3854,6 +3864,30 @@
     if (outEl) outEl.textContent = ecl && ecl.played ? ecl.out : '—';
     if (inEl) inEl.textContent = ecl && ecl.played ? ecl.inn : '—';
     if (totEl) totEl.textContent = ecl && ecl.played ? ecl.tot : '—';
+  }
+
+  // Nombre de pénalités (bouton "⚠️ + Pénalité" dans "Afficher le trou") comptées par trou, à
+  // partir des points enregistrés pour la manche en cours.
+  function blankCardPenaltyCounts(){
+    return Array.from({length:18}, (_,h) => (blankCardShotPointsByHole[h] || []).filter(p => p.penalty).length);
+  }
+
+  // Remplit la ligne "Pénalités" du tableau (sous Putts) avec le nombre de pénalités comptées sur
+  // chaque trou pour la manche en cours ; vide (—) si aucune pénalité sur le trou.
+  function blankCardUpdatePenaltyRow(){
+    const counts = blankCardPenaltyCounts();
+    for (let h = 0; h < 18; h++){
+      const cell = document.getElementById(`bcPenalty-${h}`);
+      if (cell) cell.textContent = counts[h] > 0 ? counts[h] : '';
+    }
+    const out = counts.slice(0,9).reduce((a,b)=>a+b,0);
+    const inn = counts.slice(9,18).reduce((a,b)=>a+b,0);
+    const outEl = document.getElementById('bcPenaltyOut');
+    const inEl = document.getElementById('bcPenaltyIn');
+    const totEl = document.getElementById('bcPenaltyTot');
+    if (outEl) outEl.textContent = out > 0 ? out : '';
+    if (inEl) inEl.textContent = inn > 0 ? inn : '';
+    if (totEl) totEl.textContent = (out+inn) > 0 ? (out+inn) : '';
   }
 
   function blankCardUpdateOtherCaddieVisibility(){
@@ -5130,6 +5164,7 @@
     const overlay = document.getElementById('holeViewOverlay');
     if (overlay) overlay.style.display = 'none';
     document.body.style.overflow = '';
+    blankCardUpdatePenaltyRow(); // reflète dans le tableau les pénalités éventuellement ajoutées
   }
 
   function renderHoleView(holeIdx){
@@ -5412,6 +5447,13 @@
         <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttOut"></td>
         <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttIn"></td>
         <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttTot"></td>
+      </tr>
+      <tr id="bcPenaltyRow" style="background:#fdf1f1;">
+        <td style="text-align:left; padding-left:4px; color:#a23b3b; font-size:11px;">${t('blankCardPenaltyRowLabel')}</td>
+        ${Array.from({length:18}, (_,h) => `<td id="bcPenalty-${h}" style="font-size:11px; color:#a23b3b;"></td>`).join("")}
+        <td style="background:#f7dcdc; color:#a23b3b; font-size:11px;" id="bcPenaltyOut"></td>
+        <td style="background:#f7dcdc; color:#a23b3b; font-size:11px;" id="bcPenaltyIn"></td>
+        <td style="background:#f7dcdc; color:#a23b3b; font-size:11px;" id="bcPenaltyTot"></td>
       </tr>
       <tr id="bcEclecticRow" style="background:#fff9e6;">
         <td style="text-align:left; padding-left:4px; color:#8a6d00; font-size:11px; font-weight:bold;">${t('blankCardEclecticLabel')}</td>
