@@ -327,6 +327,7 @@
     <button class="btn btn-secondary" id="btnToggleStats">📊 Graphiques</button>
     <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
     <button class="btn btn-secondary" id="btnToggleTeeCompare">🔴⚪ Rouge vs Blanc</button>
+    <button class="btn btn-secondary" id="btnToggleRules">📖 Règlement</button>
   </div>
 </div>
 <div class="status" id="status"></div>
@@ -337,6 +338,7 @@
 <div id="statsSection" style="display:none; margin-top:10px;"></div>
 <div id="insightsSection" style="display:none; margin-top:10px;"></div>
 <div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
+<div id="rulesSection" style="display:none; margin-top:10px;"></div>
 <div id="blankCardSection"></div>
 <div id="teamRecapSection"></div>
 
@@ -1002,7 +1004,18 @@
   //                 centré (fond assombri, cadre doré, trophée 🏆 en grand), durée portée à 10
   //                 secondes (au lieu du petit bandeau discret de 4s), fermeture anticipée possible
   //                 au tap.
-  const APP_VERSION = "SuarPark - V01.005.018";
+  //   V01.005.019 — Règle golf : un trou en 1 (hole-in-one) ne peut pas avoir de putt (la balle
+  //                 entre directement depuis le départ). Si un putt > 0 est saisi alors que le score
+  //                 est 1 (ou l'inverse, dans n'importe quel ordre de saisie), le putt est
+  //                 automatiquement remis à 0, synchronisé entre le tableau et le grand panneau.
+  //   V01.005.020 — Nouveau bouton "📖 Règlement" sur la page d'accueil : résumé pédagogique (rédigé
+  //                 par Claude Caddie Assistant, pas le texte officiel du R&A) de 8 situations
+  //                 courantes en partie amicale (balle perdue, hors-limites, zone à pénalité, balle
+  //                 injouable, obstacles amovibles/inamovibles, balle qui bouge, ordre de jeu &
+  //                 étiquette), avec procédure et pénalité, plus un lien vers l'outil officiel de
+  //                 recherche des règles du R&A pour les cas complexes ou les compétitions.
+  //                 Disponible dans les 4 langues.
+  const APP_VERSION = "SuarPark - V01.005.020";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1166,6 +1179,22 @@
       btnHideHistory: "📜 Masquer l'historique",
       btnShowEclectic: "🏆 Afficher l'éclectique",
       btnHideEclectic: "🏆 Masquer l'éclectique",
+      btnShowRules: "📖 Règlement",
+      btnHideRules: "📖 Masquer le règlement",
+      rulesTitle: "📖 Règlement — situations courantes",
+      rulesSubtitle: "Résumé pédagogique en langage simple, pour une partie amicale. Ce n'est pas le texte officiel du R&A — en cas de doute ou de compétition, se référer à l'outil officiel ci-dessous.",
+      rulesOfficialLinkText: "🔗 Outil officiel de recherche des règles (R&A, en français)",
+      rulesPenaltyLabel: "Pénalité",
+      RULES_DATA: [
+        ["🔍 Balle perdue", "Vous disposez de 3 minutes pour la chercher. Si elle reste introuvable, retournez à l'endroit du coup précédent et rejouez.", "+1 coup (coup et distance)"],
+        ["🚧 Hors-limites (piquets blancs)", "La balle a quitté le parcours. Retournez à l'endroit du coup précédent et rejouez.", "+1 coup (coup et distance)"],
+        ["💧 Zone à pénalité (eau, piquets rouges/jaunes)", "Rejouez depuis l'emplacement précédent, ou déposez une balle en arrière en ligne avec le trou et le point d'entrée, ou (zone rouge) sur le côté à 2 longueurs de club du point d'entrée, pas plus près du trou.", "+1 coup"],
+        ["🌳 Balle injouable", "Vous seul décidez. Choix : rejouer depuis l'emplacement précédent, dégagement en arrière en ligne avec le trou, ou latéral à 2 longueurs de club, pas plus près du trou.", "+1 coup"],
+        ["🚜 Obstacle amovible (râteau, canette, banc...)", "Retirez l'obstacle. Si la balle bouge en le faisant, replacez-la à son emplacement d'origine.", "Aucune"],
+        ["🏗️ Terrain en réparation / chemin / flaque", "Dégagement au point le plus proche évitant la gêne, pas plus près du trou.", "Aucune"],
+        ["🍃 Balle qui bouge accidentellement", "Si ni vous ni votre équipement n'en êtes la cause, replacez la balle à son emplacement d'origine.", "Aucune"],
+        ["⛳ Ordre de jeu & étiquette", "Le joueur le plus loin du trou joue en premier. Réparez vos marques de balle sur le green, ratissez les bunkers après votre passage.", "Variable si non respecté en compétition"],
+      ],
       btnStats: "📊 Graphiques",
       btnToggleDetails: "🎯 Putts",
       thHole: "Trou",
@@ -1433,6 +1462,22 @@
       btnHideHistory: "📜 Hide history",
       btnShowEclectic: "🏆 Show eclectic",
       btnHideEclectic: "🏆 Hide eclectic",
+      btnShowRules: "📖 Rules",
+      btnHideRules: "📖 Hide rules",
+      rulesTitle: "📖 Rules — common situations",
+      rulesSubtitle: "Plain-language summary for friendly play. This is not the official R&A text — for doubts or competitions, refer to the official tool below.",
+      rulesOfficialLinkText: "🔗 Official rules search tool (R&A)",
+      rulesPenaltyLabel: "Penalty",
+      RULES_DATA: [
+        ["🔍 Lost ball", "You have 3 minutes to search. If not found, return to where you played your previous shot and replay.", "+1 stroke (stroke and distance)"],
+        ["🚧 Out of bounds (white stakes)", "The ball left the course. Return to where you played your previous shot and replay.", "+1 stroke (stroke and distance)"],
+        ["💧 Penalty area (water, red/yellow stakes)", "Replay from the previous spot, or drop back on a line with the hole and the entry point, or (red area) drop within 2 club-lengths of the entry point, no closer to the hole.", "+1 stroke"],
+        ["🌳 Unplayable ball", "Only you decide. Options: replay from the previous spot, drop back on a line with the hole, or drop within 2 club-lengths, no closer to the hole.", "+1 stroke"],
+        ["🚜 Movable obstruction (rake, can, bench...)", "Remove the obstruction. If the ball moves while doing so, replace it at its original spot.", "None"],
+        ["🏗️ Ground under repair / path / puddle", "Free relief at the nearest point avoiding interference, no closer to the hole.", "None"],
+        ["🍃 Ball moves accidentally", "If neither you nor your equipment caused it, replace the ball at its original spot.", "None"],
+        ["⛳ Order of play & etiquette", "The player farthest from the hole plays first. Repair your ball marks on the green, rake bunkers after playing.", "Varies if not followed in competition"],
+      ],
       btnStats: "📊 Charts",
       btnToggleDetails: "🎯 Putts",
       thHole: "Hole",
@@ -1700,6 +1745,22 @@
       btnHideHistory: "📜 Verlauf ausblenden",
       btnShowEclectic: "🏆 Eclectic anzeigen",
       btnHideEclectic: "🏆 Eclectic ausblenden",
+      btnShowRules: "📖 Regeln",
+      btnHideRules: "📖 Regeln ausblenden",
+      rulesTitle: "📖 Regeln — häufige Situationen",
+      rulesSubtitle: "Verständliche Zusammenfassung für ein freundschaftliches Spiel. Dies ist nicht der offizielle R&A-Text — bei Zweifeln oder im Wettspiel bitte das offizielle Tool unten nutzen.",
+      rulesOfficialLinkText: "🔗 Offizielles Regel-Suchtool (R&A)",
+      rulesPenaltyLabel: "Strafe",
+      RULES_DATA: [
+        ["🔍 Verlorener Ball", "Sie haben 3 Minuten Suchzeit. Wird der Ball nicht gefunden, gehen Sie zur Stelle des vorherigen Schlags zurück und spielen erneut.", "+1 Schlag (Schlag und Entfernung)"],
+        ["🚧 Aus (weiße Pfähle)", "Der Ball hat den Platz verlassen. Zur Stelle des vorherigen Schlags zurückgehen und erneut spielen.", "+1 Schlag (Schlag und Entfernung)"],
+        ["💧 Straf-Bereich (Wasser, rote/gelbe Pfähle)", "Erneut vom vorherigen Ort spielen, oder rückwärts in Linie mit Loch und Eintrittspunkt droppen, oder (rot) seitlich innerhalb 2 Schlägerlängen vom Eintrittspunkt, nicht näher zum Loch.", "+1 Schlag"],
+        ["🌳 Unspielbarer Ball", "Nur Sie entscheiden. Optionen: vom vorherigen Ort erneut spielen, rückwärts in Linie mit dem Loch droppen, oder seitlich innerhalb 2 Schlägerlängen, nicht näher zum Loch.", "+1 Schlag"],
+        ["🚜 Bewegliches Hindernis (Rechen, Dose, Bank...)", "Hindernis entfernen. Bewegt sich der Ball dabei, an der ursprünglichen Stelle zurücklegen.", "Keine"],
+        ["🏗️ Platz in Ausbesserung / Weg / Pfütze", "Kostenlose Erleichterung am nächstgelegenen Punkt ohne Beeinträchtigung, nicht näher zum Loch.", "Keine"],
+        ["🍃 Ball bewegt sich versehentlich", "Wenn weder Sie noch Ihre Ausrüstung die Ursache sind, den Ball an der ursprünglichen Stelle zurücklegen.", "Keine"],
+        ["⛳ Spielreihenfolge & Etikette", "Der Spieler am weitesten vom Loch spielt zuerst. Pitchmarken auf dem Grün ausbessern, Bunker nach dem Spielen harken.", "Variabel bei Nichtbeachtung im Wettspiel"],
+      ],
       btnStats: "📊 Diagramme",
       btnToggleDetails: "🎯 Putts",
       thHole: "Loch",
@@ -1967,6 +2028,22 @@
       btnHideHistory: "📜 ซ่อนประวัติ",
       btnShowEclectic: "🏆 แสดง Eclectic",
       btnHideEclectic: "🏆 ซ่อน Eclectic",
+      btnShowRules: "📖 กติกา",
+      btnHideRules: "📖 ซ่อนกติกา",
+      rulesTitle: "📖 กติกา — สถานการณ์ที่พบบ่อย",
+      rulesSubtitle: "สรุปแบบเข้าใจง่ายสำหรับการเล่นแบบสบายๆ ไม่ใช่ข้อความทางการของ R&A — หากมีข้อสงสัยหรือแข่งขันจริง ให้ใช้เครื่องมือทางการด้านล่าง",
+      rulesOfficialLinkText: "🔗 เครื่องมือค้นหากติกาทางการ (R&A)",
+      rulesPenaltyLabel: "บทลงโทษ",
+      RULES_DATA: [
+        ["🔍 ลูกหาย", "คุณมีเวลาค้นหา 3 นาที หากหาไม่พบ ให้กลับไปยังจุดที่ตีครั้งก่อนแล้วตีใหม่", "+1 แต้ม (ตีซ้ำและระยะ)"],
+        ["🚧 นอกสนาม (หลักขาว)", "ลูกออกนอกสนาม กลับไปยังจุดที่ตีครั้งก่อนแล้วตีใหม่", "+1 แต้ม (ตีซ้ำและระยะ)"],
+        ["💧 เขตปรับโทษ (น้ำ, หลักแดง/เหลือง)", "ตีใหม่จากจุดเดิม หรือดรอปด้านหลังในแนวเส้นตรงกับหลุมและจุดที่ลูกเข้า หรือ (เขตแดง) ดรอปด้านข้างในระยะ 2 ไม้กอล์ฟจากจุดที่ลูกเข้า ไม่ใกล้หลุมกว่าเดิม", "+1 แต้ม"],
+        ["🌳 ลูกเล่นไม่ได้", "คุณเป็นผู้ตัดสินใจเพียงคนเดียว ตัวเลือก: ตีใหม่จากจุดเดิม ดรอปด้านหลังในแนวเส้นตรงกับหลุม หรือดรอปด้านข้างในระยะ 2 ไม้กอล์ฟ ไม่ใกล้หลุมกว่าเดิม", "+1 แต้ม"],
+        ["🚜 สิ่งกีดขวางที่เคลื่อนย้ายได้ (คราด, กระป๋อง, ม้านั่ง...)", "ย้ายสิ่งกีดขวางออก หากลูกขยับขณะย้าย ให้วางกลับที่เดิม", "ไม่มี"],
+        ["🏗️ พื้นที่ซ่อมแซม / ทางเดิน / แอ่งน้ำ", "รับการช่วยเหลือฟรีที่จุดใกล้ที่สุดที่หลีกเลี่ยงการกีดขวาง ไม่ใกล้หลุมกว่าเดิม", "ไม่มี"],
+        ["🍃 ลูกขยับเองโดยไม่ตั้งใจ", "หากไม่ได้เกิดจากคุณหรืออุปกรณ์ของคุณ ให้วางลูกกลับที่เดิม", "ไม่มี"],
+        ["⛳ ลำดับการเล่นและมารยาท", "ผู้เล่นที่อยู่ไกลจากหลุมที่สุดเล่นก่อน ซ่อมรอยลูกบนกรีน คราดบังเกอร์หลังเล่นเสร็จ", "แตกต่างกันหากไม่ปฏิบัติตามในการแข่งขัน"],
+      ],
       btnStats: "📊 กราฟ",
       btnToggleDetails: "🎯 พัตต์",
       thHole: "หลุม",
@@ -2239,6 +2316,8 @@
     document.getElementById('btnToggleDetails').textContent = t('btnToggleDetails');
     document.getElementById('btnToggleInsights').textContent = insightsVisible ? t('btnHideInsights') : t('btnShowInsights');
     document.getElementById('btnToggleTeeCompare').textContent = teeCompareVisible ? t('btnHideTeeCompare') : t('btnShowTeeCompare');
+    document.getElementById('btnToggleRules').textContent = rulesVisible ? t('btnHideRules') : t('btnShowRules');
+    if (rulesVisible) renderRules();
     document.getElementById('tileBlankCardLabel').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
     document.getElementById('tileTeamRecapLabel').textContent = teamRecapVisible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
     document.getElementById('btnNotice').textContent = t('btnNotice');
@@ -2476,6 +2555,7 @@
   let eclecticVisible = false;
   let statsVisible = false;
   let insightsVisible = false;
+  let rulesVisible = false;
   let detailsVisible = false;
   let noticeVisible = false;
   let teeCompareVisible = false;
@@ -3329,6 +3409,34 @@
     const m = arr.reduce((a,b)=>a+b,0) / arr.length;
     const variance = arr.reduce((a,b)=>a + (b-m)*(b-m), 0) / arr.length;
     return Math.sqrt(variance);
+  }
+
+  function renderRules(){
+    const container = document.getElementById('rulesSection');
+    const rows = (t('RULES_DATA') || []).map(([situation, procedure, penalty]) => `
+      <tr>
+        <td style="padding:10px 8px; font-weight:bold; color:var(--green-deep); white-space:nowrap; vertical-align:top;">${situation}</td>
+        <td style="padding:10px 8px; vertical-align:top;">${procedure}</td>
+        <td style="padding:10px 8px; vertical-align:top; white-space:nowrap; color:#a23b3b; font-weight:bold;">${penalty}</td>
+      </tr>`).join("");
+    container.innerHTML = `
+      <h3>${t('rulesTitle')}</h3>
+      <p class="sub">${t('rulesSubtitle')}</p>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; background:#fff;">
+          <thead>
+            <tr style="background:var(--sand-pale, #f4f0e6); text-align:left;">
+              <th style="padding:8px;">Situation</th>
+              <th style="padding:8px;">Procédure</th>
+              <th style="padding:8px;">${t('rulesPenaltyLabel')}</th>
+            </tr>
+          </thead>
+          <tbody style="border-top:1px solid #eee;">${rows}</tbody>
+        </table>
+      </div>
+      <p style="margin-top:14px;">
+        <a href="https://www.randa.org/fr-FR/rog/players-edition" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; display:inline-block;">${t('rulesOfficialLinkText')}</a>
+      </p>`;
   }
 
   function renderInsights(){
@@ -5116,7 +5224,27 @@
     }
   }
 
+  // Un trou en 1 (hole-in-one) ne peut logiquement pas avoir de putt : la balle est entrée
+  // directement depuis le départ. Si un putt > 0 est déjà renseigné quand le score passe à 1 (ou
+  // vice-versa), on remet le putt à 0 automatiquement, sur les 3 champs concernés (tableau, grand
+  // panneau) afin qu'ils restent synchronisés.
+  function blankCardEnforceAceNoPutt(h){
+    const scoreInp = document.getElementById(`bcScore-${h}`);
+    const puttInp = document.getElementById(`bcPutt-${h}`);
+    if (!scoreInp || !puttInp) return false;
+    if (Number(scoreInp.value) === 1 && puttInp.value !== "" && Number(puttInp.value) !== 0){
+      puttInp.value = 0;
+      if (h === blankCardFocusHole){
+        const bigPutt = document.getElementById('bcBigPutt');
+        if (bigPutt) bigPutt.value = 0;
+      }
+      return true;
+    }
+    return false;
+  }
+
   function blankCardOnHoleInput(h){
+    if (blankCardEnforceAceNoPutt(h)){ blankCardComputeTotals(); persistBlankCardDraft(); }
     if (h === blankCardFocusHole){
       const {scores, putts} = blankCardReadScoresPutts();
       const bigScore = document.getElementById('bcBigScore');
@@ -5502,6 +5630,12 @@
       document.getElementById('teeCompareSection').style.display = teeCompareVisible ? 'block' : 'none';
       document.getElementById('btnToggleTeeCompare').textContent = teeCompareVisible ? t('btnHideTeeCompare') : t('btnShowTeeCompare');
       if (teeCompareVisible) renderTeeCompare();
+    });
+    document.getElementById('btnToggleRules').addEventListener('click', () => {
+      rulesVisible = !rulesVisible;
+      document.getElementById('rulesSection').style.display = rulesVisible ? 'block' : 'none';
+      document.getElementById('btnToggleRules').textContent = rulesVisible ? t('btnHideRules') : t('btnShowRules');
+      if (rulesVisible) renderRules();
     });
     document.getElementById('btnToggleBlankCard').addEventListener('click', () => {
       setBlankCardVisible(!blankCardVisible);
