@@ -1034,7 +1034,12 @@
   //                 la ligne Putts, affichant le nombre de pénalités comptées par trou (via le
   //                 bouton "+ Pénalité") pour la manche en cours, avec Out/In/Tot. Se met à jour à
   //                 la fermeture de "Afficher le trou" et à l'ouverture de la carte.
-  const APP_VERSION = "SuarPark - V01.005.023";
+  //   V01.005.024 — Étape 2/3 : le "Trou n° X" change d'aspect quand ce trou a au moins une pénalité
+  //                 (fond rouge sombre, bordure dorée, numéro en jaune, icône ⚠️ à côté du "n°" —
+  //                 le numéro du trou reste affiché, seul le style change), dans le grand panneau de
+  //                 la carte ET dans le bandeau du haut de "Afficher le trou". Mis à jour à la
+  //                 fermeture de "Afficher le trou" et à l'ouverture de la carte.
+  const APP_VERSION = "SuarPark - V01.005.024";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3872,6 +3877,10 @@
     return Array.from({length:18}, (_,h) => (blankCardShotPointsByHole[h] || []).filter(p => p.penalty).length);
   }
 
+  function holeHasPenalty(holeIdx){
+    return (blankCardShotPointsByHole[holeIdx] || []).some(p => p.penalty);
+  }
+
   // Remplit la ligne "Pénalités" du tableau (sous Putts) avec le nombre de pénalités comptées sur
   // chaque trou pour la manche en cours ; vide (—) si aucune pénalité sur le trou.
   function blankCardUpdatePenaltyRow(){
@@ -4968,13 +4977,14 @@
   function blankCardBigPanelHTML(holeIdx, tee){
     const dist = tee === 'red' ? DIST[holeIdx] : tee === 'white' ? DIST_WHITE[holeIdx] : null;
     const distLabel = dist ? `${dist} m` : '—';
+    const penalty = holeHasPenalty(holeIdx);
     return `
-      <div style="text-align:center; background:#1a3c34; color:#fff; border-radius:10px; padding:14px; margin:10px 0;">
+      <div style="text-align:center; background:${penalty ? '#4a2020' : '#1a3c34'}; color:#fff; border-radius:10px; padding:14px; margin:10px 0; border:${penalty ? '2px solid #e6b800' : 'none'};">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <button type="button" id="btnBcPrevHole" class="btn btn-secondary no-print" style="font-size:22px; padding:4px 16px;" ${holeIdx===0?'disabled':''}>‹</button>
           <div>
-            <div style="font-size:13px; opacity:.85;">${t('blankCardHoleLabel')}</div>
-            <div style="font-size:56px; font-weight:900; line-height:1;">${holeIdx+1}</div>
+            <div style="font-size:13px; opacity:.85;">${t('blankCardHoleLabel')}${penalty ? ' ⚠️' : ''}</div>
+            <div style="font-size:56px; font-weight:900; line-height:1; color:${penalty ? '#ffcc33' : '#fff'};">${holeIdx+1}</div>
           </div>
           <button type="button" id="btnBcNextHole" class="btn btn-secondary no-print" style="font-size:22px; padding:4px 16px;" ${holeIdx===17?'disabled':''}>›</button>
         </div>
@@ -5040,6 +5050,7 @@
     const difficulty = (HOLE_DIFFICULTY[lang] || HOLE_DIFFICULTY.fr)[holeIdx];
     const club = clubLabelForHole(holeIdx, tee);
     const bgImg = HOLE_MAP_IMG[holeIdx];
+    const penalty = holeHasPenalty(holeIdx);
     // Mise en page en colonne flex : bandeau haut (hauteur auto) / zone photo (occupe tout
     // l'espace restant) / bandeau bas (hauteur auto). La photo n'est donc JAMAIS recouverte par
     // les bandeaux — elle occupe exactement l'espace disponible entre eux, ce qui permet aussi de
@@ -5050,9 +5061,9 @@
 
         <div style="flex:0 0 auto; z-index:2; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.55);">
           <button type="button" id="btnHoleViewBack" class="btn no-print" style="background:rgba(255,255,255,0.92); color:var(--green-deep); font-weight:700; margin:0; box-shadow:0 2px 6px rgba(0,0,0,0.35);">${t('holeViewBtnBack')}</button>
-          <div style="display:flex; align-items:center; gap:8px; background:rgba(10,25,20,0.55); backdrop-filter:blur(2px); border-radius:20px; padding:4px 6px 4px 14px; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.35);">
+          <div style="display:flex; align-items:center; gap:8px; background:${penalty ? 'rgba(74,32,32,0.85)' : 'rgba(10,25,20,0.55)'}; backdrop-filter:blur(2px); border-radius:20px; padding:4px 6px 4px 14px; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.35); border:${penalty ? '2px solid #e6b800' : 'none'};">
             <div style="text-align:right; line-height:1.15;">
-              <div style="font-size:20px; font-weight:900;">${t('blankCardHoleLabel')} ${holeIdx+1}</div>
+              <div style="font-size:20px; font-weight:900; color:${penalty ? '#ffcc33' : '#fff'};">${t('blankCardHoleLabel')} ${holeIdx+1}${penalty ? ' ⚠️' : ''}</div>
               <div style="font-size:11px; opacity:.9;">Par ${PAR[holeIdx]} · HCP ${IDX[holeIdx]} · ${dist} m</div>
             </div>
             <button type="button" id="btnHoleViewPrev" class="btn btn-secondary no-print" style="font-size:18px; padding:4px 10px; margin:0;" ${holeIdx===0?'disabled':''}>‹</button>
@@ -5165,6 +5176,7 @@
     if (overlay) overlay.style.display = 'none';
     document.body.style.overflow = '';
     blankCardUpdatePenaltyRow(); // reflète dans le tableau les pénalités éventuellement ajoutées
+    blankCardRefreshBigPanel(); // reflète l'alerte visuelle "Trou n°" en cas de pénalité
   }
 
   function renderHoleView(holeIdx){
