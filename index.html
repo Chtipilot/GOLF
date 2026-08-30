@@ -982,7 +982,13 @@
   //                 initiale de la carte quand un joueur était déjà pré-sélectionné (brouillon
   //                 restauré depuis une session précédente) — d'où l'absence de données constatée.
   //                 Ajout de l'appel manquant à l'initialisation (dans applyBlankCardDraftToDOM).
-  const APP_VERSION = "SuarPark - V01.005.014";
+  //   V01.005.015 — "Afficher ma carte" : à chaque score saisi, comparaison automatique avec
+  //                 l'éclectique personnel du joueur sur ce trou. Si le score est meilleur : son de
+  //                 victoire + bandeau "🏆 Nouveau record éclectique ! Mise à jour prochaine par le
+  //                 Directeur de session" (4 langues). La mise à jour effective de l'éclectique
+  //                 reste manuelle (import de manche par le Directeur de session) — ce bandeau est
+  //                 une simple annonce en direct, pas une modification automatique des données.
+  const APP_VERSION = "SuarPark - V01.005.015";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1192,6 +1198,8 @@
       btnShowBlankCard: "📋 Afficher ma carte",
       blankCardEclecticLabel: "🏆 Éclectique",
       blankCardEclecticEmpty: "🏆 Éclectique : pas encore de manche enregistrée",
+      blankCardEclecticRecordTitle: "🏆 Nouveau record éclectique !",
+      blankCardEclecticRecordNote: "Mise à jour prochaine par le Directeur de session",
       btnHideBlankCard: "📋 Masquer ma carte",
       btnShowTeamRecap: "👥 Afficher le récap équipe",
       btnHideTeamRecap: "👥 Masquer le récap équipe",
@@ -1457,6 +1465,8 @@
       btnShowBlankCard: "📋 Show my card",
       blankCardEclecticLabel: "🏆 Eclectic",
       blankCardEclecticEmpty: "🏆 Eclectic: no round recorded yet",
+      blankCardEclecticRecordTitle: "🏆 New eclectic record!",
+      blankCardEclecticRecordNote: "To be updated soon by the Session Director",
       btnHideBlankCard: "📋 Hide my card",
       btnShowTeamRecap: "👥 Show team recap",
       btnHideTeamRecap: "👥 Hide team recap",
@@ -1722,6 +1732,8 @@
       btnShowBlankCard: "📋 Meine Karte anzeigen",
       blankCardEclecticLabel: "🏆 Eklektik",
       blankCardEclecticEmpty: "🏆 Eklektik: noch keine Runde erfasst",
+      blankCardEclecticRecordTitle: "🏆 Neuer Eklektik-Rekord!",
+      blankCardEclecticRecordNote: "Wird bald vom Session-Direktor aktualisiert",
       btnHideBlankCard: "📋 Meine Karte ausblenden",
       btnShowTeamRecap: "👥 Team-Übersicht anzeigen",
       btnHideTeamRecap: "👥 Team-Übersicht ausblenden",
@@ -1987,6 +1999,8 @@
       btnShowBlankCard: "📋 แสดงการ์ดของฉัน",
       blankCardEclecticLabel: "🏆 เอคเลกติก",
       blankCardEclecticEmpty: "🏆 เอคเลกติก: ยังไม่มีรอบที่บันทึกไว้",
+      blankCardEclecticRecordTitle: "🏆 สถิติเอคเลกติกใหม่!",
+      blankCardEclecticRecordNote: "จะได้รับการอัปเดตเร็วๆ นี้โดยผู้อำนวยการเซสชัน",
       btnHideBlankCard: "📋 ซ่อนการ์ดของฉัน",
       btnShowTeamRecap: "👥 แสดงสรุปทีม",
       btnHideTeamRecap: "👥 ซ่อนสรุปทีม",
@@ -5039,6 +5053,43 @@
     if (!isNaN(score) && score > 0 && score <= PAR[h]) blankCardPlayVictorySound();
   }
 
+  // Petit bandeau flottant temporaire (auto-disparaît), utilisé pour annoncer un nouveau record
+  // éclectique personnel.
+  function blankCardShowToast(title, note){
+    let toast = document.getElementById('blankCardToast');
+    if (toast) toast.remove();
+    toast = document.createElement('div');
+    toast.id = 'blankCardToast';
+    toast.style.cssText = 'position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:10000; background:#1a3c34; color:#fff; padding:12px 20px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.4); text-align:center; max-width:90%; font-family:var(--font-display);';
+    toast.innerHTML = `<div style="font-weight:900; font-size:16px;">${title}</div><div style="font-size:12px; opacity:.85; margin-top:2px;">${note}</div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.transition = 'opacity 0.6s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 700); }, 4000);
+  }
+
+  // Compare le score saisi au trou h avec l'éclectique personnel du joueur sélectionné sur ce même
+  // trou. Si le nouveau score est meilleur (ou si aucun éclectique n'existait encore mais qu'une
+  // manche a déjà été jouée), joue le son de victoire et affiche un bandeau d'annonce — la mise à
+  // jour effective de l'éclectique se fait plus tard par le Directeur de session (import de manche).
+  function blankCardCheckEclecticRecord(h, value){
+    if (value === "" || value === null || value === undefined) return;
+    const score = Number(value);
+    if (isNaN(score) || score <= 0) return;
+    const section = document.getElementById('blankCardSection');
+    if (!section) return;
+    const nameSel = section.querySelector('[data-field="playerName"]');
+    const otherInp = section.querySelector('[data-field="playerNameOther"]');
+    let name = '';
+    if (nameSel && nameSel.value && nameSel.value !== BLANKCARD_OTHER_VALUE) name = nameSel.value;
+    else if (otherInp && otherInp.value) name = otherInp.value;
+    if (!name) return;
+    const ecl = personalEclecticTotals(name);
+    const prevBest = ecl.played ? ecl.best[h] : null;
+    if (prevBest !== null && score < prevBest){
+      blankCardPlayVictorySound();
+      blankCardShowToast(t('blankCardEclecticRecordTitle'), t('blankCardEclecticRecordNote'));
+    }
+  }
+
   function blankCardOnHoleInput(h){
     if (h === blankCardFocusHole){
       const {scores, putts} = blankCardReadScoresPutts();
@@ -5349,7 +5400,7 @@
         blankCardOnHoleInput(Number(inp.dataset.hole));
         blankCardUpdateTeeButtons();
       });
-      inp.addEventListener('change', () => blankCardCheckParSound(Number(inp.dataset.hole), inp.value));
+      inp.addEventListener('change', () => { blankCardCheckParSound(Number(inp.dataset.hole), inp.value); blankCardCheckEclecticRecord(Number(inp.dataset.hole), inp.value); });
     });
     container.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => {
       inp.addEventListener('input', () => {
