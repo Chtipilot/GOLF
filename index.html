@@ -1109,7 +1109,20 @@
   //                 trou par trou). Limite assumée et documentée en commentaire : cette archive reste
   //                 locale à l'appareil utilisé pendant la manche — elle n'est pas synchronisée entre
   //                 appareils comme l'historique officiel des scores.
-  const APP_VERSION = "SuarPark - V01.005.034";
+  //   V01.005.035 — Plusieurs ajustements :
+  //                 (1) Date 01/01/2023 réservée pour LOUIS (scores placeholder = Par) pour tester
+  //                     librement nouvelles saisies, historique et replay sans polluer les vraies
+  //                     manches.
+  //                 (2) Nouveau code couleur des marqueurs de coup : BLEU pour un coup normal (au
+  //                     lieu de rouge), ROUGE pour un coup de pénalité (au lieu de jaune/ambre) — sur
+  //                     la photo ET sur le triangle d'alerte "Trou n°".
+  //                 (3) Le triangle d'alerte ne remplace plus le numéro du trou : il s'affiche
+  //                     maintenant À LA SUITE ("Trou n° 16 ▲"), dans le grand panneau ET le bandeau
+  //                     de "Afficher le trou".
+  //                 (4) "✓ Valider" colore désormais le DERNIER coup en VERT (trou "fait") et attend
+  //                     3 secondes (boutons désactivés entre-temps) avant de reporter le score et de
+  //                     fermer la vue.
+  const APP_VERSION = "SuarPark - V01.005.035";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2463,6 +2476,10 @@
         ["26/08/2026",[7,7,11,4,5,7,7,7,8,7,7,5,7,4,10,10,7,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,1,2,2,1,2,1,2,2,2,3,3,2,2,2,1,1,2],"white","19"]
       ],
       LOUIS: [
+        // 01/01/2023 — Date réservée aux tests du site (nouvelles saisies, historique, replay,
+        // etc.), scores placeholder (= Par sur chaque trou, facilement reconnaissables comme
+        // données de test) : à ne jamais utiliser comme vraie manche pour les statistiques.
+        ["01/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4]],
         ["01/01/2024",[8,6,6,5,5,6,5,7,5,5,6,5,7,3,6,10,5,7]],
         ["10/01/2024",[7,5,12,5,6,9,7,5,5,6,6,3,8,8,11,6,7,5]],
         ["15/01/2024",[7,8,6,5,7,6,7,5,8,6,5,4,10,4,6,10,8,6]],
@@ -4042,14 +4059,13 @@
   // Badge triangle d'avertissement contenant le numéro du trou, affiché à la place du numéro
   // "nu" quand ce trou a au moins une pénalité — la géométrie utilise la technique CSS classique
   // des bordures triangulaires (sans image ni SVG).
-  function holePenaltyTriangleHTML(holeIdx, size){
-    const w = size, h = Math.round(size * 0.87), half = Math.round(size/2);
-    const fontSize = Math.round(size * 0.42);
-    return `
-      <div style="position:relative; width:${w}px; height:${h}px;">
-        <div style="width:0; height:0; border-left:${half}px solid transparent; border-right:${half}px solid transparent; border-bottom:${h}px solid #e6b800;"></div>
-        <div style="position:absolute; left:0; right:0; bottom:2px; text-align:center; font-size:${fontSize}px; font-weight:900; color:#1a1a1a; line-height:1;">${holeIdx+1}</div>
-      </div>`;
+  // Petit triangle d'avertissement (icône seule, sans numéro dedans) affiché À LA SUITE du numéro
+  // du trou quand ce trou a une pénalité — "Trou n° X ▲" plutôt que de remplacer le numéro par le
+  // triangle. Couleur rouge (alignée sur le code couleur des marqueurs de pénalité sur la photo).
+  function holePenaltyTriangleHTML(size){
+    const half = Math.round(size/2);
+    const h = Math.round(size * 0.87);
+    return `<span style="display:inline-block; width:0; height:0; border-left:${half}px solid transparent; border-right:${half}px solid transparent; border-bottom:${h}px solid #dc3545; vertical-align:middle;"></span>`;
   }
 
   // Remplit la ligne "Pénalités" du tableau (sous Putts) avec le nombre de pénalités comptées sur
@@ -4979,14 +4995,12 @@
     const distLabel = dist ? `${dist} m` : '—';
     const penalty = holeHasPenalty(holeIdx);
     return `
-      <div style="text-align:center; background:${penalty ? '#4a2020' : '#1a3c34'}; color:#fff; border-radius:10px; padding:14px; margin:10px 0; border:${penalty ? '2px solid #e6b800' : 'none'};">
+      <div style="text-align:center; background:${penalty ? '#4a2020' : '#1a3c34'}; color:#fff; border-radius:10px; padding:14px; margin:10px 0; border:${penalty ? '2px solid #dc3545' : 'none'};">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <button type="button" id="btnBcPrevHole" class="btn btn-secondary no-print" style="font-size:22px; padding:4px 16px;" ${holeIdx===0?'disabled':''}>‹</button>
           <div>
-            <div style="font-size:13px; opacity:.85;">${t('blankCardHoleLabel')}${penalty ? ' ⚠️' : ''}</div>
-            ${penalty
-              ? `<div style="display:flex; justify-content:center;">${holePenaltyTriangleHTML(holeIdx, 64)}</div>`
-              : `<div style="font-size:56px; font-weight:900; line-height:1; color:#fff;">${holeIdx+1}</div>`}
+            <div style="font-size:13px; opacity:.85;">${t('blankCardHoleLabel')}</div>
+            <div style="font-size:56px; font-weight:900; line-height:1; color:#fff;">${holeIdx+1}${penalty ? ` ${holePenaltyTriangleHTML(22)}` : ''}</div>
           </div>
           <button type="button" id="btnBcNextHole" class="btn btn-secondary no-print" style="font-size:22px; padding:4px 16px;" ${holeIdx===17?'disabled':''}>›</button>
         </div>
@@ -5041,9 +5055,10 @@
 
   // Rendu des marqueurs de coups pour une liste de points donnée (réutilisé par la vue d'édition
   // "Afficher le trou" ET par le lecteur de replay en lecture seule de l'historique).
-  function shotMarkersHTML(points, rect){
+  function shotMarkersHTML(points, rect, highlightLastGreen){
     let strokeNum = 1; // numéro de coup réel, décalé par les pénalités (+1 automatique) déjà passées
-    return (points || []).map((p) => {
+    const list = points || [];
+    return list.map((p, idx) => {
       const myNum = strokeNum;
       strokeNum += p.penaltyAfter ? 2 : 1;
       // Anciennes pénalités sans coordonnées (saisies avant cette version) : ignorées pour
@@ -5053,16 +5068,19 @@
       const top = rect ? (rect.offY + (p.y/100)*rect.dispH) : p.y + '%';
       const leftCss = typeof left === 'number' ? left + 'px' : left;
       const topCss = typeof top === 'number' ? top + 'px' : top;
-      const bg = p.penaltyAfter ? '#e6b800' : '#dc3545';
-      const fg = p.penaltyAfter ? '#1a1a1a' : '#fff';
+      const isLast = highlightLastGreen && idx === list.length - 1;
+      // Code couleur : bleu = coup normal, rouge = coup de pénalité, vert = dernier coup validé
+      // (affiché brièvement après "✓ Valider", avant fermeture de la vue).
+      const bg = isLast ? '#2E7D32' : (p.penaltyAfter ? '#dc3545' : '#1565C0');
+      const fg = '#fff';
       const label = p.penaltyAfter ? `⚠️${myNum}` : `${myNum}`;
       const size = p.penaltyAfter ? 30 : 26;
       return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-50%); width:${size}px; height:${size}px; border-radius:50%; background:${bg}; color:${fg}; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.6); border:2px solid #fff;">${label}</div>`;
     }).join('');
   }
 
-  function holeViewShotMarkersHTML(rect){
-    return shotMarkersHTML(holeViewShotPoints, rect);
+  function holeViewShotMarkersHTML(rect, highlightLastGreen){
+    return shotMarkersHTML(holeViewShotPoints, rect, highlightLastGreen);
   }
 
   function holeViewHTML(holeIdx){
@@ -5082,10 +5100,9 @@
 
         <div style="flex:0 0 auto; z-index:2; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.55);">
           <button type="button" id="btnHoleViewBack" class="btn no-print" style="background:rgba(255,255,255,0.92); color:var(--green-deep); font-weight:700; margin:0; box-shadow:0 2px 6px rgba(0,0,0,0.35);">${t('holeViewBtnBack')}</button>
-          <div style="display:flex; align-items:center; gap:8px; background:${penalty ? 'rgba(74,32,32,0.85)' : 'rgba(10,25,20,0.55)'}; backdrop-filter:blur(2px); border-radius:20px; padding:4px 6px 4px 14px; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.35); border:${penalty ? '2px solid #e6b800' : 'none'};">
-            ${penalty ? holePenaltyTriangleHTML(holeIdx, 34) : ''}
+          <div style="display:flex; align-items:center; gap:8px; background:${penalty ? 'rgba(74,32,32,0.85)' : 'rgba(10,25,20,0.55)'}; backdrop-filter:blur(2px); border-radius:20px; padding:4px 6px 4px 14px; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.35); border:${penalty ? '2px solid #dc3545' : 'none'};">
             <div style="text-align:right; line-height:1.15;">
-              <div style="font-size:20px; font-weight:900;">${t('blankCardHoleLabel')}${penalty ? '' : ' ' + (holeIdx+1)}</div>
+              <div style="font-size:20px; font-weight:900;">${t('blankCardHoleLabel')} ${holeIdx+1}${penalty ? ` ${holePenaltyTriangleHTML(16)}` : ''}</div>
               <div style="font-size:11px; opacity:.9;">Par ${PAR[holeIdx]} · HCP ${IDX[holeIdx]} · ${dist} m</div>
             </div>
             <button type="button" id="btnHoleViewPrev" class="btn btn-secondary no-print" style="font-size:18px; padding:4px 10px; margin:0;" ${holeIdx===0?'disabled':''}>‹</button>
@@ -5125,7 +5142,7 @@
                 <button type="button" id="btnHoleViewValidate" class="btn no-print" style="margin:0; font-size:12px; padding:6px 12px; white-space:nowrap; background:#2E7D32;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnValidate')}</button>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <button type="button" id="btnHoleViewPenalty" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap; ${holeViewShotPoints.length && holeViewShotPoints[holeViewShotPoints.length-1].penaltyAfter ? 'background:#e6b800; color:#1a1a1a;' : ''}" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnPenalty')}</button>
+                <button type="button" id="btnHoleViewPenalty" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap; ${holeViewShotPoints.length && holeViewShotPoints[holeViewShotPoints.length-1].penaltyAfter ? 'background:#dc3545; color:#fff;' : ''}" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnPenalty')}</button>
                 <button type="button" id="btnHoleViewUndo" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnUndo')}</button>
               </div>
             </div>
@@ -5156,8 +5173,8 @@
       const last = holeViewShotPoints[holeViewShotPoints.length - 1];
       const lastIsPenalty = last && last.penaltyAfter;
       penaltyBtn.disabled = holeViewShotPoints.length === 0;
-      penaltyBtn.style.background = lastIsPenalty ? '#e6b800' : '';
-      penaltyBtn.style.color = lastIsPenalty ? '#1a1a1a' : '';
+      penaltyBtn.style.background = lastIsPenalty ? '#dc3545' : '';
+      penaltyBtn.style.color = lastIsPenalty ? '#fff' : '';
     }
     const hint = document.getElementById('holeViewShotsHint');
     if (hint){
@@ -5170,19 +5187,31 @@
   function holeViewValidateScore(holeIdx){
     const count = holeViewStrokeTotal(holeViewShotPoints);
     if (count === 0) return;
-    const input = document.getElementById(`bcScore-${holeIdx}`);
-    if (input){
-      input.value = count;
-      blankCardComputeTotals();
-      persistBlankCardDraft();
-      blankCardOnHoleInput(holeIdx);
-      blankCardUpdateTeeButtons();
-      blankCardCheckParSound(holeIdx, count);
-      blankCardCheckEclecticRecord(holeIdx, count);
-    }
-    // Les points restent en mémoire (persistés) pour pouvoir revoir le point de chute de chaque
-    // coup plus tard — on ne les efface plus après validation.
-    closeHoleView();
+
+    // Retour visuel : le dernier coup passe en vert (le trou est "fait"), puis on attend 3 s avant
+    // de reporter le score et de fermer la vue — le temps de voir la confirmation.
+    const validateBtn = document.getElementById('btnHoleViewValidate');
+    const undoBtn = document.getElementById('btnHoleViewUndo');
+    const penaltyBtn = document.getElementById('btnHoleViewPenalty');
+    [validateBtn, undoBtn, penaltyBtn].forEach(b => { if (b) b.disabled = true; });
+    const markers = document.getElementById('holeViewMarkers');
+    if (markers) markers.innerHTML = shotMarkersHTML(holeViewShotPoints, holeViewGetImageRect(holeIdx), true);
+
+    setTimeout(() => {
+      const input = document.getElementById(`bcScore-${holeIdx}`);
+      if (input){
+        input.value = count;
+        blankCardComputeTotals();
+        persistBlankCardDraft();
+        blankCardOnHoleInput(holeIdx);
+        blankCardUpdateTeeButtons();
+        blankCardCheckParSound(holeIdx, count);
+        blankCardCheckEclecticRecord(holeIdx, count);
+      }
+      // Les points restent en mémoire (persistés) pour pouvoir revoir le point de chute de chaque
+      // coup plus tard — on ne les efface plus après validation.
+      closeHoleView();
+    }, 3000);
   }
 
   function openHoleView(holeIdx){
