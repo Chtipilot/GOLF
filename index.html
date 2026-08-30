@@ -971,7 +971,13 @@
   //                 la demande du Directeur de session : club conseillé remplacé par une plage
   //                 "Fer 6 à Fer 8 (selon confiance)" au lieu d'un club unique, et mention ajoutée
   //                 "trou préféré du Directeur de session" dans la description (4 langues).
-  const APP_VERSION = "SuarPark - V01.005.012";
+  //   V01.005.013 — "Afficher ma carte" : ajout d'une ligne "🏆 Éclectique" directement dans le
+  //                 tableau de la carte (sous la ligne Putts), affichant le meilleur score jamais
+  //                 réalisé par le joueur sélectionné sur chaque trou (toutes manches confondues),
+  //                 avec Out/In/Tot et le même code couleur/marquage (PAR cerclé, EAGLE
+  //                 double-cerclé) que le tableau éclectique de l'équipe. Se met à jour en direct au
+  //                 changement de joueur ou de départ, comme la ligne résumé déjà existante.
+  const APP_VERSION = "SuarPark - V01.005.013";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2640,7 +2646,7 @@
     });
     const played = best.some(v => v !== null);
     const {out, inn, tot} = computeOutInTot(best);
-    return {played, out, inn, tot};
+    return {played, out, inn, tot, best};
   }
 
   function frDateToComparable(dateFr){
@@ -3644,6 +3650,7 @@
     const swatch = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${colorFor(name)}; margin-right:5px; vertical-align:middle;"></span>`;
     if (!name || name === '?'){
       line.innerHTML = '';
+      blankCardUpdateEclecticRow(null);
       return;
     }
     const ecl = personalEclecticTotals(name);
@@ -3653,6 +3660,34 @@
     } else {
       line.innerHTML = `${teePart}${swatch}${t('blankCardEclecticLabel')} : Out ${ecl.out} / In ${ecl.inn} / Tot <strong>${ecl.tot}</strong>`;
     }
+    blankCardUpdateEclecticRow(ecl);
+  }
+
+  // Remplit la ligne "Éclectique" du tableau (sous Score/Putts) avec le meilleur score jamais
+  // réalisé par le joueur sélectionné sur chaque trou, avec le même code couleur/marquage que le
+  // tableau éclectique de l'équipe (PAR cerclé, EAGLE double-cerclé, couleurs par écart au par).
+  function blankCardUpdateEclecticRow(ecl){
+    for (let h = 0; h < 18; h++){
+      const cell = document.getElementById(`bcEclHole-${h}`);
+      if (!cell) continue;
+      const score = ecl && ecl.played ? ecl.best[h] : null;
+      if (score === null || score === undefined){
+        cell.textContent = '—';
+        cell.style.background = '';
+        cell.style.color = '';
+      } else {
+        const c = scoreColor(score, h);
+        cell.style.background = c.bg;
+        cell.style.color = c.fg;
+        cell.innerHTML = scoreDisplayHTML(score, h);
+      }
+    }
+    const outEl = document.getElementById('bcEclOut');
+    const inEl = document.getElementById('bcEclIn');
+    const totEl = document.getElementById('bcEclTot');
+    if (outEl) outEl.textContent = ecl && ecl.played ? ecl.out : '—';
+    if (inEl) inEl.textContent = ecl && ecl.played ? ecl.inn : '—';
+    if (totEl) totEl.textContent = ecl && ecl.played ? ecl.tot : '—';
   }
 
   function blankCardUpdateOtherCaddieVisibility(){
@@ -5103,6 +5138,13 @@
         <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttOut"></td>
         <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttIn"></td>
         <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttTot"></td>
+      </tr>
+      <tr id="bcEclecticRow" style="background:#fff9e6;">
+        <td style="text-align:left; padding-left:4px; color:#8a6d00; font-size:11px; font-weight:bold;">${t('blankCardEclecticLabel')}</td>
+        ${Array.from({length:18}, (_,h) => `<td id="bcEclHole-${h}" style="font-size:11px;">—</td>`).join("")}
+        <td style="font-weight:bold; background:#f0e6c0; font-size:11px;" id="bcEclOut">—</td>
+        <td style="font-weight:bold; background:#f0e6c0; font-size:11px;" id="bcEclIn">—</td>
+        <td style="font-weight:bold; background:#f0e6c0; font-size:11px;" id="bcEclTot">—</td>
       </tr>`;
 
     const playerOptions = [`<option value="">${t('blankCardChoosePlayer')}</option>`]
