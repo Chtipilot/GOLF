@@ -1127,7 +1127,12 @@
   //                 11+13=24, départ WHITE, caddie 136 (YUI). Note : la date de la carte source
   //                 contenait une coquille ("014/01/23") corrigée en 01/01/2023 pour correspondre à
   //                 la date de test réservée.
-  const APP_VERSION = "SuarPark - V01.005.036";
+  //   V01.005.037 — "📜 Afficher l'historique" : les icônes ⏮/⏭ à côté du curseur de date étaient
+  //                 purement décoratives — transformées en vrais boutons de saut rapide vers la
+  //                 première (⏮) ou la dernière (⏭) manche enregistrée pour ce joueur, plus pratique
+  //                 que de faire glisser précisément le curseur sur mobile quand l'historique compte
+  //                 beaucoup de manches.
+  const APP_VERSION = "SuarPark - V01.005.037";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1325,6 +1330,8 @@
       roundsSaved: (n, date) => `${n} manche(s) enregistrée(s) pour le ${date}.`,
       ignoredIncomplete: (names) => ` Ignoré (incomplet) : ${names}`,
       historyTitle: "📜 Historique des manches",
+      historyJumpFirst: "Aller à la première manche",
+      historyJumpLast: "Aller à la dernière manche",
       roundsCount: (n) => `${n} manche(s)`,
       noRoundsRecorded: "Aucune manche enregistrée.",
       eclecticTitle: "🏆 Scores éclectiques",
@@ -1598,6 +1605,8 @@
       roundsSaved: (n, date) => `${n} round(s) saved for ${date}.`,
       ignoredIncomplete: (names) => ` Skipped (incomplete): ${names}`,
       historyTitle: "📜 Round history",
+      historyJumpFirst: "Go to first round",
+      historyJumpLast: "Go to latest round",
       roundsCount: (n) => `${n} round(s)`,
       noRoundsRecorded: "No rounds recorded.",
       eclecticTitle: "🏆 Eclectic scores",
@@ -1871,6 +1880,8 @@
       roundsSaved: (n, date) => `${n} Runde(n) gespeichert für ${date}.`,
       ignoredIncomplete: (names) => ` Übersprungen (unvollständig): ${names}`,
       historyTitle: "📜 Rundenverlauf",
+      historyJumpFirst: "Zur ersten Runde springen",
+      historyJumpLast: "Zur letzten Runde springen",
       roundsCount: (n) => `${n} Runde(n)`,
       noRoundsRecorded: "Keine Runden erfasst.",
       eclecticTitle: "🏆 Eclectic-Ergebnisse",
@@ -2144,6 +2155,8 @@
       roundsSaved: (n, date) => `บันทึก ${n} รอบสำหรับวันที่ ${date} แล้ว`,
       ignoredIncomplete: (names) => ` ข้ามไป (ข้อมูลไม่ครบ): ${names}`,
       historyTitle: "📜 ประวัติการเล่น",
+      historyJumpFirst: "ไปยังรอบแรก",
+      historyJumpLast: "ไปยังรอบล่าสุด",
       roundsCount: (n) => `${n} รอบ`,
       noRoundsRecorded: "ยังไม่มีการบันทึกรอบ",
       eclecticTitle: "🏆 สกอร์ Eclectic",
@@ -3187,9 +3200,9 @@
       }
       const lastIdx = rounds.length - 1;
       html += `<div class="date-slider-row">
-        <span style="font-size:11px; color:#666;">⏮</span>
+        <button type="button" class="btn btn-secondary no-print history-jump-btn" data-name="${name}" data-target="0" title="${t('historyJumpFirst')}" style="font-size:11px; padding:2px 8px; margin:0;">⏮</button>
         <input type="range" min="0" max="${lastIdx}" value="${lastIdx}" id="slider-${name}">
-        <span style="font-size:11px; color:#666;">⏭</span>
+        <button type="button" class="btn btn-secondary no-print history-jump-btn" data-name="${name}" data-target="${lastIdx}" title="${t('historyJumpLast')}" style="font-size:11px; padding:2px 8px; margin:0;">⏭</button>
         <span class="date-slider-label" id="sliderLabel-${name}">${teeBadge(roundIsRed(rounds[lastIdx], rounds[lastIdx][0], name), name, rounds[lastIdx][0])}${rounds[lastIdx][0]}</span>
       </div>`;
       let rows = "";
@@ -3229,8 +3242,8 @@
       const label = document.getElementById(`sliderLabel-${name}`);
       const scrollBox = document.getElementById(`scroll-${name}`);
       if (!slider) return;
-      slider.addEventListener('input', () => {
-        const i = Number(slider.value);
+      const updateToIndex = (i) => {
+        slider.value = i;
         label.innerHTML = `${teeBadge(roundIsRed(rounds[i], rounds[i][0], name), name, rounds[i][0])}${rounds[i][0]}`;
         const row = document.getElementById(`row-${name}-${i}`);
         if (row && scrollBox){
@@ -3238,6 +3251,10 @@
           document.querySelectorAll(`#scroll-${CSS.escape(name)} tr`).forEach(tr => tr.style.outline = '');
           row.style.outline = '2px solid #1a3c34';
         }
+      };
+      slider.addEventListener('input', () => updateToIndex(Number(slider.value)));
+      document.querySelectorAll(`.history-jump-btn[data-name="${CSS.escape(name)}"]`).forEach(btn => {
+        btn.addEventListener('click', () => updateToIndex(Number(btn.dataset.target)));
       });
       // scroll to latest round by default
       scrollBox.scrollTop = scrollBox.scrollHeight;
