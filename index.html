@@ -1058,7 +1058,12 @@
   //                 à l'eau, hors-limites...) au lieu d'un marqueur rouge normal — tout en comptant
   //                 comme un coup dans le total et la ligne Pénalités du tableau. L'état "armé" se
   //                 réinitialise en changeant de trou ou en validant.
-  const APP_VERSION = "SuarPark - V01.005.027";
+  //   V01.005.028 — Correction de logique suite retour terrain (ex. trou 16, 1ère balle hors-limites) :
+  //                 un seul clic suffit désormais pour le coup qui part en pénalité — ce même
+  //                 marqueur (ambre, "⚠️N") indique directement qu'il entraîne une pénalité ET ajoute
+  //                 automatiquement +1 coup, sans clic séparé pour la pénalité elle-même. La
+  //                 numérotation des coups suivants tient compte de ce décalage automatique.
+  const APP_VERSION = "SuarPark - V01.005.028";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1378,7 +1383,7 @@
       holeViewBtnValidate: "✓ Valider",
       holeViewShotsHint: "Touchez la photo à l'endroit où la balle atterrit, coup après coup.",
       holeViewNoShots: "Touchez la photo pour marquer le 1er coup.",
-      holeViewPenaltyArmedHint: "⚠️ Touchez la photo à l'endroit de la pénalité (balle à l'eau, hors-limites...).",
+      holeViewPenaltyArmedHint: "⚠️ Touchez la photo à l'endroit où la balle est sortie (eau, hors-limites...) : ce coup partira en pénalité, +1 coup ajouté automatiquement.",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
@@ -1666,7 +1671,7 @@
       holeViewBtnValidate: "✓ Save",
       holeViewShotsHint: "Tap the photo where the ball lands, shot after shot.",
       holeViewNoShots: "Tap the photo to mark shot 1.",
-      holeViewPenaltyArmedHint: "⚠️ Tap the photo where the penalty occurred (water, out of bounds...).",
+      holeViewPenaltyArmedHint: "⚠️ Tap the photo where the ball went (water, out of bounds...): this shot will carry a penalty, +1 stroke added automatically.",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
@@ -1954,7 +1959,7 @@
       holeViewBtnValidate: "✓ Speichern",
       holeViewShotsHint: "Auf das Foto tippen, wo der Ball landet, Schlag für Schlag.",
       holeViewNoShots: "Auf das Foto tippen, um Schlag 1 zu markieren.",
-      holeViewPenaltyArmedHint: "⚠️ Auf das Foto tippen, wo die Strafe entstand (Wasser, Aus...).",
+      holeViewPenaltyArmedHint: "⚠️ Auf das Foto tippen, wo der Ball hinging (Wasser, Aus...): dieser Schlag erhält eine Strafe, +1 Schlag automatisch hinzugefügt.",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
@@ -2242,7 +2247,7 @@
       holeViewBtnValidate: "✓ บันทึก",
       holeViewShotsHint: "แตะที่ภาพตรงจุดที่ลูกตก ทีละช็อต",
       holeViewNoShots: "แตะที่ภาพเพื่อบันทึกช็อตที่ 1",
-      holeViewPenaltyArmedHint: "⚠️ แตะที่ภาพตรงจุดที่เกิดเพนัลตี้ (น้ำ, นอกสนาม...)",
+      holeViewPenaltyArmedHint: "⚠️ แตะที่ภาพตรงจุดที่ลูกไป (น้ำ, นอกสนาม...) ช็อตนี้จะมีเพนัลตี้ เพิ่ม 1 แต้มโดยอัตโนมัติ",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
@@ -3898,14 +3903,27 @@
     if (totEl) totEl.textContent = ecl && ecl.played ? ecl.tot : '—';
   }
 
+  // Compte le nombre de coups de pénalité dans une liste de points (nouveau modèle : un point de
+  // chute avec penaltyAfter=true représente le coup qui part en pénalité, +1 coup automatique ;
+  // ancien modèle, conservé pour compatibilité : entrée {penalty:true} sans coordonnées propres).
+  function holeViewPenaltyStrokes(points){
+    return (points || []).reduce((n,p) => n + (p.penaltyAfter ? 1 : 0) + (p.penalty && p.x === undefined ? 1 : 0), 0);
+  }
+
+  // Nombre total de coups représentés par une liste de points (coups réellement cliqués + coups
+  // de pénalité automatiques attachés via penaltyAfter).
+  function holeViewStrokeTotal(points){
+    return (points || []).length + (points || []).filter(p => p.penaltyAfter).length;
+  }
+
   // Nombre de pénalités (bouton "⚠️ + Pénalité" dans "Afficher le trou") comptées par trou, à
   // partir des points enregistrés pour la manche en cours.
   function blankCardPenaltyCounts(){
-    return Array.from({length:18}, (_,h) => (blankCardShotPointsByHole[h] || []).filter(p => p.penalty).length);
+    return Array.from({length:18}, (_,h) => holeViewPenaltyStrokes(blankCardShotPointsByHole[h]));
   }
 
   function holeHasPenalty(holeIdx){
-    return (blankCardShotPointsByHole[holeIdx] || []).some(p => p.penalty);
+    return holeViewPenaltyStrokes(blankCardShotPointsByHole[holeIdx]) > 0;
   }
 
   // Badge triangle d'avertissement contenant le numéro du trou, affiché à la place du numéro
@@ -4075,7 +4093,7 @@
       lines.push(`${t('blankCardTextLabelTotalPutts')} : ${pOut} + ${pIn} = ${pTot}`);
     }
     const dShotPoints2 = Array.isArray(draft.shotPoints) ? draft.shotPoints : [];
-    const penaltyCounts2 = Array.from({length:18}, (_,hh) => (dShotPoints2[hh] || []).filter(p => p && p.penalty).length);
+    const penaltyCounts2 = Array.from({length:18}, (_,hh) => holeViewPenaltyStrokes(dShotPoints2[hh]));
     const penTotal2 = penaltyCounts2.reduce((a,b)=>a+b,0);
     if (penTotal2 > 0){
       const penOut2 = penaltyCounts2.slice(0,9).map(v => v || '–').join(' ');
@@ -5102,18 +5120,21 @@
   }
 
   function holeViewShotMarkersHTML(rect){
-    return holeViewShotPoints.map((p,i) => {
-      // Anciennes pénalités sans coordonnées (saisies avant cette version, ou +Pénalité sans
-      // position) : ignorées pour l'affichage, elles restent comptées dans le total des coups.
+    let strokeNum = 1; // numéro de coup réel, décalé par les pénalités (+1 automatique) déjà passées
+    return holeViewShotPoints.map((p) => {
+      const myNum = strokeNum;
+      strokeNum += p.penaltyAfter ? 2 : 1;
+      // Anciennes pénalités sans coordonnées (saisies avant cette version) : ignorées pour
+      // l'affichage, elles restent comptées dans le total des coups.
       if (p.penalty && (p.x === undefined || p.y === undefined)) return '';
       const left = rect ? (rect.offX + (p.x/100)*rect.dispW) : p.x + '%';
       const top = rect ? (rect.offY + (p.y/100)*rect.dispH) : p.y + '%';
       const leftCss = typeof left === 'number' ? left + 'px' : left;
       const topCss = typeof top === 'number' ? top + 'px' : top;
-      const bg = p.penalty ? '#e6b800' : '#dc3545';
-      const fg = p.penalty ? '#1a1a1a' : '#fff';
-      const label = p.penalty ? `⚠️${i+1}` : `${i+1}`;
-      const size = p.penalty ? 30 : 26;
+      const bg = p.penaltyAfter ? '#e6b800' : '#dc3545';
+      const fg = p.penaltyAfter ? '#1a1a1a' : '#fff';
+      const label = p.penaltyAfter ? `⚠️${myNum}` : `${myNum}`;
+      const size = p.penaltyAfter ? 30 : 26;
       return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-50%); width:${size}px; height:${size}px; border-radius:50%; background:${bg}; color:${fg}; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.6); border:2px solid #fff;">${label}</div>`;
     }).join('');
   }
@@ -5172,8 +5193,8 @@
               <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" id="btnHoleViewToggleInfo" class="btn btn-secondary no-print" style="margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;">${t('holeViewInfoToggle')}</button>
                 <div style="flex:1; text-align:center;">
-                  <div style="font-size:13px;"><span style="opacity:.85;">${t('holeViewShotsLabel')} :</span> <span id="holeViewShotsCount" style="font-size:20px; font-weight:900; margin-left:4px;">${holeViewShotPoints.length}</span></div>
-                  <div id="holeViewPenaltyCount" style="font-size:10.5px; opacity:.8; display:${holeViewShotPoints.filter(p=>p.penalty).length>0 ? 'block':'none'};">${t('holeViewPenaltyCount', holeViewShotPoints.filter(p=>p.penalty).length)}</div>
+                  <div style="font-size:13px;"><span style="opacity:.85;">${t('holeViewShotsLabel')} :</span> <span id="holeViewShotsCount" style="font-size:20px; font-weight:900; margin-left:4px;">${holeViewStrokeTotal(holeViewShotPoints)}</span></div>
+                  <div id="holeViewPenaltyCount" style="font-size:10.5px; opacity:.8; display:${holeViewPenaltyStrokes(holeViewShotPoints)>0 ? 'block':'none'};">${t('holeViewPenaltyCount', holeViewPenaltyStrokes(holeViewShotPoints))}</div>
                 </div>
                 <button type="button" id="btnHoleViewValidate" class="btn no-print" style="margin:0; font-size:12px; padding:6px 12px; white-space:nowrap; background:#2E7D32;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnValidate')}</button>
               </div>
@@ -5193,8 +5214,8 @@
     const markers = document.getElementById('holeViewMarkers');
     if (markers) markers.innerHTML = holeViewShotMarkersHTML(holeViewGetImageRect(holeIdx));
     const countEl = document.getElementById('holeViewShotsCount');
-    if (countEl) countEl.textContent = holeViewShotPoints.length;
-    const penaltyCount = holeViewShotPoints.filter(p => p.penalty).length;
+    if (countEl) countEl.textContent = holeViewStrokeTotal(holeViewShotPoints);
+    const penaltyCount = holeViewPenaltyStrokes(holeViewShotPoints);
     const penaltyEl = document.getElementById('holeViewPenaltyCount');
     if (penaltyEl){
       penaltyEl.style.display = penaltyCount > 0 ? 'block' : 'none';
@@ -5223,7 +5244,7 @@
 
   // Reporte le nombre de coups comptés dans la carte de score (même logique que la saisie normale).
   function holeViewValidateScore(holeIdx){
-    const count = holeViewShotPoints.length;
+    const count = holeViewStrokeTotal(holeViewShotPoints);
     if (count === 0) return;
     const input = document.getElementById(`bcScore-${holeIdx}`);
     if (input){
@@ -5296,7 +5317,7 @@
       }
       const point = {x: relX.toFixed(2), y: relY.toFixed(2)};
       if (holeViewPenaltyArmed){
-        point.penalty = true;
+        point.penaltyAfter = true; // ce coup part en pénalité : +1 coup automatique, même marqueur
         holeViewPenaltyArmed = false;
       }
       holeViewShotPoints.push(point);
