@@ -1188,7 +1188,13 @@
   //                 replay des coups sur téléphone sans risque sur les vraies données (une manche
   //                 "réelle" ne doit pas être utilisée : "✓ Valider" dans "Afficher le trou" écrase
   //                 le score du trou dans le brouillon en cours).
-  const APP_VERSION = "SuarPark - V01.005.047";
+  //   V01.005.048 — Correction du replay (bouton 🎬 invisible) : "📜 Afficher l'historique", s'il
+  //                 était déjà ouvert AVANT de valider un trou dans "Afficher le trou", ne se
+  //                 rafraîchissait pas automatiquement — l'archive des coups était bien enregistrée,
+  //                 mais le bouton "🎬" restait invisible tant qu'on ne fermait/rouvrait pas la
+  //                 section à la main. Ajout de refreshOpenSections() après validation d'un trou, sur
+  //                 le même principe que pour le récap équipe.
+  const APP_VERSION = "SuarPark - V01.005.048";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5395,6 +5401,10 @@
       }
       // Les points restent en mémoire (persistés) pour pouvoir revoir le point de chute de chaque
       // coup plus tard — on ne les efface plus après validation.
+      // Si "📜 Afficher l'historique" (ou une autre section agrégée) était déjà ouvert avant ce
+      // test, il ne se rafraîchissait pas automatiquement — le bouton "🎬" restait invisible tant
+      // qu'on ne fermait/rouvrait pas la section à la main. Corrigé.
+      refreshOpenSections();
       closeHoleView();
     }, 3000);
   }
