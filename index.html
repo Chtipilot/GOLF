@@ -1097,7 +1097,11 @@
   //                 Conservés intacts : "📸 Préparer ma carte pour un scan" (affichage plein texte
   //                 prêt à être photographié et envoyé manuellement), "📝 Copier ma carte" / "📥
   //                 Coller ma carte" (transmission texte fiable), et le récapitulatif d'équipe.
-  const APP_VERSION = "SuarPark - V01.005.032";
+  //   V01.005.033 — Renommage suite suppression de l'OCR : le bouton et l'écran affiché ne
+  //                 mentionnent plus "scan" (trompeur, laissait croire à une reconnaissance
+  //                 automatique) mais "photographier" — "📸 Préparer ma carte à photographier" et
+  //                 "📸 Carte prête à photographier", dans les 4 langues.
+  const APP_VERSION = "SuarPark - V01.005.033";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1331,9 +1335,9 @@
       teamRecapTitle: "👥 Récapitulatif de l'équipe",
       teamRecapIntro: "Cartes reçues des joueurs, regroupées ici sans jamais écraser ta propre carte en cours.",
       blankCardBtnReceiveTeam: "👥 Recevoir la carte d'un joueur",
-      blankCardBtnPrepareScan: "🖨️📷 Préparer ma carte pour un scan",
-      scanReadyTitle: "🖨️📷 Carte prête à scanner",
-      scanReadyHint: "Montre cet écran à la personne qui va scanner ta carte, ou photographie-le directement. Texte volontairement gros et net pour une meilleure reconnaissance.",
+      blankCardBtnPrepareScan: "📸 Préparer ma carte à photographier",
+      scanReadyTitle: "📸 Carte prête à photographier",
+      scanReadyHint: "Montre cet écran à la personne qui doit voir ta carte, ou photographie-le pour l'envoyer par message. Texte volontairement gros et net pour une bonne lisibilité.",
       scanReadyClose: "🚪 Fermer",
       teamRecapEmpty: "Aucune carte reçue pour l'instant. Utilise \"👥 Recevoir la carte d'un joueur\" depuis la carte de score vierge.",
       teamRecapReceiveSuccess: (n) => `Carte de ${n} ajoutée au récapitulatif d'équipe !`,
@@ -1601,9 +1605,9 @@
       teamRecapTitle: "👥 Team recap",
       teamRecapIntro: "Cards received from players, gathered here without ever overwriting your own card in progress.",
       blankCardBtnReceiveTeam: "👥 Receive a player's card",
-      blankCardBtnPrepareScan: "🖨️📷 Prepare my card for a scan",
-      scanReadyTitle: "🖨️📷 Card ready to scan",
-      scanReadyHint: "Show this screen to whoever will scan your card, or photograph it directly. Text is deliberately large and clear for better recognition.",
+      blankCardBtnPrepareScan: "📸 Prepare my card to be photographed",
+      scanReadyTitle: "📸 Card ready to be photographed",
+      scanReadyHint: "Show this screen to whoever needs to see your card, or photograph it to send by message. Text is deliberately large and clear for good readability.",
       scanReadyClose: "🚪 Close",
       teamRecapEmpty: "No card received yet. Use \"👥 Receive a player's card\" from the blank scorecard.",
       teamRecapReceiveSuccess: (n) => `${n}'s card added to the team recap!`,
@@ -1871,9 +1875,9 @@
       teamRecapTitle: "👥 Team-Übersicht",
       teamRecapIntro: "Von Spielern erhaltene Karten, hier gesammelt, ohne je die eigene laufende Karte zu überschreiben.",
       blankCardBtnReceiveTeam: "👥 Karte eines Spielers empfangen",
-      blankCardBtnPrepareScan: "🖨️📷 Meine Karte für einen Scan vorbereiten",
-      scanReadyTitle: "🖨️📷 Karte bereit zum Scannen",
-      scanReadyHint: "Zeige diesen Bildschirm der Person, die deine Karte scannt, oder fotografiere ihn direkt. Text bewusst groß und klar für bessere Erkennung.",
+      blankCardBtnPrepareScan: "📸 Meine Karte zum Fotografieren vorbereiten",
+      scanReadyTitle: "📸 Karte bereit zum Fotografieren",
+      scanReadyHint: "Zeige diesen Bildschirm der Person, die deine Karte sehen soll, oder fotografiere ihn, um ihn per Nachricht zu senden. Text bewusst groß und klar für gute Lesbarkeit.",
       scanReadyClose: "🚪 Schließen",
       teamRecapEmpty: "Noch keine Karte empfangen. \"👥 Karte eines Spielers empfangen\" auf der leeren Scorekarte verwenden.",
       teamRecapReceiveSuccess: (n) => `Karte von ${n} zur Team-Übersicht hinzugefügt!`,
@@ -2141,9 +2145,9 @@
       teamRecapTitle: "👥 สรุปทีม",
       teamRecapIntro: "การ์ดที่ได้รับจากผู้เล่น รวบรวมไว้ที่นี่ โดยไม่เขียนทับการ์ดของคุณเองที่กำลังกรอกอยู่",
       blankCardBtnReceiveTeam: "👥 รับการ์ดของผู้เล่น",
-      blankCardBtnPrepareScan: "🖨️📷 เตรียมการ์ดของฉันสำหรับสแกน",
-      scanReadyTitle: "🖨️📷 การ์ดพร้อมสแกน",
-      scanReadyHint: "แสดงหน้าจอนี้ให้คนที่จะสแกนการ์ดของคุณดู หรือถ่ายภาพโดยตรง ข้อความตั้งใจทำให้ใหญ่และชัดเจนเพื่อการจดจำที่ดีขึ้น",
+      blankCardBtnPrepareScan: "📸 เตรียมการ์ดของฉันเพื่อถ่ายภาพ",
+      scanReadyTitle: "📸 การ์ดพร้อมถ่ายภาพ",
+      scanReadyHint: "แสดงหน้าจอนี้ให้คนที่ต้องดูการ์ดของคุณ หรือถ่ายภาพเพื่อส่งเป็นข้อความ ข้อความตั้งใจทำให้ใหญ่และชัดเจนเพื่อให้อ่านง่าย",
       scanReadyClose: "🚪 ปิด",
       teamRecapEmpty: "ยังไม่มีการ์ดที่ได้รับ ใช้ \"👥 รับการ์ดของผู้เล่น\" จากการ์ดคะแนนเปล่า",
       teamRecapReceiveSuccess: (n) => `เพิ่มการ์ดของ ${n} ในสรุปทีมแล้ว!`,
