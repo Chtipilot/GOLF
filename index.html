@@ -1147,7 +1147,13 @@
   //   V01.005.040 — "📌 Faits marquants" : réordonné à la demande du Directeur de session — le
   //                 podium du jour reste en premier, suivi directement par "🏆 Nouveau record
   //                 éclectique", puis les meilleures manches (score, putts).
-  const APP_VERSION = "SuarPark - V01.005.040";
+  //   V01.005.041 — Nouvelle fonction refreshOpenSections() : les sections agrégées de la page
+  //                 principale déjà ouvertes (📌 Faits marquants, 🏆 Éclectique, 📊 Stats, 📜
+  //                 Historique, 🔴⚪ Rouge vs Blanc) se rafraîchissent désormais automatiquement après
+  //                 réception d'une carte joueur, suppression d'une manche du récap équipe, ou
+  //                 réinitialisation du récap — plus besoin de les fermer/rouvrir manuellement pour
+  //                 voir les données à jour.
+  const APP_VERSION = "SuarPark - V01.005.041";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2678,6 +2684,19 @@
   let caddiesVisible = false;
   let blankCardVisible = false;
   let blankCardFocusHole = 0;
+
+  // Rafraîchit toutes les sections agrégées (dérivées de state.history / du récap équipe) déjà
+  // ouvertes sur la page principale — à appeler après toute action qui change les données qu'elles
+  // affichent (réception d'une carte, suppression d'une manche, etc.), pour qu'elles restent à jour
+  // sans que le Directeur de session ait besoin de les fermer puis rouvrir manuellement.
+  function refreshOpenSections(){
+    if (historyVisible) renderHistory();
+    if (eclecticVisible) renderEclectic();
+    if (statsVisible) renderStats();
+    if (insightsVisible) renderInsights();
+    if (teeCompareVisible) renderTeeCompare();
+  }
+
   let expandedCaddie = null;
   let chartRangeMonths = null; // null = "Tout"
 
@@ -4799,6 +4818,7 @@
     if (result.count > 0){
       window.alert(result.count === 1 ? t('teamRecapReceiveSuccess', result.names[0]) : t('teamRecapReceiveBatchSuccess', result.count, result.names.join(', ')));
       renderTeamRecap();
+      refreshOpenSections();
     } else {
       window.alert(t('teamRecapReceiveError'));
     }
@@ -4813,6 +4833,7 @@
         if (result.count > 0){
           window.alert(result.count === 1 ? t('teamRecapReceiveSuccess', result.names[0]) : t('teamRecapReceiveBatchSuccess', result.count, result.names.join(', ')));
           renderTeamRecap();
+          refreshOpenSections();
         } else {
           teamRecapReceiveManual();
         }
@@ -4830,12 +4851,14 @@
     delete data[key];
     saveTeamRecap(data);
     renderTeamRecap();
+    refreshOpenSections();
   }
 
   function teamRecapClearAll(){
     if (!window.confirm(t('teamRecapClearAllConfirm'))) return;
     localStorage.removeItem(TEAM_RECAP_KEY);
     renderTeamRecap();
+    refreshOpenSections();
   }
 
   function renderTeamRecap(){
