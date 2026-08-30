@@ -1183,7 +1183,12 @@
   //                 seule ligne (white-space:nowrap) sans découpage. Ajout d'un découpage
   //                 (overflow:hidden) sur TOUTES les cellules de tableau de l'appli par sécurité,
   //                 avec troncature en "…" spécifiquement sur la cellule date de l'historique.
-  const APP_VERSION = "SuarPark - V01.005.046";
+  //   V01.005.047 — Réintroduction de la date de test LOUIS 01/01/2023 (scores placeholder = Par,
+  //                 départ RED, caddie 19) à la demande du Directeur de session, pour tester le
+  //                 replay des coups sur téléphone sans risque sur les vraies données (une manche
+  //                 "réelle" ne doit pas être utilisée : "✓ Valider" dans "Afficher le trou" écrase
+  //                 le score du trou dans le brouillon en cours).
+  const APP_VERSION = "SuarPark - V01.005.047";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2565,6 +2570,10 @@
         ["26/08/2026",[7,7,11,4,5,7,7,7,8,7,7,5,7,4,10,10,7,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,1,2,2,1,2,1,2,2,2,3,3,2,2,2,1,1,2],"white","19"]
       ],
       LOUIS: [
+        // 01/01/2023 — Date réservée aux tests du site (nouvelles saisies, historique, replay,
+        // etc.), scores placeholder (= Par sur chaque trou) : à ne jamais utiliser comme vraie
+        // manche pour les statistiques.
+        ["01/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"red","19"],
         ["01/01/2024",[8,6,6,5,5,6,5,7,5,5,6,5,7,3,6,10,5,7]],
         ["10/01/2024",[7,5,12,5,6,9,7,5,5,6,6,3,8,8,11,6,7,5]],
         ["15/01/2024",[7,8,6,5,7,6,7,5,8,6,5,4,10,4,6,10,8,6]],
