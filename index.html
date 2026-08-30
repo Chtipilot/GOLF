@@ -244,7 +244,7 @@
   <span id="rotateHintText">Tourne ton téléphone en mode paysage pour un meilleur affichage du tableau.</span>
 </div>
 
-<div class="toolbar">
+<div class="toolbar" id="dateNavToolbar" style="position:sticky; top:0; z-index:40; background:var(--cream); padding:6px 4px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.12);">
   <label style="font-size:12px; margin-right:2px;"><span id="lblSessionDate">Date de la manche :</span> <input type="date" id="sessionDate" disabled style="background:#f4f7f6;"></label>
   <span style="display:inline-flex; flex-direction:column; margin-right:6px; vertical-align:middle;">
     <button class="btn btn-secondary" id="btnDateUp" style="padding:0 6px; font-size:10px; line-height:14px; margin:0 0 1px 0;">▲</button>
@@ -1173,7 +1173,11 @@
   //                 sélecteur met désormais à jour insightsSelectedDate et rafraîchit Faits marquants
   //                 s'il est ouvert. La synchronisation via le curseur de l'historique reste active
   //                 en complément (les deux mènent au même résultat).
-  const APP_VERSION = "SuarPark - V01.005.044";
+  //   V01.005.045 — Le sélecteur "Date de la manche" (flèches ▲▼) reste désormais visible en
+  //                 défilant vers le bas sur téléphone (position collante/sticky en haut de l'écran,
+  //                 fond crème, légère ombre) — pratique pour changer de date sans remonter en haut
+  //                 de la page, notamment en lisant "📌 Faits marquants" plus bas.
+  const APP_VERSION = "SuarPark - V01.005.045";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
