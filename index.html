@@ -1077,7 +1077,27 @@
   //                 en parallèle sur le COLLAGE DE TEXTE ("non reconnu") reste à investiguer : aucun
   //                 bug identifié à la relecture du code, en attente d'un exemple de texte qui
   //                 échoue pour reproduire précisément le problème.
-  const APP_VERSION = "SuarPark - V01.005.030";
+  //   V01.005.031 — Correction majeure de robustesse : la reconnaissance des lignes Score/Putts
+  //                 exigeait un caractère "|" exact comme séparateur. En scan photo (OCR), ce trait
+  //                 fin est très souvent mal lu (confondu avec "I", "l", "1"...) ou perdu — faisant
+  //                 échouer TOUTE la reconnaissance, y compris quand le nom et la date étaient
+  //                 correctement lus. Repéré et corrigé grâce à une capture d'écran réelle du mode
+  //                 "Consultation" (fournie par le Directeur de session). Nouvelle logique : les
+  //                 lignes Score/Putts sont repérées par leur nombre de valeurs (19 jetons : 9 + 1
+  //                 séparateur quelconque + 9), sans dépendre du caractère exact du séparateur ni de
+  //                 la bonne lecture du label ("Score :") en tête de ligne. Testé et validé sur le
+  //                 texte exact de la capture fournie, y compris avec séparateur simulé mal lu.
+  //   V01.005.032 — Suppression du scan/OCR (caméra + Tesseract.js) suite tests terrain concluants :
+  //                 la photo d'un écran par un autre appareil génère un effet de moiré qui rend tout
+  //                 texte illisible pour l'OCR, quels que soient les réglages — limite physique, pas
+  //                 un bug logiciel. Décision commune : ce mode de transmission reste manuel (photo
+  //                 de carte envoyée directement au Directeur de session). Retiré : bouton "📷
+  //                 Scanner une carte", caméra intégrée, chargement de Tesseract.js, écran de
+  //                 vérification post-scan, et les ~18 clés de traduction associées (4 langues).
+  //                 Conservés intacts : "📸 Préparer ma carte pour un scan" (affichage plein texte
+  //                 prêt à être photographié et envoyé manuellement), "📝 Copier ma carte" / "📥
+  //                 Coller ma carte" (transmission texte fiable), et le récapitulatif d'équipe.
+  const APP_VERSION = "SuarPark - V01.005.032";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1311,28 +1331,10 @@
       teamRecapTitle: "👥 Récapitulatif de l'équipe",
       teamRecapIntro: "Cartes reçues des joueurs, regroupées ici sans jamais écraser ta propre carte en cours.",
       blankCardBtnReceiveTeam: "👥 Recevoir la carte d'un joueur",
-      blankCardBtnScanCard: "📷 Scanner une carte",
       blankCardBtnPrepareScan: "🖨️📷 Préparer ma carte pour un scan",
       scanReadyTitle: "🖨️📷 Carte prête à scanner",
       scanReadyHint: "Montre cet écran à la personne qui va scanner ta carte, ou photographie-le directement. Texte volontairement gros et net pour une meilleure reconnaissance.",
       scanReadyClose: "🚪 Fermer",
-      scanReviewTitle: "🔍 Vérifie avant de valider",
-      scanReviewOcrLabel: "Texte détecté (brut)",
-      scanReviewParsedLabel: "Données reconstituées",
-      scanReviewNotRecognized: "Le texte n'a pas pu être reconstitué en carte SuarPark. Vérifie la photo (cadrage, luminosité, netteté) et réessaie.",
-      scanReviewValidate: "✅ Valider",
-      scanReviewRefuse: "❌ Refuser",
-      scanReviewRefuseReasonPrompt: "Pourquoi refuses-tu cette carte ? (optionnel)",
-      scanReviewRefused: "Carte refusée — rien n'a été ajouté au récapitulatif.",
-      scanReviewProcessing: "🔍 Analyse de la photo en cours (peut prendre quelques secondes)...",
-      scanReviewLoadError: "Impossible de charger l'outil de reconnaissance. Vérifie ta connexion et réessaie.",
-      scanReviewWarning: "⚠️ La reconnaissance automatique peut se tromper (chiffres mal lus, etc.) — compare bien avec la photo avant de valider.",
-      scanCameraGuideHint: "Cadre la carte de score à l'intérieur du repère, bien à plat et sans reflet.",
-      scanCameraCapture: "Capturer",
-      scanCameraPickFile: "Choisir une photo",
-      scanCameraCancel: "Annuler",
-      scanReviewRetry: "Nouveau test",
-      scanReviewQuit: "Quitter",
       teamRecapEmpty: "Aucune carte reçue pour l'instant. Utilise \"👥 Recevoir la carte d'un joueur\" depuis la carte de score vierge.",
       teamRecapReceiveSuccess: (n) => `Carte de ${n} ajoutée au récapitulatif d'équipe !`,
       teamRecapReceiveError: "Ce texte n'a pas été reconnu comme une carte SuarPark valide.",
@@ -1599,28 +1601,10 @@
       teamRecapTitle: "👥 Team recap",
       teamRecapIntro: "Cards received from players, gathered here without ever overwriting your own card in progress.",
       blankCardBtnReceiveTeam: "👥 Receive a player's card",
-      blankCardBtnScanCard: "📷 Scan a card",
       blankCardBtnPrepareScan: "🖨️📷 Prepare my card for a scan",
       scanReadyTitle: "🖨️📷 Card ready to scan",
       scanReadyHint: "Show this screen to whoever will scan your card, or photograph it directly. Text is deliberately large and clear for better recognition.",
       scanReadyClose: "🚪 Close",
-      scanReviewTitle: "🔍 Check before validating",
-      scanReviewOcrLabel: "Detected text (raw)",
-      scanReviewParsedLabel: "Reconstructed data",
-      scanReviewNotRecognized: "The text couldn't be reconstructed into a SuarPark card. Check the photo (framing, lighting, sharpness) and try again.",
-      scanReviewValidate: "✅ Validate",
-      scanReviewRefuse: "❌ Refuse",
-      scanReviewRefuseReasonPrompt: "Why are you refusing this card? (optional)",
-      scanReviewRefused: "Card refused — nothing was added to the recap.",
-      scanReviewProcessing: "🔍 Analyzing the photo (may take a few seconds)...",
-      scanReviewLoadError: "Couldn't load the recognition tool. Check your connection and try again.",
-      scanReviewWarning: "⚠️ Automatic recognition can make mistakes (misread digits, etc.) — compare carefully with the photo before validating.",
-      scanCameraGuideHint: "Frame the scorecard inside the guide, flat and without glare.",
-      scanCameraCapture: "Capture",
-      scanCameraPickFile: "Choose a photo",
-      scanCameraCancel: "Cancel",
-      scanReviewRetry: "New attempt",
-      scanReviewQuit: "Quit",
       teamRecapEmpty: "No card received yet. Use \"👥 Receive a player's card\" from the blank scorecard.",
       teamRecapReceiveSuccess: (n) => `${n}'s card added to the team recap!`,
       teamRecapReceiveError: "This text wasn't recognized as a valid SuarPark card.",
@@ -1887,28 +1871,10 @@
       teamRecapTitle: "👥 Team-Übersicht",
       teamRecapIntro: "Von Spielern erhaltene Karten, hier gesammelt, ohne je die eigene laufende Karte zu überschreiben.",
       blankCardBtnReceiveTeam: "👥 Karte eines Spielers empfangen",
-      blankCardBtnScanCard: "📷 Karte scannen",
       blankCardBtnPrepareScan: "🖨️📷 Meine Karte für einen Scan vorbereiten",
       scanReadyTitle: "🖨️📷 Karte bereit zum Scannen",
       scanReadyHint: "Zeige diesen Bildschirm der Person, die deine Karte scannt, oder fotografiere ihn direkt. Text bewusst groß und klar für bessere Erkennung.",
       scanReadyClose: "🚪 Schließen",
-      scanReviewTitle: "🔍 Vor dem Bestätigen prüfen",
-      scanReviewOcrLabel: "Erkannter Text (roh)",
-      scanReviewParsedLabel: "Rekonstruierte Daten",
-      scanReviewNotRecognized: "Der Text konnte nicht als SuarPark-Karte rekonstruiert werden. Foto prüfen (Ausschnitt, Licht, Schärfe) und erneut versuchen.",
-      scanReviewValidate: "✅ Bestätigen",
-      scanReviewRefuse: "❌ Ablehnen",
-      scanReviewRefuseReasonPrompt: "Warum lehnst du diese Karte ab? (optional)",
-      scanReviewRefused: "Karte abgelehnt — nichts wurde zur Übersicht hinzugefügt.",
-      scanReviewProcessing: "🔍 Foto wird analysiert (kann einige Sekunden dauern)...",
-      scanReviewLoadError: "Erkennungstool konnte nicht geladen werden. Verbindung prüfen und erneut versuchen.",
-      scanReviewWarning: "⚠️ Die automatische Erkennung kann sich irren (falsch gelesene Zahlen usw.) — vor dem Bestätigen sorgfältig mit dem Foto vergleichen.",
-      scanCameraGuideHint: "Scorekarte flach und ohne Spiegelung innerhalb der Markierung ausrichten.",
-      scanCameraCapture: "Aufnehmen",
-      scanCameraPickFile: "Foto auswählen",
-      scanCameraCancel: "Abbrechen",
-      scanReviewRetry: "Neuer Versuch",
-      scanReviewQuit: "Beenden",
       teamRecapEmpty: "Noch keine Karte empfangen. \"👥 Karte eines Spielers empfangen\" auf der leeren Scorekarte verwenden.",
       teamRecapReceiveSuccess: (n) => `Karte von ${n} zur Team-Übersicht hinzugefügt!`,
       teamRecapReceiveError: "Dieser Text wurde nicht als gültige SuarPark-Karte erkannt.",
@@ -2175,28 +2141,10 @@
       teamRecapTitle: "👥 สรุปทีม",
       teamRecapIntro: "การ์ดที่ได้รับจากผู้เล่น รวบรวมไว้ที่นี่ โดยไม่เขียนทับการ์ดของคุณเองที่กำลังกรอกอยู่",
       blankCardBtnReceiveTeam: "👥 รับการ์ดของผู้เล่น",
-      blankCardBtnScanCard: "📷 สแกนการ์ด",
       blankCardBtnPrepareScan: "🖨️📷 เตรียมการ์ดของฉันสำหรับสแกน",
       scanReadyTitle: "🖨️📷 การ์ดพร้อมสแกน",
       scanReadyHint: "แสดงหน้าจอนี้ให้คนที่จะสแกนการ์ดของคุณดู หรือถ่ายภาพโดยตรง ข้อความตั้งใจทำให้ใหญ่และชัดเจนเพื่อการจดจำที่ดีขึ้น",
       scanReadyClose: "🚪 ปิด",
-      scanReviewTitle: "🔍 ตรวจสอบก่อนยืนยัน",
-      scanReviewOcrLabel: "ข้อความที่ตรวจพบ (ดิบ)",
-      scanReviewParsedLabel: "ข้อมูลที่สร้างขึ้นใหม่",
-      scanReviewNotRecognized: "ไม่สามารถแปลงข้อความเป็นการ์ด SuarPark ได้ ตรวจสอบรูปภาพ (การจัดกรอบ แสง ความคมชัด) แล้วลองอีกครั้ง",
-      scanReviewValidate: "✅ ยืนยัน",
-      scanReviewRefuse: "❌ ปฏิเสธ",
-      scanReviewRefuseReasonPrompt: "ทำไมคุณถึงปฏิเสธการ์ดนี้? (ไม่บังคับ)",
-      scanReviewRefused: "ปฏิเสธการ์ดแล้ว — ไม่มีการเพิ่มข้อมูลในสรุปทีม",
-      scanReviewProcessing: "🔍 กำลังวิเคราะห์รูปภาพ (อาจใช้เวลาสักครู่)...",
-      scanReviewLoadError: "ไม่สามารถโหลดเครื่องมือตรวจจับได้ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง",
-      scanReviewWarning: "⚠️ การตรวจจับอัตโนมัติอาจผิดพลาดได้ (อ่านตัวเลขผิด ฯลฯ) — เปรียบเทียบกับรูปภาพอย่างละเอียดก่อนยืนยัน",
-      scanCameraGuideHint: "จัดวางการ์ดคะแนนให้อยู่ในกรอบ วางราบและไม่มีแสงสะท้อน",
-      scanCameraCapture: "ถ่ายภาพ",
-      scanCameraPickFile: "เลือกรูปภาพ",
-      scanCameraCancel: "ยกเลิก",
-      scanReviewRetry: "ลองใหม่",
-      scanReviewQuit: "ออก",
       teamRecapEmpty: "ยังไม่มีการ์ดที่ได้รับ ใช้ \"👥 รับการ์ดของผู้เล่น\" จากการ์ดคะแนนเปล่า",
       teamRecapReceiveSuccess: (n) => `เพิ่มการ์ดของ ${n} ในสรุปทีมแล้ว!`,
       teamRecapReceiveError: "ไม่รู้จักข้อความนี้ว่าเป็นการ์ด SuarPark ที่ถูกต้อง",
@@ -4308,25 +4256,29 @@
       }
     }
 
-    // Lignes de scores/putts trou par trou : toutes les lignes contenant "|". La ligne de
-    // pénalités (marquée par l'emoji ⚠️, indépendant de la langue) est repérée à part pour ne
-    // jamais être confondue avec la ligne Putts, qu'elle soit présente ou non juste avant.
+    // Lignes de scores/putts trou par trou. Le séparateur central (normalement "|") n'est PAS
+    // utilisé pour repérer ces lignes : en OCR (photo/scan), ce trait fin est souvent mal lu
+    // (confondu avec "I", "l", "1", ou carrément perdu), ce qui faisait échouer toute la
+    // reconnaissance. On repère plutôt les lignes qui, une fois le label retiré, comptent
+    // exactement 19 jetons séparés par des espaces (9 valeurs + 1 séparateur, quel qu'il soit + 9
+    // valeurs) — la ligne de pénalités (marquée par l'emoji ⚠️, indépendant de la langue) est
+    // repérée à part pour ne jamais être confondue avec la ligne Putts.
+    function lineTokens(line){
+      return line.replace(/\(.*$/, '').trim().split(/\s+/).filter(Boolean);
+    }
     function parsePipeLine(line){
-      let core = line.replace(/\(.*$/, '');
-      const colonIdx = core.indexOf(':');
-      if (colonIdx !== -1) core = core.slice(colonIdx + 1);
-      const parts = core.split('|');
-      if (parts.length !== 2) return null;
-      const parseHalf = s => s.trim().split(/\s+/).map(v => (v === '–' || v === '-' || v === '') ? '' : v);
-      const out = parseHalf(parts[0]);
-      const inn = parseHalf(parts[1]);
-      if (out.length !== 9 || inn.length !== 9) return null;
-      return out.concat(inn);
+      const all = lineTokens(line);
+      if (all.length < 19) return null;
+      // Les 19 DERNIERS jetons (9 valeurs + séparateur + 9 valeurs) : tolère un label ("Score :")
+      // mal reconnu ou fragmenté par l'OCR en tête de ligne, sans dépendre de sa reconnaissance.
+      const tokens = all.slice(-19);
+      const mapVal = v => (v === '–' || v === '-' || v === '') ? '' : v;
+      return tokens.slice(0,9).map(mapVal).concat(tokens.slice(10,19).map(mapVal));
     }
 
-    const allPipeLines = lines.filter(l => l.indexOf('|') !== -1);
-    const penaltyLine = allPipeLines.find(l => l.indexOf('⚠️') !== -1);
-    const pipeLines = allPipeLines.filter(l => l.indexOf('⚠️') === -1);
+    const candidateLines = lines.filter(l => l.indexOf('⚠️') === -1 && lineTokens(l).length >= 19);
+    const penaltyLine = lines.find(l => l.indexOf('⚠️') !== -1 && lineTokens(l).length >= 19);
+    const pipeLines = candidateLines;
     let scores = empty.scores, putts = empty.putts;
     if (pipeLines[0]){ const p = parsePipeLine(pipeLines[0]); if (p) scores = p; }
     if (pipeLines[1]){ const p = parsePipeLine(pipeLines[1]); if (p) putts = p; }
@@ -4614,211 +4566,6 @@
     } else {
       teamRecapReceiveManual();
     }
-  }
-
-  // ============================================================
-  // Scan de carte (OCR) : photo → texte détecté → reconnaissance → vérification humaine
-  // obligatoire (Valider/Refuser) avant tout ajout au récapitulatif d'équipe. Aucune donnée
-  // n'est envoyée à un serveur : tout se passe dans le navigateur (Tesseract.js, chargé à la
-  // demande depuis un CDN uniquement au premier scan).
-  // ============================================================
-
-  let tesseractLoadPromise = null;
-  function loadTesseract(){
-    if (window.Tesseract) return Promise.resolve();
-    if (tesseractLoadPromise) return tesseractLoadPromise;
-    tesseractLoadPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-      script.onload = () => resolve();
-      script.onerror = () => { tesseractLoadPromise = null; reject(new Error('load-failed')); };
-      document.head.appendChild(script);
-    });
-    return tesseractLoadPromise;
-  }
-
-  let pendingScanDraft = null;
-  let scanCameraStream = null;
-
-  // Tente d'ouvrir un viseur caméra intégré avec cadre-guide ; se replie automatiquement sur
-  // le sélecteur de fichier natif si l'accès caméra n'est pas possible (refusé, indisponible,
-  // navigateur non compatible, contexte non sécurisé...).
-  function blankCardScanCard(){
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-      openScanCamera();
-    } else {
-      document.getElementById('blankCardScanInput').click();
-    }
-  }
-
-  function openScanCamera(){
-    const panel = document.getElementById('scanReviewPanel');
-    panel.style.display = 'block';
-    panel.innerHTML = `
-      <div style="border:2px solid #0d47a1; border-radius:10px; padding:12px 14px; margin-top:10px; background:#111;">
-        <div style="position:relative; width:100%; max-width:420px; margin:0 auto; overflow:hidden; border-radius:8px; background:#000;">
-          <video id="scanVideo" autoplay playsinline muted style="width:100%; display:block;"></video>
-          <div style="position:absolute; top:8%; left:6%; right:6%; bottom:8%; border:3px dashed #fff3cd; border-radius:8px; box-shadow:0 0 0 2000px rgba(0,0,0,0.4); pointer-events:none;"></div>
-        </div>
-        <p class="sub" style="color:#eee; text-align:center; margin:8px 0;">${t('scanCameraGuideHint')}</p>
-        <div class="toolbar" style="justify-content:center; margin:6px 0 0 0;">
-          <button class="btn" id="btnScanCapture" style="background:#28a745;">📸 ${t('scanCameraCapture')}</button>
-          <button class="btn btn-secondary" id="btnScanPickFile">🖼️ ${t('scanCameraPickFile')}</button>
-          <button class="btn btn-danger" id="btnScanCameraCancel">🚪 ${t('scanCameraCancel')}</button>
-        </div>
-      </div>`;
-
-    navigator.mediaDevices.getUserMedia({video: {facingMode: {ideal: 'environment'}}, audio: false})
-      .then(stream => {
-        scanCameraStream = stream;
-        const video = document.getElementById('scanVideo');
-        if (video) video.srcObject = stream;
-      })
-      .catch(() => {
-        closeScanCamera();
-        document.getElementById('blankCardScanInput').click();
-      });
-
-    document.getElementById('btnScanCapture').addEventListener('click', captureScanPhoto);
-    document.getElementById('btnScanPickFile').addEventListener('click', () => {
-      closeScanCamera();
-      document.getElementById('blankCardScanInput').click();
-    });
-    document.getElementById('btnScanCameraCancel').addEventListener('click', closeScanCamera);
-  }
-
-  function captureScanPhoto(){
-    const video = document.getElementById('scanVideo');
-    if (!video || !video.videoWidth) return;
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    canvas.toBlob(blob => {
-      stopScanCameraStream();
-      if (blob) handleScanFileSelected(blob);
-    }, 'image/jpeg', 0.92);
-  }
-
-  function stopScanCameraStream(){
-    if (scanCameraStream){
-      scanCameraStream.getTracks().forEach(t => t.stop());
-      scanCameraStream = null;
-    }
-  }
-
-  function closeScanCamera(){
-    stopScanCameraStream();
-    const panel = document.getElementById('scanReviewPanel');
-    panel.style.display = 'none';
-    panel.innerHTML = '';
-  }
-
-  function handleScanFileSelected(file){
-    if (!file) return;
-    const panel = document.getElementById('scanReviewPanel');
-    const photoUrl = URL.createObjectURL(file);
-    panel.style.display = 'block';
-    panel.innerHTML = `
-      <div style="border:2px solid #0d47a1; border-radius:10px; padding:12px 14px; margin-top:10px; background:#f4f8ff;">
-        <div style="font-weight:bold; color:#0d47a1; margin-bottom:8px;">${t('scanReviewTitle')}</div>
-        <img src="${photoUrl}" style="max-width:160px; max-height:160px; border-radius:6px; border:1px solid #ccc; float:right; margin:0 0 8px 8px;">
-        <p class="sub" style="margin:0;">${t('scanReviewProcessing')}</p>
-      </div>`;
-
-    loadTesseract().then(() => {
-      // Le pack de langue Tesseract doit correspondre à la langue du texte de la carte (labels
-      // traduits, accents) : était figé sur l'anglais ("eng"), ce qui empêchait toute
-      // reconnaissance correcte des caractères accentués français — corrigé pour suivre la langue
-      // actuellement sélectionnée dans l'appli.
-      const TESSERACT_LANG = {fr: 'fra', en: 'eng', de: 'deu', th: 'tha'};
-      return Tesseract.recognize(file, TESSERACT_LANG[lang] || 'fra');
-    }).then(({data: {text}}) => {
-      const draft = blankCardParseReadableText(text);
-      renderScanReview(photoUrl, text, draft);
-    }).catch(() => {
-      panel.innerHTML = `
-        <div style="border:2px solid #b23a3a; border-radius:10px; padding:12px 14px; margin-top:10px; background:#fdf2f2;">
-          <div style="font-weight:bold; color:#b23a3a;">${t('scanReviewLoadError')}</div>
-        </div>`;
-    });
-  }
-
-  function renderScanReview(photoUrl, rawText, draft){
-    pendingScanDraft = (draft && draft.scores) ? draft : null;
-    const panel = document.getElementById('scanReviewPanel');
-
-    let parsedHtml;
-    if (pendingScanDraft){
-      const name = teamRecapDisplayName(pendingScanDraft.header);
-      const {out, inn, tot} = computeOutInTot(pendingScanDraft.scores);
-      const teeIcon = pendingScanDraft.header.tee === 'red' ? '🔴 RED' : pendingScanDraft.header.tee === 'white' ? '⚪ WHITE' : '—';
-      const scoresLine = pendingScanDraft.scores.map(s => s || '–').join(' ');
-      parsedHtml = `
-        <div style="background:#fff; border:1px solid #ccc; border-radius:6px; padding:8px 10px; margin:8px 0; font-size:12px;">
-          <div><strong>${name}</strong> — ${pendingScanDraft.header.date || '?'} — ${teeIcon}</div>
-          <div style="margin-top:4px; font-family:monospace; font-size:11px;">${scoresLine}</div>
-          <div style="margin-top:4px;">OUT ${out || '–'} · IN ${inn || '–'} · TOT ${tot || '–'}</div>
-        </div>`;
-    } else {
-      parsedHtml = `<p class="sub" style="color:#b23a3a;">${t('scanReviewNotRecognized')}</p>`;
-    }
-
-    const buttonsHtml = pendingScanDraft
-      ? `<button class="btn" id="btnScanValidate" style="background:#28a745;">${t('scanReviewValidate')}</button>
-         <button class="btn btn-danger" id="btnScanRefuse">${t('scanReviewRefuse')}</button>`
-      : `<button class="btn btn-danger" id="btnScanRefuse">${t('scanReviewRefuse')}</button>
-         <button class="btn btn-secondary" id="btnScanRetry">🔄 ${t('scanReviewRetry')}</button>
-         <button class="btn btn-secondary" id="btnScanQuit">🚪 ${t('scanReviewQuit')}</button>`;
-
-    panel.innerHTML = `
-      <div style="border:2px solid #0d47a1; border-radius:10px; padding:12px 14px; margin-top:10px; background:#f4f8ff;">
-        <div style="font-weight:bold; color:#0d47a1; margin-bottom:8px;">${t('scanReviewTitle')}</div>
-        <img src="${photoUrl}" style="max-width:160px; max-height:160px; border-radius:6px; border:1px solid #ccc; float:right; margin:0 0 8px 8px;">
-        <div style="font-size:11px; font-weight:bold; color:#555;">${t('scanReviewParsedLabel')}</div>
-        ${parsedHtml}
-        <details style="margin:6px 0;"><summary style="font-size:11px; color:#888; cursor:pointer;">${t('scanReviewOcrLabel')}</summary>
-          <pre style="white-space:pre-wrap; font-size:10px; background:#fff; border:1px solid #eee; border-radius:4px; padding:6px; max-height:120px; overflow:auto;">${(rawText || '').replace(/</g,'&lt;')}</pre>
-        </details>
-        <p class="sub" style="color:#b8860b; margin:6px 0;">${t('scanReviewWarning')}</p>
-        <div class="toolbar" style="margin:6px 0 0 0; clear:both;">
-          ${buttonsHtml}
-        </div>
-      </div>`;
-
-    if (pendingScanDraft){
-      document.getElementById('btnScanValidate').addEventListener('click', () => {
-        const result = teamRecapCommitDraft(pendingScanDraft);
-        if (result.status === 'success'){
-          window.alert(t('teamRecapReceiveSuccess', result.name));
-          renderTeamRecap();
-        } else {
-          window.alert(t('teamRecapReceiveError'));
-        }
-        closeScanReview();
-      });
-    } else {
-      document.getElementById('btnScanRetry').addEventListener('click', () => {
-        closeScanReview();
-        blankCardScanCard();
-      });
-      document.getElementById('btnScanQuit').addEventListener('click', closeScanReview);
-    }
-    document.getElementById('btnScanRefuse').addEventListener('click', () => {
-      window.prompt(t('scanReviewRefuseReasonPrompt'), "");
-      window.alert(t('scanReviewRefused'));
-      closeScanReview();
-    });
-  }
-
-  function closeScanReview(){
-    stopScanCameraStream();
-    pendingScanDraft = null;
-    const panel = document.getElementById('scanReviewPanel');
-    panel.style.display = 'none';
-    panel.innerHTML = '';
-    const input = document.getElementById('blankCardScanInput');
-    if (input) input.value = '';
   }
 
   function teamRecapRemove(key){
@@ -5638,12 +5385,9 @@
           <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
           <button class="btn btn-transfer" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
-          <button class="btn btn-transfer" id="btnBlankCardScanCard">${t('blankCardBtnScanCard')}</button>
           <button class="btn btn-transfer" id="btnBlankCardPrepareScan">${t('blankCardBtnPrepareScan')}</button>
-          <input type="file" id="blankCardScanInput" accept="image/*" capture="environment" style="display:none;">
         </div>
       </fieldset>
-      <div id="scanReviewPanel" style="display:none;"></div>
       <div id="scanReadyPanel" style="display:none;"></div>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">🔗 ${t('blankCardExportImportNote')}</p>
       <p class="sub no-print" style="margin-top:2px; font-size:11px; color:#888;">👥 ${t('teamRecapIntro')}</p>
@@ -5764,11 +5508,7 @@
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
     document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
-    document.getElementById('btnBlankCardScanCard').addEventListener('click', blankCardScanCard);
     document.getElementById('btnBlankCardPrepareScan').addEventListener('click', blankCardShowScanReady);
-    document.getElementById('blankCardScanInput').addEventListener('change', (e) => {
-      handleScanFileSelected(e.target.files && e.target.files[0]);
-    });
     document.getElementById('btnToggleTeamRecapFromCard').addEventListener('click', () => {
       teamRecapSetVisible(!teamRecapVisible);
     });
