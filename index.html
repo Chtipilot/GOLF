@@ -993,7 +993,16 @@
   //                 "✓ Valider"), car cette voie met à jour le champ score par programmation (sans
   //                 déclencher l'événement "change" du champ, seul point d'accroche de la
   //                 vérification). Appel ajouté directement dans holeViewValidateScore.
-  const APP_VERSION = "SuarPark - V01.005.016";
+  //   V01.005.017 — Correction (suite) : un 3e chemin de saisie avait été oublié — le grand champ
+  //                 "trou en cours" (bcBigScore, le plus visible/utilisé en pratique) appelait déjà
+  //                 le son "Par ou mieux" mais pas la vérification d'éclectique. Les 3 chemins de
+  //                 saisie du score (grand champ, tableau, comptage par clic photo) déclenchent
+  //                 maintenant tous la comparaison à l'éclectique et le bandeau associé.
+  //   V01.005.018 — Annonce de record éclectique repensée en grand format : overlay plein écran
+  //                 centré (fond assombri, cadre doré, trophée 🏆 en grand), durée portée à 10
+  //                 secondes (au lieu du petit bandeau discret de 4s), fermeture anticipée possible
+  //                 au tap.
+  const APP_VERSION = "SuarPark - V01.005.018";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5061,16 +5070,27 @@
 
   // Petit bandeau flottant temporaire (auto-disparaît), utilisé pour annoncer un nouveau record
   // éclectique personnel.
+  // Annonce plein écran (grand format, centrée, 10 secondes) pour un nouveau record éclectique
+  // personnel — volontairement très visible pour marquer le coup, contrairement aux petites
+  // notifications discrètes.
   function blankCardShowToast(title, note){
     let toast = document.getElementById('blankCardToast');
     if (toast) toast.remove();
     toast = document.createElement('div');
     toast.id = 'blankCardToast';
-    toast.style.cssText = 'position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:10000; background:#1a3c34; color:#fff; padding:12px 20px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.4); text-align:center; max-width:90%; font-family:var(--font-display);';
-    toast.innerHTML = `<div style="font-weight:900; font-size:16px;">${title}</div><div style="font-size:12px; opacity:.85; margin-top:2px;">${note}</div>`;
+    toast.style.cssText = 'position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; padding:24px; background:rgba(10,25,20,0.78); backdrop-filter:blur(2px); text-align:center; font-family:var(--font-display); cursor:pointer;';
+    toast.innerHTML = `
+      <div style="background:linear-gradient(160deg, var(--green-deep), var(--green-mid)); border:3px solid #FFD700; border-radius:24px; padding:36px 28px; box-shadow:0 8px 32px rgba(0,0,0,0.5); max-width:480px; animation:bcEclecticPop 0.5s ease-out;">
+        <div style="font-size:56px; line-height:1;">🏆</div>
+        <div style="font-weight:900; font-size:clamp(24px,6vw,34px); color:#FFD700; margin-top:10px; letter-spacing:0.3px;">${title}</div>
+        <div style="font-size:clamp(14px,3.5vw,17px); color:#fff; opacity:.92; margin-top:12px;">${note}</div>
+      </div>
+      <style>@keyframes bcEclecticPop { 0% { transform:scale(0.75); opacity:0; } 100% { transform:scale(1); opacity:1; } }</style>`;
+    toast.addEventListener('click', () => toast.remove()); // fermeture anticipée possible au tap
     document.body.appendChild(toast);
-    setTimeout(() => { toast.style.transition = 'opacity 0.6s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 700); }, 4000);
+    setTimeout(() => { if (!toast.isConnected) return; toast.style.transition = 'opacity 0.6s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 700); }, 10000);
   }
+
 
   // Compare le score saisi au trou h avec l'éclectique personnel du joueur sélectionné sur ce même
   // trou. Si le nouveau score est meilleur (ou si aucun éclectique n'existait encore mais qu'une
@@ -5141,7 +5161,7 @@
       blankCardUpdateTeeButtons();
       blankCardMaybeAdvance(h);
     });
-    bigScore.addEventListener('change', () => blankCardCheckParSound(blankCardFocusHole, bigScore.value));
+    bigScore.addEventListener('change', () => { blankCardCheckParSound(blankCardFocusHole, bigScore.value); blankCardCheckEclecticRecord(blankCardFocusHole, bigScore.value); });
     bigPutt.addEventListener('input', () => {
       const h = blankCardFocusHole;
       const target = document.getElementById(`bcPutt-${h}`);
