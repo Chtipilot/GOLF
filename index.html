@@ -1281,7 +1281,19 @@
   //                 appli) et "📧 E-mail" (lien mailto direct, avec le texte déjà rempli dans le
   //                 corps du message). Le texte reste de toute façon déjà copié dans le
   //                 presse-papier en parallèle.
-  const APP_VERSION = "SuarPark - V01.005.063";
+  //   V01.005.064 — Suppression du bouton "📥 Coller ma carte" à la demande du Directeur de session :
+  //                 il ne servait pas la transmission (restauration de SA PROPRE carte uniquement),
+  //                 et créait une confusion avec "👥 Recevoir la carte d'un joueur" (destiné, lui, à
+  //                 la vraie réception depuis un autre joueur). Fonctions blankCardImport /
+  //                 blankCardImportManual retirées ; blankCardApplyImportedText() conservée, encore
+  //                 utilisée par la réception via partage natif du téléphone (Web Share Target :
+  //                 partager un message SuarPark reçu directement vers l'icône de l'appli).
+  //   V01.005.065 — Correction du bouton "📤 Partager" (fenêtre vide sur téléphone, aucune appli
+  //                 proposée) : ajout d'un titre ("SuarPark") en plus du texte dans l'appel au
+  //                 partage natif — certains téléphones filtrent les applis compatibles selon les
+  //                 champs fournis, un texte seul sans titre pouvait ne correspondre à aucune appli
+  //                 enregistrée.
+  const APP_VERSION = "SuarPark - V01.005.065";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1537,7 +1549,6 @@
       blankCardBtnClose: "Retour",
       blankCardBtnExport: "📤 Copier (presse-papier)",
       blankCardBtnExportText: "📝 Copier ma carte",
-      blankCardBtnImport: "📥 Coller ma carte",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
       blankCardExportImportNote: "« Copier en texte lisible » place un résumé clair dans le presse-papier, à coller (SMS, LINE...) pour l'envoyer. « Coller » lit automatiquement ce texte reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil. Si le navigateur l'autorise, « Coller » lit même directement ce presse-papier sans étape supplémentaire.",
@@ -1794,7 +1805,6 @@
       blankCardBtnClose: "Back",
       blankCardBtnExport: "📤 Copy (clipboard)",
       blankCardBtnExportText: "📝 Copy my card",
-      blankCardBtnImport: "📥 Paste my card",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
       blankCardExportImportNote: "\"Copy as readable text\" puts a clear summary on the clipboard, to paste (SMS, LINE...) and send it. \"Paste\" automatically reads this text received from another player, first copied to this device's clipboard. If the browser allows it, \"Paste\" even reads that clipboard directly, with no extra step.",
@@ -2051,7 +2061,6 @@
       blankCardBtnClose: "Zurück",
       blankCardBtnExport: "📤 Kopieren (Zwischenablage)",
       blankCardBtnExportText: "📝 Meine Karte kopieren",
-      blankCardBtnImport: "📥 Meine Karte einfügen",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
       blankCardExportImportNote: "«Als lesbaren Text kopieren» legt eine klare Zusammenfassung in die Zwischenablage, zum Einfügen (SMS, LINE...) und Versenden. «Einfügen» liest diesen Text automatisch, der von einem anderen Spieler zuvor in die Zwischenablage dieses Geräts kopiert wurde. Falls der Browser es erlaubt, liest «Einfügen» die Zwischenablage sogar direkt, ganz ohne zusätzlichen Schritt.",
@@ -2308,7 +2317,6 @@
       blankCardBtnClose: "กลับ",
       blankCardBtnExport: "📤 คัดลอก (คลิปบอร์ด)",
       blankCardBtnExportText: "📝 คัดลอกการ์ดของฉัน",
-      blankCardBtnImport: "📥 วางการ์ดของฉัน",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
       blankCardExportImportNote: "«คัดลอกเป็นข้อความอ่านได้» จะวางข้อความสรุปที่อ่านง่ายไว้ในคลิปบอร์ด เพื่อวาง (SMS, LINE...) และส่งต่อ «วาง» จะอ่านข้อความนี้ที่ได้รับจากผู้เล่นอีกคนโดยอัตโนมัติ ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว หากเบราว์เซอร์อนุญาต «วาง» จะอ่านคลิปบอร์ดนั้นให้อัตโนมัติโดยไม่ต้องทำขั้นตอนเพิ่มเติม",
@@ -4511,7 +4519,7 @@
     });
     if (canShare){
       document.getElementById('btnCopiedShare').addEventListener('click', () => {
-        navigator.share({text}).catch(() => {}); // annulation par l'utilisateur : rien à faire
+        navigator.share({title: 'SuarPark', text}).catch(() => {}); // annulation par l'utilisateur : rien à faire
       });
     }
   }
@@ -4757,42 +4765,6 @@
 
   // Demande manuellement le texte à coller (repli si la lecture automatique du
   // presse-papier n'est pas disponible, refusée par l'utilisateur, ou vide/non reconnue).
-  function blankCardImportManual(){
-    const code = window.prompt(t('blankCardImportPrompt'), "");
-    if (!code) return;
-    const result = blankCardApplyImportedText(code.trim());
-    if (result === 'success'){
-      window.alert(t('blankCardImportSuccess'));
-    } else if (result === 'invalid'){
-      window.alert(t('blankCardImportError'));
-    }
-    // 'cancelled' : l'utilisateur a choisi de ne pas remplacer sa carte en cours, rien à afficher.
-  }
-
-  function blankCardImport(){
-    // Tentative de lecture automatique du presse-papier (gain d'une étape) ; si le
-    // navigateur ne le permet pas, ou si le contenu n'est pas reconnu, on retombe sur
-    // la saisie manuelle (coller dans le champ proposé).
-    if (navigator.clipboard && navigator.clipboard.readText){
-      navigator.clipboard.readText().then(clip => {
-        const trimmed = (clip || '').trim();
-        if (!trimmed){
-          blankCardImportManual();
-          return;
-        }
-        const result = blankCardApplyImportedText(trimmed);
-        if (result === 'success'){
-          window.alert(t('blankCardImportSuccess'));
-        } else if (result === 'invalid'){
-          blankCardImportManual();
-        }
-        // 'cancelled' : rien à faire, l'utilisateur a choisi de garder sa carte en cours.
-      }).catch(() => blankCardImportManual());
-    } else {
-      blankCardImportManual();
-    }
-  }
-
   function blankCardClear(){
     if (!window.confirm(t('blankCardClearConfirm'))) return;
     localStorage.removeItem(BLANKCARD_DRAFT_KEY);
@@ -5853,7 +5825,6 @@
         <div class="toolbar" style="margin:0;">
           <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
-          <button class="btn btn-transfer" id="btnBlankCardImport">${t('blankCardBtnImport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
           <button class="btn btn-transfer" id="btnBlankCardPrepareScan">${t('blankCardBtnPrepareScan')}</button>
         </div>
@@ -5976,7 +5947,6 @@
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
-    document.getElementById('btnBlankCardImport').addEventListener('click', blankCardImport);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
     document.getElementById('btnBlankCardPrepareScan').addEventListener('click', blankCardShowScanReady);
     document.getElementById('btnToggleTeamRecapFromCard').addEventListener('click', () => {
