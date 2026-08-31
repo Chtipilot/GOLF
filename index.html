@@ -1235,7 +1235,19 @@
   //   V01.005.056 — Ajout d'une 4e ligne au filigrane : "Ne pas tenir compte des scores ajoutés pour
   //                 LOUIS" (précision sur les dates de test 01/01/2023 et 02/01/2023). Taille de
   //                 police légèrement réduite pour conserver un bon rendu à 4 lignes.
-  const APP_VERSION = "SuarPark - V01.005.056";
+  //   V01.005.057 — Essai MASQUÉ du replay "public" (mode 2 du sondage équipe) dans "📜 Afficher
+  //                 l'historique" : toute la mécanique est en place et fonctionne en coulisses —
+  //                 réception d'une carte joueur → shotPoints repris dans le récap équipe
+  //                 (mergeTeamRecapEntry étendu) → archivés séparément (localStorage dédié,
+  //                 suarpark-shot-replays-public) → bouton "🌐 Revoir les coups (équipe)" prêt côté
+  //                 code — MAIS un seul interrupteur (const PUBLIC_REPLAY_VISIBLE = false, en tête de
+  //                 section) empêche ce bouton de s'afficher nulle part pour l'instant. Pour activer
+  //                 la visibilité une fois validée avec l'équipe : passer PUBLIC_REPLAY_VISIBLE à
+  //                 true, rien d'autre à changer. Limite connue et assumée pour cet essai : seules
+  //                 les cartes reçues via le CODE TECHNIQUE (base64) transportent les vraies
+  //                 coordonnées des coups ; le texte lisible ne transporte que le nombre de
+  //                 pénalités par trou (pas de position exacte).
+  const APP_VERSION = "SuarPark - V01.005.057";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1524,6 +1536,7 @@
       shotReplayHint: "Revoir les coups (lecture seule) — enregistré sur cet appareil au moment du jeu.",
       shotReplayNoDataHole: "Aucun coup enregistré sur ce trou.",
       historyReplayBtn: "🎬 Revoir les coups",
+      historyReplayPublicBtn: "Revoir les coups (équipe)",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
@@ -1763,6 +1776,7 @@
       shotReplayHint: "Replay of shots (read-only) — recorded on this device while playing.",
       shotReplayNoDataHole: "No shot recorded on this hole.",
       historyReplayBtn: "🎬 Replay shots",
+      historyReplayPublicBtn: "Replay shots (team)",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
@@ -2002,6 +2016,7 @@
       shotReplayHint: "Schläge ansehen (nur Lesen) — auf diesem Gerät beim Spielen erfasst.",
       shotReplayNoDataHole: "Kein Schlag für dieses Loch erfasst.",
       historyReplayBtn: "🎬 Schläge ansehen",
+      historyReplayPublicBtn: "Schläge ansehen (Team)",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
@@ -2241,6 +2256,7 @@
       shotReplayHint: "ดูช็อตย้อนหลัง (อ่านอย่างเดียว) — บันทึกไว้บนอุปกรณ์นี้ขณะเล่น",
       shotReplayNoDataHole: "ไม่มีช็อตที่บันทึกไว้ในหลุมนี้",
       historyReplayBtn: "🎬 ดูช็อตย้อนหลัง",
+      historyReplayPublicBtn: "ดูช็อตย้อนหลัง (ทีม)",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
@@ -3179,6 +3195,7 @@
       </div>`;
       let rows = "";
       const replays = loadShotReplays();
+      const publicReplays = loadShotReplaysPublic(); // essai masqué (V01.005.057), voir PUBLIC_REPLAY_VISIBLE
       rounds.forEach((r, i) => {
         const [date, scores] = r;
         const {out, inn, tot} = computeOutInTot(scores);
@@ -3186,8 +3203,12 @@
         const caddieTag = caddieNum ? ` <span style="font-weight:normal; color:#888; font-size:9px;">/${caddieDisplayText(caddieNum)}</span>` : '';
         const hasReplay = !!replays[shotReplayKey(name, date)];
         const replayBtn = hasReplay ? `<br> <button type="button" class="btn no-print history-replay-btn" data-name="${name}" data-date="${date}" style="font-size:11px; font-weight:bold; padding:3px 10px; margin-top:3px; background:#B8860B; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);">🎬 ${t('historyReplayBtn').replace('🎬 ', '')}</button>` : '';
+        // Essai masqué du replay "public" : bouton distinct (vert, icône 🌐) construit mais rendu
+        // uniquement si PUBLIC_REPLAY_VISIBLE passe à true — l'archive tourne déjà en coulisses.
+        const hasPublicReplay = PUBLIC_REPLAY_VISIBLE && !!publicReplays[shotReplayKey(name, date)];
+        const publicReplayBtn = hasPublicReplay ? `<br> <button type="button" class="btn no-print history-replay-public-btn" data-name="${name}" data-date="${date}" style="font-size:11px; font-weight:bold; padding:3px 10px; margin-top:3px; background:#2E7D32; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);">🌐 ${t('historyReplayPublicBtn')}</button>` : '';
         rows += `<tr id="row-${name}-${i}" style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
-          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}</td>
+          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}${publicReplayBtn}</td>
           ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
           <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
           <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
@@ -3202,7 +3223,13 @@
     document.querySelectorAll('.history-replay-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openShotReplay(btn.dataset.name, btn.dataset.date);
+        openShotReplay(btn.dataset.name, btn.dataset.date, false);
+      });
+    });
+    document.querySelectorAll('.history-replay-public-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openShotReplay(btn.dataset.name, btn.dataset.date, true);
       });
     });
 
@@ -3244,8 +3271,8 @@
   let shotReplayCurrentHole = 0;
   let shotReplayCurrentPoints = null;
 
-  function openShotReplay(name, date){
-    const data = loadShotReplays();
+  function openShotReplay(name, date, usePublic){
+    const data = usePublic ? loadShotReplaysPublic() : loadShotReplays();
     const points = data[shotReplayKey(name, date)];
     if (!points) return;
     shotReplayCurrentPoints = points;
@@ -4667,7 +4694,43 @@
       const p = incomingDraft.putts ? incomingDraft.putts[i] : "";
       if (p !== "" && p !== undefined) mergedPutts[i] = p;
     }
-    return {header: mergedHeader, scores: mergedScores, putts: mergedPutts, updatedAt: new Date().toISOString()};
+    // Essai masqué du replay "public" (V01.005.057) : on reprend aussi les points de chute reçus
+    // (shotPoints), s'il y en a — sans effet visible tant que PUBLIC_REPLAY_VISIBLE est à false.
+    const mergedShotPoints = (Array.isArray(incomingDraft.shotPoints) && incomingDraft.shotPoints.length === 18)
+      ? incomingDraft.shotPoints
+      : (base.shotPoints || null);
+    return {header: mergedHeader, scores: mergedScores, putts: mergedPutts, shotPoints: mergedShotPoints, updatedAt: new Date().toISOString()};
+  }
+
+  // --- Essai masqué du replay "public" (V01.005.057) --------------------------------------------
+  // Interrupteur unique : tant que c'est à false, tout le mécanisme tourne en coulisses (les points
+  // de chute reçus sont bien archivés) mais AUCUN bouton "🎬 public" ne s'affiche nulle part — pour
+  // valider la mécanique de transmission avant de décider, avec l'équipe, de rendre ça visible.
+  const PUBLIC_REPLAY_VISIBLE = false;
+  const SHOT_REPLAY_PUBLIC_KEY = "suarpark-shot-replays-public";
+
+  function loadShotReplaysPublic(){
+    try {
+      const raw = localStorage.getItem(SHOT_REPLAY_PUBLIC_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e){ return {}; }
+  }
+
+  function saveShotReplaysPublic(data){
+    try { localStorage.setItem(SHOT_REPLAY_PUBLIC_KEY, JSON.stringify(data)); }
+    catch(e){ /* stockage indisponible : on ignore silencieusement */ }
+  }
+
+  // Archive, sous une clé séparée de l'archive privée, les points de chute reçus via une carte
+  // (texte/code technique) — alimentée dès qu'une carte contenant des shotPoints est reçue dans le
+  // récap équipe, que le bouton public soit visible ou non.
+  function archivePublicShotPoints(name, date, shotPoints){
+    if (!name || !date || !Array.isArray(shotPoints)) return;
+    const hasAny = shotPoints.some(h => (h || []).length > 0);
+    if (!hasAny) return;
+    const data = loadShotReplaysPublic();
+    data[shotReplayKey(name, date)] = shotPoints;
+    saveShotReplaysPublic(data);
   }
 
   // Reçoit la carte d'un joueur (texte lisible ou code technique) et l'ajoute/fusionne dans
@@ -4680,7 +4743,12 @@
     const data = loadTeamRecap();
     data[key] = mergeTeamRecapEntry(data[key], draft);
     saveTeamRecap(data);
-    return {status: 'success', name: teamRecapDisplayName(draft.header)};
+    // Essai masqué (V01.005.057) : archive les points de chute reçus séparément, pour le futur
+    // replay "public" — sans effet visible tant que PUBLIC_REPLAY_VISIBLE est à false.
+    const recvName = teamRecapDisplayName(draft.header);
+    const recvDate = draft.header ? draft.header.date : '';
+    if (Array.isArray(draft.shotPoints)) archivePublicShotPoints(recvName, recvDate, draft.shotPoints);
+    return {status: 'success', name: recvName};
   }
 
   // Découpe un texte en plusieurs blocs de carte, un par balise "Fin" rencontrée (dans
