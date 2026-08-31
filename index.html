@@ -1206,7 +1206,18 @@
   //   V01.005.051 — Ajout d'un 2e créneau de test LOUIS 02/01/2023 (scores placeholder = Par, départ
   //                 WHITE, caddie 19), pour un nouvel essai de saisie/replay demandé par le
   //                 Directeur de session.
-  const APP_VERSION = "SuarPark - V01.005.051";
+  //   V01.005.052 — Diagnostic complet et nettoyage du code (en attendant le retour de l'équipe sur
+  //                 le replay public/privé) : (1) vérifié 0 fonction dupliquée, 0 ID HTML statique
+  //                 dupliqué, 0 console.log de débogage oublié, syntaxe JS valide ; (2) corrigé un
+  //                 oubli — le panneau "Carte prête à photographier" n'affichait jamais son titre
+  //                 (traduction déjà présente mais jamais utilisée) ; (3) supprimé 4 fonctions JS
+  //                 mortes (isoToFr, sumArr, todayISO, teamRecapApplyImportedText — remplacée par la
+  //                 version "en lot") et 41 clés de traduction orphelines (× 4 langues = 164 lignes)
+  //                 issues de fonctionnalités remplacées en cours de route (ancienne gestion de
+  //                 session/joueurs, ancien flux d'ajout de caddie, sauvegarde/restauration jamais
+  //                 branchée, ancien indice "armé" du bouton pénalité). Les 4 langues restent
+  //                 parfaitement équilibrées (215 clés chacune). Fichier allégé d'environ 14 Ko.
+  const APP_VERSION = "SuarPark - V01.005.052";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1362,10 +1373,6 @@
       langLabel: "Langue",
       subtitle: "Par 72 · 18 trous — 📖 Fichier de consultation (lecture seule)",
       sessionDateLabel: "Date de la manche :",
-      newSession: "Nouvelle manche",
-      btnSave: "💾 Enregistrer la manche",
-      btnNewSession: "🆕 Nouvelle manche",
-      btnAddPlayer: "➕ Ajouter un joueur",
       btnShowHistory: "📜 Afficher l'historique",
       btnHideHistory: "📜 Masquer l'historique",
       btnShowEclectic: "🏆 Afficher l'éclectique",
@@ -1391,18 +1398,6 @@
       thHole: "Trou",
       thPlayer: "Joueur",
       deletePlayerTitle: "Supprimer ce joueur",
-      promptNewPlayer: "Nom du nouveau joueur :",
-      playerExists: "Ce joueur existe déjà.",
-      playerAdded: (n) => `${n} ajouté.`,
-      confirmRemovePlayer: (n) => `Supprimer ${n} et tout son historique ?`,
-      playerRemoved: (n) => `${n} supprimé.`,
-      dataLoaded: "Données chargées.",
-      dataInitialized: "Données initialisées.",
-      saveError: "⚠️ Erreur de sauvegarde.",
-      incompleteRounds: (names) => `Manches incomplètes pour : ${names}`,
-      noScoreEntered: "Aucun score saisi.",
-      roundsSaved: (n, date) => `${n} manche(s) enregistrée(s) pour le ${date}.`,
-      ignoredIncomplete: (names) => ` Ignoré (incomplet) : ${names}`,
       historyTitle: "📜 Historique des manches",
       historyJumpFirst: "Aller à la première manche",
       historyJumpLast: "Aller à la dernière manche",
@@ -1427,8 +1422,6 @@
       teeRed: "Départs rouges",
       teeWhite: "Départs blancs",
       teeLegend: "Repère : ",
-      teeClickHint: "cliquer pour changer",
-      teeChanged: (n, d) => `Départ modifié pour ${n} (${d}).`,
       btnShowTeeCompare: "🔴⚪ Afficher Rouge vs Blanc",
       btnHideTeeCompare: "🔴⚪ Masquer Rouge vs Blanc",
       btnShowBlankCard: "📋 Afficher ma carte",
@@ -1513,7 +1506,6 @@
       shotReplayHint: "Revoir les coups (lecture seule) — enregistré sur cet appareil au moment du jeu.",
       shotReplayNoDataHole: "Aucun coup enregistré sur ce trou.",
       historyReplayBtn: "🎬 Revoir les coups",
-      holeViewPenaltyArmedHint: "⚠️ Touchez la photo à l'endroit où la balle est sortie (eau, hors-limites...) : ce coup partira en pénalité, +1 coup ajouté automatiquement.",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
@@ -1565,9 +1557,7 @@
       costTotalTitle: "💰 Coût total (green fee + golfcar + caddie)",
       costTotalDesc: (team, lines) => `Équipe : ${team} ฿ — ${lines} — (1000 ฿/manche, 800 ฿ les lundis et mercredis)`,
       insightDayWinnerScore: "🥇 Vainqueur du jour (score)",
-      insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 Vainqueur du jour (putts)",
-      insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} putts (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 Vainqueurs du jour — ${date}`,
       insightBackToLatest: "↩ Revenir à la date la plus récente",
       totalPuttsLabel: "Total putts : ",
@@ -1589,14 +1579,6 @@
       weatherConditionStorm: "⛈️ Orage",
       windDirN: "N", windDirNE: "NE", windDirE: "E", windDirSE: "SE",
       windDirS: "S", windDirSW: "SO", windDirW: "O", windDirNW: "NO",
-      btnExportBackup: "💾 Exporter Excel",
-      btnRestoreBackup: "📥 Restaurer Excel",
-      backupSaved: "💾 Sauvegarde Excel enregistrée.",
-      backupError: "⚠️ Erreur lors de la génération de la sauvegarde Excel.",
-      confirmRestore: "Restaurer cette sauvegarde remplacera toutes les données actuelles (joueurs, historique, météo). Continuer ?",
-      restoreSuccess: (n) => `Sauvegarde restaurée : ${n} joueur(s).`,
-      restoreError: "⚠️ Fichier de sauvegarde invalide ou illisible.",
-      restoreNoPlayers: "⚠️ Aucun joueur trouvé dans ce fichier.",
       btnNotice: "📖 Notice utilisateur",
       btnBriefing: "🎓 Briefing Directeur",
       noticeTitle: "📖 Notice d'utilisation rapide",
@@ -1619,19 +1601,7 @@
       caddieName: "Nom",
       caddiePhone: "Téléphone",
       caddiePhoto: "Photo",
-      btnAddCaddie: "➕ Ajouter",
       noCaddies: "Aucun caddie enregistré.",
-      caddieMissingFields: "Numéro et nom du caddie requis.",
-      caddieExists: "Ce numéro de caddie existe déjà.",
-      caddieAdded: (n) => `Caddie ${n} ajouté.`,
-      caddieRemoved: (n) => `Caddie n°${n} supprimé.`,
-      confirmRemoveCaddie: (n) => `Supprimer le caddie n°${n} ?`,
-      caddieSelectTitle: "Choisir le caddie pour cette manche",
-      btnSaveCaddies: "💾 Enregistrer",
-      addCaddieSubtitle: "Ajouter un nouveau caddie",
-      caddiesSaved: "✅ Liste des caddies enregistrée.",
-      storageWarning: "⚠️ Espace de stockage insuffisant ou navigation privée détectée sur ce téléphone : la sauvegarde complète (historique + 10 caddies) pourrait échouer. Pensez à exporter régulièrement en Excel.",
-      storageTestOk: "✅ Test de mémoire réussi : la sauvegarde complète (historique + 10 caddies) fonctionne sur ce téléphone.",
       caddieCardRounds: (n) => `${n} manche(s) enregistrée(s) avec ce caddie`,
       caddieCardPlayers: "Joueurs accompagnés : ",
       caddieCardNoRounds: "Aucune manche enregistrée avec ce caddie pour l'instant",
@@ -1642,10 +1612,6 @@
       langLabel: "Language",
       subtitle: "Par 72 · 18 holes — 📖 View-only file",
       sessionDateLabel: "Round date:",
-      newSession: "New round",
-      btnSave: "💾 Save round",
-      btnNewSession: "🆕 New round",
-      btnAddPlayer: "➕ Add player",
       btnShowHistory: "📜 Show history",
       btnHideHistory: "📜 Hide history",
       btnShowEclectic: "🏆 Show eclectic",
@@ -1671,18 +1637,6 @@
       thHole: "Hole",
       thPlayer: "Player",
       deletePlayerTitle: "Remove this player",
-      promptNewPlayer: "New player's name:",
-      playerExists: "This player already exists.",
-      playerAdded: (n) => `${n} added.`,
-      confirmRemovePlayer: (n) => `Remove ${n} and all their history?`,
-      playerRemoved: (n) => `${n} removed.`,
-      dataLoaded: "Data loaded.",
-      dataInitialized: "Data initialized.",
-      saveError: "⚠️ Save error.",
-      incompleteRounds: (names) => `Incomplete rounds for: ${names}`,
-      noScoreEntered: "No score entered.",
-      roundsSaved: (n, date) => `${n} round(s) saved for ${date}.`,
-      ignoredIncomplete: (names) => ` Skipped (incomplete): ${names}`,
       historyTitle: "📜 Round history",
       historyJumpFirst: "Go to first round",
       historyJumpLast: "Go to latest round",
@@ -1707,8 +1661,6 @@
       teeRed: "Red tees",
       teeWhite: "White tees",
       teeLegend: "Legend: ",
-      teeClickHint: "click to change",
-      teeChanged: (n, d) => `Tee changed for ${n} (${d}).`,
       btnShowTeeCompare: "🔴⚪ Show Red vs White",
       btnHideTeeCompare: "🔴⚪ Hide Red vs White",
       btnShowBlankCard: "📋 Show my card",
@@ -1793,7 +1745,6 @@
       shotReplayHint: "Replay of shots (read-only) — recorded on this device while playing.",
       shotReplayNoDataHole: "No shot recorded on this hole.",
       historyReplayBtn: "🎬 Replay shots",
-      holeViewPenaltyArmedHint: "⚠️ Tap the photo where the ball went (water, out of bounds...): this shot will carry a penalty, +1 stroke added automatically.",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
@@ -1845,9 +1796,7 @@
       costTotalTitle: "💰 Total cost (green fee + golf cart + caddie)",
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/round, 800 ฿ on Mondays and Wednesdays)`,
       insightDayWinnerScore: "🥇 Winner of the day (score)",
-      insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 Winner of the day (putts)",
-      insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} putts (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 Winners of the day — ${date}`,
       insightBackToLatest: "↩ Back to latest date",
       totalPuttsLabel: "Total putts: ",
@@ -1869,14 +1818,6 @@
       weatherConditionStorm: "⛈️ Storm",
       windDirN: "N", windDirNE: "NE", windDirE: "E", windDirSE: "SE",
       windDirS: "S", windDirSW: "SW", windDirW: "W", windDirNW: "NW",
-      btnExportBackup: "💾 Export Excel",
-      btnRestoreBackup: "📥 Restore Excel",
-      backupSaved: "💾 Excel backup saved.",
-      backupError: "⚠️ Error generating the Excel backup.",
-      confirmRestore: "Restoring this backup will replace all current data (players, history, weather). Continue?",
-      restoreSuccess: (n) => `Backup restored: ${n} player(s).`,
-      restoreError: "⚠️ Invalid or unreadable backup file.",
-      restoreNoPlayers: "⚠️ No players found in this file.",
       btnNotice: "📖 User guide",
       btnBriefing: "🎓 Director briefing",
       noticeTitle: "📖 Quick user guide",
@@ -1899,19 +1840,7 @@
       caddieName: "Name",
       caddiePhone: "Phone",
       caddiePhoto: "Photo",
-      btnAddCaddie: "➕ Add",
       noCaddies: "No caddies registered.",
-      caddieMissingFields: "Caddie number and name required.",
-      caddieExists: "This caddie number already exists.",
-      caddieAdded: (n) => `Caddie ${n} added.`,
-      caddieRemoved: (n) => `Caddie #${n} removed.`,
-      confirmRemoveCaddie: (n) => `Remove caddie #${n}?`,
-      caddieSelectTitle: "Choose the caddie for this round",
-      btnSaveCaddies: "💾 Save",
-      addCaddieSubtitle: "Add a new caddie",
-      caddiesSaved: "✅ Caddie list saved.",
-      storageWarning: "⚠️ Insufficient storage space or private browsing detected on this phone: the full backup (history + 10 caddies) might fail. Consider exporting to Excel regularly.",
-      storageTestOk: "✅ Memory test passed: the full backup (history + 10 caddies) works on this phone.",
       caddieCardRounds: (n) => `${n} round(s) recorded with this caddie`,
       caddieCardPlayers: "Players caddied for: ",
       caddieCardNoRounds: "No rounds recorded with this caddie yet",
@@ -1922,10 +1851,6 @@
       langLabel: "Sprache",
       subtitle: "Par 72 · 18 Löcher — 📖 Nur-Lese-Datei",
       sessionDateLabel: "Rundendatum:",
-      newSession: "Neue Runde",
-      btnSave: "💾 Runde speichern",
-      btnNewSession: "🆕 Neue Runde",
-      btnAddPlayer: "➕ Spieler hinzufügen",
       btnShowHistory: "📜 Verlauf anzeigen",
       btnHideHistory: "📜 Verlauf ausblenden",
       btnShowEclectic: "🏆 Eclectic anzeigen",
@@ -1951,18 +1876,6 @@
       thHole: "Loch",
       thPlayer: "Spieler",
       deletePlayerTitle: "Diesen Spieler entfernen",
-      promptNewPlayer: "Name des neuen Spielers:",
-      playerExists: "Dieser Spieler existiert bereits.",
-      playerAdded: (n) => `${n} hinzugefügt.`,
-      confirmRemovePlayer: (n) => `${n} und den gesamten Verlauf löschen?`,
-      playerRemoved: (n) => `${n} entfernt.`,
-      dataLoaded: "Daten geladen.",
-      dataInitialized: "Daten initialisiert.",
-      saveError: "⚠️ Speicherfehler.",
-      incompleteRounds: (names) => `Unvollständige Runden für: ${names}`,
-      noScoreEntered: "Kein Ergebnis eingegeben.",
-      roundsSaved: (n, date) => `${n} Runde(n) gespeichert für ${date}.`,
-      ignoredIncomplete: (names) => ` Übersprungen (unvollständig): ${names}`,
       historyTitle: "📜 Rundenverlauf",
       historyJumpFirst: "Zur ersten Runde springen",
       historyJumpLast: "Zur letzten Runde springen",
@@ -1987,8 +1900,6 @@
       teeRed: "Rote Abschläge",
       teeWhite: "Weiße Abschläge",
       teeLegend: "Legende: ",
-      teeClickHint: "klicken zum Ändern",
-      teeChanged: (n, d) => `Abschlag geändert für ${n} (${d}).`,
       btnShowTeeCompare: "🔴⚪ Rot vs. Weiß anzeigen",
       btnHideTeeCompare: "🔴⚪ Rot vs. Weiß ausblenden",
       btnShowBlankCard: "📋 Meine Karte anzeigen",
@@ -2073,7 +1984,6 @@
       shotReplayHint: "Schläge ansehen (nur Lesen) — auf diesem Gerät beim Spielen erfasst.",
       shotReplayNoDataHole: "Kein Schlag für dieses Loch erfasst.",
       historyReplayBtn: "🎬 Schläge ansehen",
-      holeViewPenaltyArmedHint: "⚠️ Auf das Foto tippen, wo der Ball hinging (Wasser, Aus...): dieser Schlag erhält eine Strafe, +1 Schlag automatisch hinzugefügt.",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
@@ -2125,9 +2035,7 @@
       costTotalTitle: "💰 Gesamtkosten (Greenfee + Golfwagen + Caddie)",
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/Runde, 800 ฿ montags und mittwochs)`,
       insightDayWinnerScore: "🥇 Tagessieger (Ergebnis)",
-      insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 Tagessieger (Putts)",
-      insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} Putts (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 Tagessieger — ${date}`,
       insightBackToLatest: "↩ Zum neuesten Datum zurückkehren",
       totalPuttsLabel: "Putts gesamt: ",
@@ -2149,14 +2057,6 @@
       weatherConditionStorm: "⛈️ Gewitter",
       windDirN: "N", windDirNE: "NO", windDirE: "O", windDirSE: "SO",
       windDirS: "S", windDirSW: "SW", windDirW: "W", windDirNW: "NW",
-      btnExportBackup: "💾 Excel exportieren",
-      btnRestoreBackup: "📥 Excel wiederherstellen",
-      backupSaved: "💾 Excel-Sicherung gespeichert.",
-      backupError: "⚠️ Fehler beim Erstellen der Excel-Sicherung.",
-      confirmRestore: "Das Wiederherstellen dieser Sicherung ersetzt alle aktuellen Daten (Spieler, Verlauf, Wetter). Fortfahren?",
-      restoreSuccess: (n) => `Sicherung wiederhergestellt: ${n} Spieler.`,
-      restoreError: "⚠️ Ungültige oder nicht lesbare Sicherungsdatei.",
-      restoreNoPlayers: "⚠️ Keine Spieler in dieser Datei gefunden.",
       btnNotice: "📖 Bedienungsanleitung",
       btnBriefing: "🎓 Direktor-Briefing",
       noticeTitle: "📖 Kurzanleitung",
@@ -2179,19 +2079,7 @@
       caddieName: "Name",
       caddiePhone: "Telefon",
       caddiePhoto: "Foto",
-      btnAddCaddie: "➕ Hinzufügen",
       noCaddies: "Keine Caddies erfasst.",
-      caddieMissingFields: "Caddie-Nummer und Name erforderlich.",
-      caddieExists: "Diese Caddie-Nummer existiert bereits.",
-      caddieAdded: (n) => `Caddie ${n} hinzugefügt.`,
-      caddieRemoved: (n) => `Caddie Nr. ${n} entfernt.`,
-      confirmRemoveCaddie: (n) => `Caddie Nr. ${n} entfernen?`,
-      caddieSelectTitle: "Caddie für diese Runde wählen",
-      btnSaveCaddies: "💾 Speichern",
-      addCaddieSubtitle: "Neuen Caddie hinzufügen",
-      caddiesSaved: "✅ Caddie-Liste gespeichert.",
-      storageWarning: "⚠️ Unzureichender Speicherplatz oder privates Surfen auf diesem Telefon erkannt: Die vollständige Sicherung (Verlauf + 10 Caddies) könnte fehlschlagen. Exportieren Sie regelmäßig nach Excel.",
-      storageTestOk: "✅ Speichertest erfolgreich: Die vollständige Sicherung (Verlauf + 10 Caddies) funktioniert auf diesem Telefon.",
       caddieCardRounds: (n) => `${n} erfasste Runde(n) mit diesem Caddie`,
       caddieCardPlayers: "Begleitete Spieler: ",
       caddieCardNoRounds: "Noch keine Runde mit diesem Caddie erfasst",
@@ -2202,10 +2090,6 @@
       langLabel: "ภาษา",
       subtitle: "พาร์ 72 · 18 หลุม — 📖 ไฟล์สำหรับดูข้อมูลเท่านั้น",
       sessionDateLabel: "วันที่เล่น:",
-      newSession: "รอบใหม่",
-      btnSave: "💾 บันทึกรอบ",
-      btnNewSession: "🆕 รอบใหม่",
-      btnAddPlayer: "➕ เพิ่มผู้เล่น",
       btnShowHistory: "📜 แสดงประวัติ",
       btnHideHistory: "📜 ซ่อนประวัติ",
       btnShowEclectic: "🏆 แสดง Eclectic",
@@ -2231,18 +2115,6 @@
       thHole: "หลุม",
       thPlayer: "ผู้เล่น",
       deletePlayerTitle: "ลบผู้เล่นคนนี้",
-      promptNewPlayer: "ชื่อผู้เล่นใหม่:",
-      playerExists: "มีผู้เล่นคนนี้อยู่แล้ว",
-      playerAdded: (n) => `เพิ่ม ${n} แล้ว`,
-      confirmRemovePlayer: (n) => `ลบ ${n} พร้อมประวัติทั้งหมดหรือไม่?`,
-      playerRemoved: (n) => `ลบ ${n} แล้ว`,
-      dataLoaded: "โหลดข้อมูลแล้ว",
-      dataInitialized: "ตั้งค่าข้อมูลเริ่มต้นแล้ว",
-      saveError: "⚠️ เกิดข้อผิดพลาดในการบันทึก",
-      incompleteRounds: (names) => `รอบที่ยังไม่ครบสำหรับ: ${names}`,
-      noScoreEntered: "ยังไม่ได้กรอกสกอร์",
-      roundsSaved: (n, date) => `บันทึก ${n} รอบสำหรับวันที่ ${date} แล้ว`,
-      ignoredIncomplete: (names) => ` ข้ามไป (ข้อมูลไม่ครบ): ${names}`,
       historyTitle: "📜 ประวัติการเล่น",
       historyJumpFirst: "ไปยังรอบแรก",
       historyJumpLast: "ไปยังรอบล่าสุด",
@@ -2267,8 +2139,6 @@
       teeRed: "ทีออกแดง",
       teeWhite: "ทีออกขาว",
       teeLegend: "สัญลักษณ์: ",
-      teeClickHint: "คลิกเพื่อเปลี่ยน",
-      teeChanged: (n, d) => `เปลี่ยนทีออกสำหรับ ${n} (${d}) แล้ว`,
       btnShowTeeCompare: "🔴⚪ แสดงเปรียบเทียบ แดง vs ขาว",
       btnHideTeeCompare: "🔴⚪ ซ่อนเปรียบเทียบ แดง vs ขาว",
       btnShowBlankCard: "📋 แสดงการ์ดของฉัน",
@@ -2353,7 +2223,6 @@
       shotReplayHint: "ดูช็อตย้อนหลัง (อ่านอย่างเดียว) — บันทึกไว้บนอุปกรณ์นี้ขณะเล่น",
       shotReplayNoDataHole: "ไม่มีช็อตที่บันทึกไว้ในหลุมนี้",
       historyReplayBtn: "🎬 ดูช็อตย้อนหลัง",
-      holeViewPenaltyArmedHint: "⚠️ แตะที่ภาพตรงจุดที่ลูกไป (น้ำ, นอกสนาม...) ช็อตนี้จะมีเพนัลตี้ เพิ่ม 1 แต้มโดยอัตโนมัติ",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
@@ -2405,9 +2274,7 @@
       costTotalTitle: "💰 ค่าใช้จ่ายรวม (กรีนฟี + รถกอล์ฟ + แคดดี้)",
       costTotalDesc: (team, lines) => `ทีม: ${team} ฿ — ${lines} — (1000 ฿/รอบ, 800 ฿ วันจันทร์และวันพุธ)`,
       insightDayWinnerScore: "🥇 ผู้ชนะประจำวัน (สกอร์)",
-      insightDayWinnerScoreDesc: (n, tot, date) => `${n} — ${tot} (${date})`,
       insightDayWinnerPutts: "🎯 ผู้ชนะประจำวัน (พัตต์)",
-      insightDayWinnerPuttsDesc: (n, putts, date) => `${n} — ${putts} พัตต์ (${date})`,
       insightDayWinnersHonorTitle: (date) => `🏆 ผู้ชนะประจำวัน — ${date}`,
       insightBackToLatest: "↩ กลับไปยังวันที่ล่าสุด",
       totalPuttsLabel: "รวมพัตต์: ",
@@ -2429,14 +2296,6 @@
       weatherConditionStorm: "⛈️ พายุฝนฟ้าคะนอง",
       windDirN: "เหนือ", windDirNE: "ตอ.เฉียงเหนือ", windDirE: "ตะวันออก", windDirSE: "ตอ.เฉียงใต้",
       windDirS: "ใต้", windDirSW: "ตต.เฉียงใต้", windDirW: "ตะวันตก", windDirNW: "ตต.เฉียงเหนือ",
-      btnExportBackup: "💾 ส่งออก Excel",
-      btnRestoreBackup: "📥 กู้คืนจาก Excel",
-      backupSaved: "💾 บันทึกไฟล์สำรอง Excel แล้ว",
-      backupError: "⚠️ เกิดข้อผิดพลาดขณะสร้างไฟล์สำรอง Excel",
-      confirmRestore: "การกู้คืนไฟล์สำรองนี้จะแทนที่ข้อมูลปัจจุบันทั้งหมด (ผู้เล่น ประวัติ สภาพอากาศ) ต้องการดำเนินการต่อหรือไม่?",
-      restoreSuccess: (n) => `กู้คืนไฟล์สำรองแล้ว: ${n} ผู้เล่น`,
-      restoreError: "⚠️ ไฟล์สำรองไม่ถูกต้องหรืออ่านไม่ได้",
-      restoreNoPlayers: "⚠️ ไม่พบผู้เล่นในไฟล์นี้",
       btnNotice: "📖 คู่มือการใช้งาน",
       btnBriefing: "🎓 บรีฟฟิ่งผู้อำนวยการ",
       noticeTitle: "📖 คู่มือการใช้งานฉบับย่อ",
@@ -2459,19 +2318,7 @@
       caddieName: "ชื่อ",
       caddiePhone: "เบอร์โทรศัพท์",
       caddiePhoto: "รูปภาพ",
-      btnAddCaddie: "➕ เพิ่ม",
       noCaddies: "ยังไม่มีแคดดี้ที่บันทึกไว้",
-      caddieMissingFields: "ต้องระบุหมายเลขและชื่อแคดดี้",
-      caddieExists: "มีหมายเลขแคดดี้นี้อยู่แล้ว",
-      caddieAdded: (n) => `เพิ่มแคดดี้ ${n} แล้ว`,
-      caddieRemoved: (n) => `ลบแคดดี้หมายเลข ${n} แล้ว`,
-      confirmRemoveCaddie: (n) => `ลบแคดดี้หมายเลข ${n} หรือไม่?`,
-      caddieSelectTitle: "เลือกแคดดี้สำหรับรอบนี้",
-      btnSaveCaddies: "💾 บันทึก",
-      addCaddieSubtitle: "เพิ่มแคดดี้ใหม่",
-      caddiesSaved: "✅ บันทึกรายชื่อแคดดี้แล้ว",
-      storageWarning: "⚠️ ตรวจพบพื้นที่จัดเก็บไม่เพียงพอหรือโหมดเรียกดูแบบส่วนตัวบนโทรศัพท์เครื่องนี้: การสำรองข้อมูลแบบเต็ม (ประวัติ + แคดดี้ 10 คน) อาจล้มเหลว ควรส่งออกเป็น Excel เป็นประจำ",
-      storageTestOk: "✅ ทดสอบหน่วยความจำสำเร็จ: การสำรองข้อมูลแบบเต็ม (ประวัติ + แคดดี้ 10 คน) ใช้งานได้บนโทรศัพท์เครื่องนี้",
       caddieCardRounds: (n) => `บันทึกไว้ ${n} รอบกับแคดดี้คนนี้`,
       caddieCardPlayers: "ผู้เล่นที่ดูแล: ",
       caddieCardNoRounds: "ยังไม่มีการบันทึกรอบกับแคดดี้คนนี้",
@@ -3002,14 +2849,6 @@
     badge.title = isRed ? t('teeRed') : t('teeWhite');
   }
 
-  function todayISO(){
-    const d = new Date();
-    return d.toISOString().slice(0,10);
-  }
-  function isoToFr(iso){
-    const [y,m,d] = iso.split("-");
-    return `${d}/${m}/${y}`;
-  }
   function frToIso(fr){
     const [d,m,y] = fr.split("/");
     return `${y}-${m}-${d}`;
@@ -3155,8 +2994,6 @@
   // Normalise une manche (compatibilité avec les anciennes manches sans putt)
   function roundPutts(round){ return round[3] || Array(18).fill(0); }
   function roundCaddie(round){ return (round && round[5]) ? round[5] : ''; }
-
-  function sumArr(arr){ return arr.reduce((a,b)=> a + (Number(b)||0), 0); }
 
   // Coût de la manche en bahts : 800 les lundis/mercredis, 1000 les autres jours
   function roundCostBaht(dateFr){
@@ -4487,6 +4324,7 @@
     panel.innerHTML = `
       <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
         <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
+        <h3 style="margin:12px 0 4px;">${t('scanReadyTitle')}</h3>
         <p class="sub" style="margin:10px 0; color:#555;">${t('scanReadyHint')}</p>
         <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(16px, 4.2vw, 22px); font-weight:700; line-height:1.5; color:#000; background:#fff; border:3px solid #000; border-radius:8px; padding:14px; margin:0;">${text.replace(/</g,'&lt;')}</pre>
       </div>`;
@@ -4869,19 +4707,6 @@
       if (draft && draft.scores) drafts.push(draft);
     });
     return drafts;
-  }
-
-  function teamRecapApplyImportedText(trimmed){
-    if (!trimmed) return {status: 'invalid'};
-    let draft = null;
-    try {
-      const cleaned = trimmed.replace(/\s+/g, '');
-      const parsed = JSON.parse(decodeURIComponent(escape(atob(cleaned))));
-      if (parsed && parsed.scores) draft = parsed;
-    } catch(e){ /* pas le format technique : on essaie le texte lisible ci-dessous */ }
-    if (!draft) draft = blankCardParseReadableText(trimmed);
-    if (!draft || !draft.scores) return {status: 'invalid'};
-    return teamRecapCommitDraft(draft);
   }
 
   // Version "en lot" : reconnaît un texte contenant une OU plusieurs cartes (le Directeur
