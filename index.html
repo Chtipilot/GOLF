@@ -1203,7 +1203,10 @@
   //   V01.005.050 — Bouton "🎬 Revoir les coups" de l'historique rendu plus visible : couleur dorée
   //                 distincte (au lieu du gris discret), texte complet affiché (pas juste l'icône),
   //                 taille et poids de police augmentés, petite ombre portée.
-  const APP_VERSION = "SuarPark - V01.005.050";
+  //   V01.005.051 — Ajout d'un 2e créneau de test LOUIS 02/01/2023 (scores placeholder = Par, départ
+  //                 WHITE, caddie 19), pour un nouvel essai de saisie/replay demandé par le
+  //                 Directeur de session.
+  const APP_VERSION = "SuarPark - V01.005.051";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2589,6 +2592,8 @@
         // etc.), scores placeholder (= Par sur chaque trou) : à ne jamais utiliser comme vraie
         // manche pour les statistiques.
         ["01/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"red","19"],
+        // 02/01/2023 — Deuxième créneau de test (même principe que le 01/01/2023).
+        ["02/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"white","19"],
         ["01/01/2024",[8,6,6,5,5,6,5,7,5,5,6,5,7,3,6,10,5,7]],
         ["10/01/2024",[7,5,12,5,6,9,7,5,5,6,6,3,8,8,11,6,7,5]],
         ["15/01/2024",[7,8,6,5,7,6,7,5,8,6,5,4,10,4,6,10,8,6]],
