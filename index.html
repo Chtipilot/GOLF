@@ -331,6 +331,7 @@
     <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
     <button class="btn btn-secondary" id="btnToggleTeeCompare">🔴⚪ Rouge vs Blanc</button>
     <button class="btn btn-secondary" id="btnToggleRules">📖 Règlement</button>
+    <button class="btn btn-secondary" id="btnToggleGuide">🗺️ Guide rapide</button>
   </div>
 </div>
 <div class="status" id="status"></div>
@@ -342,6 +343,7 @@
 <div id="insightsSection" style="display:none; margin-top:10px;"></div>
 <div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
 <div id="rulesSection" style="display:none; margin-top:10px;"></div>
+<div id="guideSection" style="display:none; margin-top:10px;"></div>
 <div id="blankCardSection"></div>
 <div id="teamRecapSection"></div>
 
@@ -1247,7 +1249,12 @@
   //                 les cartes reçues via le CODE TECHNIQUE (base64) transportent les vraies
   //                 coordonnées des coups ; le texte lisible ne transporte que le nombre de
   //                 pénalités par trou (pas de position exacte).
-  const APP_VERSION = "SuarPark - V01.005.057";
+  //   V01.005.058 — Nouveau bouton "🗺️ Guide rapide" sur la page d'accueil, à côté du Règlement :
+  //                 synoptique en 7 étapes numérotées de l'utilisation de la carte de score sur le
+  //                 terrain (Afficher ma carte → Afficher le trou → cliquer les coups → pénalité si
+  //                 besoin → valider → trou suivant → copier la carte en fin de partie), dans les 4
+  //                 langues. Emplacement pensé pour un accès rapide en cours de partie.
+  const APP_VERSION = "SuarPark - V01.005.058";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1412,6 +1419,19 @@
       rulesTitle: "📖 Règlement — situations courantes",
       rulesSubtitle: "Résumé pédagogique en langage simple, pour une partie amicale. Ce n'est pas le texte officiel du R&A — en cas de doute ou de compétition, se référer à l'outil officiel ci-dessous.",
       rulesOfficialLinkText: "🔗 Outil officiel de recherche des règles (R&A, en français)",
+      btnShowGuide: "🗺️ Guide rapide",
+      btnHideGuide: "🗺️ Masquer le guide",
+      guideTitle: "🗺️ Guide rapide — Carte de score sur le terrain",
+      guideSubtitle: "Les 7 étapes pour bien utiliser la carte pendant la partie.",
+      GUIDE_STEPS: [
+        ["📋", "Afficher ma carte", "Avant de partir : renseigne ton nom, la date, le départ (Rouge/Blanc) et le caddie."],
+        ["⛳", "Afficher le trou", "Sur chaque trou : ouvre la photo satellite pour voir la difficulté et le club conseillé."],
+        ["👆", "Cliquer les coups", "Touche la photo à l'endroit où atterrit chaque coup — un clic = un coup compté."],
+        ["⚠️", "Pénalité ?", "Balle à l'eau, hors-limites, injouable : touche « + Pénalité » pour convertir ton dernier point (+1 coup automatique)."],
+        ["✓", "Valider", "Le dernier coup passe en vert, le score est reporté dans la carte après 3 secondes."],
+        ["↻", "Trou suivant", "Recommence depuis l'étape 2 pour chaque trou, du 1 au 18."],
+        ["📝", "Fin de partie", "Utilise « Copier ma carte » pour envoyer ton résultat au Directeur de session."],
+      ],
       rulesPenaltyLabel: "Pénalité",
       RULES_DATA: [
         ["🔍 Balle perdue", "Vous disposez de 3 minutes pour la chercher. Si elle reste introuvable, retournez à l'endroit du coup précédent et rejouez.", "+1 coup (coup et distance)"],
@@ -1652,6 +1672,19 @@
       rulesTitle: "📖 Rules — common situations",
       rulesSubtitle: "Plain-language summary for friendly play. This is not the official R&A text — for doubts or competitions, refer to the official tool below.",
       rulesOfficialLinkText: "🔗 Official rules search tool (R&A)",
+      btnShowGuide: "🗺️ Quick guide",
+      btnHideGuide: "🗺️ Hide guide",
+      guideTitle: "🗺️ Quick guide — Scorecard on the course",
+      guideSubtitle: "The 7 steps to use the scorecard well while playing.",
+      GUIDE_STEPS: [
+        ["📋", "Show my card", "Before starting: enter your name, the date, the tee (Red/White), and the caddie."],
+        ["⛳", "Show the hole", "On each hole: open the satellite photo to see the difficulty and suggested club."],
+        ["👆", "Tap the shots", "Tap the photo where each shot lands — one tap = one stroke counted."],
+        ["⚠️", "Penalty?", "Water, out of bounds, unplayable: tap \"+ Penalty\" to convert your last point (+1 stroke automatically)."],
+        ["✓", "Validate", "The last shot turns green, the score is reported in the card after 3 seconds."],
+        ["↻", "Next hole", "Start again from step 2 for each hole, 1 through 18."],
+        ["📝", "End of round", "Use \"Copy my card\" to send your result to the Session Director."],
+      ],
       rulesPenaltyLabel: "Penalty",
       RULES_DATA: [
         ["🔍 Lost ball", "You have 3 minutes to search. If not found, return to where you played your previous shot and replay.", "+1 stroke (stroke and distance)"],
@@ -1892,6 +1925,19 @@
       rulesTitle: "📖 Regeln — häufige Situationen",
       rulesSubtitle: "Verständliche Zusammenfassung für ein freundschaftliches Spiel. Dies ist nicht der offizielle R&A-Text — bei Zweifeln oder im Wettspiel bitte das offizielle Tool unten nutzen.",
       rulesOfficialLinkText: "🔗 Offizielles Regel-Suchtool (R&A)",
+      btnShowGuide: "🗺️ Kurzanleitung",
+      btnHideGuide: "🗺️ Anleitung ausblenden",
+      guideTitle: "🗺️ Kurzanleitung — Scorekarte auf dem Platz",
+      guideSubtitle: "Die 7 Schritte zur richtigen Nutzung der Scorekarte während der Runde.",
+      GUIDE_STEPS: [
+        ["📋", "Meine Karte anzeigen", "Vor dem Start: Name, Datum, Abschlag (Rot/Weiß) und Caddie eintragen."],
+        ["⛳", "Loch anzeigen", "Bei jedem Loch: Satellitenfoto öffnen, um Schwierigkeit und empfohlenen Schläger zu sehen."],
+        ["👆", "Schläge antippen", "Auf das Foto tippen, wo jeder Schlag landet — ein Tipp = ein gezählter Schlag."],
+        ["⚠️", "Strafe?", "Wasser, Aus, unspielbar: «+ Strafe» antippen, um den letzten Punkt umzuwandeln (+1 Schlag automatisch)."],
+        ["✓", "Bestätigen", "Der letzte Schlag wird grün, der Score wird nach 3 Sekunden in der Karte übernommen."],
+        ["↻", "Nächstes Loch", "Ab Schritt 2 für jedes Loch wiederholen, 1 bis 18."],
+        ["📝", "Rundenende", "«Meine Karte kopieren» nutzen, um das Ergebnis an den Session-Direktor zu senden."],
+      ],
       rulesPenaltyLabel: "Strafe",
       RULES_DATA: [
         ["🔍 Verlorener Ball", "Sie haben 3 Minuten Suchzeit. Wird der Ball nicht gefunden, gehen Sie zur Stelle des vorherigen Schlags zurück und spielen erneut.", "+1 Schlag (Schlag und Entfernung)"],
@@ -2132,6 +2178,19 @@
       rulesTitle: "📖 กติกา — สถานการณ์ที่พบบ่อย",
       rulesSubtitle: "สรุปแบบเข้าใจง่ายสำหรับการเล่นแบบสบายๆ ไม่ใช่ข้อความทางการของ R&A — หากมีข้อสงสัยหรือแข่งขันจริง ให้ใช้เครื่องมือทางการด้านล่าง",
       rulesOfficialLinkText: "🔗 เครื่องมือค้นหากติกาทางการ (R&A)",
+      btnShowGuide: "🗺️ คู่มือด่วน",
+      btnHideGuide: "🗺️ ซ่อนคู่มือ",
+      guideTitle: "🗺️ คู่มือด่วน — การ์ดคะแนนบนสนาม",
+      guideSubtitle: "7 ขั้นตอนการใช้การ์ดคะแนนระหว่างเล่น",
+      GUIDE_STEPS: [
+        ["📋", "แสดงการ์ดของฉัน", "ก่อนออกรอบ: กรอกชื่อ วันที่ ทีออก (แดง/ขาว) และแคดดี้"],
+        ["⛳", "แสดงหลุม", "ในแต่ละหลุม: เปิดภาพดาวเทียมเพื่อดูความยากและไม้ที่แนะนำ"],
+        ["👆", "แตะบันทึกช็อต", "แตะที่ภาพตรงจุดที่ลูกตกในแต่ละช็อต หนึ่งแตะ = หนึ่งช็อต"],
+        ["⚠️", "เพนัลตี้?", "ลงน้ำ นอกสนาม เล่นไม่ได้: แตะ \"+ เพนัลตี้\" เพื่อแปลงจุดล่าสุด (เพิ่ม 1 แต้มอัตโนมัติ)"],
+        ["✓", "ยืนยัน", "ช็อตสุดท้ายเปลี่ยนเป็นสีเขียว คะแนนจะถูกบันทึกในการ์ดหลังจาก 3 วินาที"],
+        ["↻", "หลุมถัดไป", "เริ่มใหม่จากขั้นตอนที่ 2 สำหรับแต่ละหลุม ตั้งแต่ 1 ถึง 18"],
+        ["📝", "จบรอบ", "ใช้ \"คัดลอกการ์ดของฉัน\" เพื่อส่งผลให้ผู้อำนวยการเซสชัน"],
+      ],
       rulesPenaltyLabel: "บทลงโทษ",
       RULES_DATA: [
         ["🔍 ลูกหาย", "คุณมีเวลาค้นหา 3 นาที หากหาไม่พบ ให้กลับไปยังจุดที่ตีครั้งก่อนแล้วตีใหม่", "+1 แต้ม (ตีซ้ำและระยะ)"],
@@ -2378,6 +2437,8 @@
     document.getElementById('btnToggleTeeCompare').textContent = teeCompareVisible ? t('btnHideTeeCompare') : t('btnShowTeeCompare');
     document.getElementById('btnToggleRules').textContent = rulesVisible ? t('btnHideRules') : t('btnShowRules');
     if (rulesVisible) renderRules();
+    document.getElementById('btnToggleGuide').textContent = guideVisible ? t('btnHideGuide') : t('btnShowGuide');
+    if (guideVisible) renderGuide();
     document.getElementById('tileBlankCardLabel').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
     document.getElementById('tileTeamRecapLabel').textContent = teamRecapVisible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
     document.getElementById('btnNotice').textContent = t('btnNotice');
@@ -2622,6 +2683,7 @@
   let statsVisible = false;
   let insightsVisible = false;
   let rulesVisible = false;
+  let guideVisible = false;
   let detailsVisible = false;
   let noticeVisible = false;
   let teeCompareVisible = false;
@@ -3615,6 +3677,22 @@
       <p style="margin-top:14px;">
         <a href="https://www.randa.org/fr-FR/rog/players-edition" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; display:inline-block;">${t('rulesOfficialLinkText')}</a>
       </p>`;
+  }
+
+  function renderGuide(){
+    const container = document.getElementById('guideSection');
+    const steps = (t('GUIDE_STEPS') || []).map(([icon, title, desc], i) => `
+      <div style="display:flex; gap:12px; align-items:flex-start; padding:12px 0; ${i < 6 ? 'border-bottom:1px solid #eee;' : ''}">
+        <div style="flex:0 0 auto; width:36px; height:36px; border-radius:50%; background:var(--green-deep); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px;">${i+1}</div>
+        <div style="flex:1;">
+          <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--green-deep);">${icon} ${title}</div>
+          <div style="font-size:13px; color:#555; margin-top:2px;">${desc}</div>
+        </div>
+      </div>`).join("");
+    container.innerHTML = `
+      <h3>${t('guideTitle')}</h3>
+      <p class="sub">${t('guideSubtitle')}</p>
+      <div style="background:#fff; border-radius:10px; padding:4px 14px; margin-top:8px;">${steps}</div>`;
   }
 
   function renderInsights(){
@@ -5933,6 +6011,12 @@
       document.getElementById('rulesSection').style.display = rulesVisible ? 'block' : 'none';
       document.getElementById('btnToggleRules').textContent = rulesVisible ? t('btnHideRules') : t('btnShowRules');
       if (rulesVisible) renderRules();
+    });
+    document.getElementById('btnToggleGuide').addEventListener('click', () => {
+      guideVisible = !guideVisible;
+      document.getElementById('guideSection').style.display = guideVisible ? 'block' : 'none';
+      document.getElementById('btnToggleGuide').textContent = guideVisible ? t('btnHideGuide') : t('btnShowGuide');
+      if (guideVisible) renderGuide();
     });
     document.getElementById('btnToggleBlankCard').addEventListener('click', () => {
       setBlankCardVisible(!blankCardVisible);
