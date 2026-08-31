@@ -208,6 +208,7 @@
   <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
     <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;">GOLF_TEAM <span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
     <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
+    <button class="btn btn-secondary info-ref" id="btnToggleGuide" style="font-size:11px; padding:4px 8px;">🗺️ Guide rapide</button>
     <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
   </div>
 </div>
@@ -215,6 +216,7 @@
 <p class="sub" id="appSubtitle">Départs rouges · Par 72 · 18 trous</p>
 
 <div id="noticeSection" style="display:none; margin:6px 0 12px 0; background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.6; color:#1a3c34;"></div>
+<div id="guideSection" style="display:none; margin:6px 0 12px 0; background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px;"></div>
 
 <hr class="header-separator">
 
@@ -331,7 +333,6 @@
     <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
     <button class="btn btn-secondary" id="btnToggleTeeCompare">🔴⚪ Rouge vs Blanc</button>
     <button class="btn btn-secondary" id="btnToggleRules">📖 Règlement</button>
-    <button class="btn btn-secondary" id="btnToggleGuide">🗺️ Guide rapide</button>
   </div>
 </div>
 <div class="status" id="status"></div>
@@ -343,7 +344,6 @@
 <div id="insightsSection" style="display:none; margin-top:10px;"></div>
 <div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
 <div id="rulesSection" style="display:none; margin-top:10px;"></div>
-<div id="guideSection" style="display:none; margin-top:10px;"></div>
 <div id="blankCardSection"></div>
 <div id="teamRecapSection"></div>
 
@@ -1254,7 +1254,11 @@
   //                 terrain (Afficher ma carte → Afficher le trou → cliquer les coups → pénalité si
   //                 besoin → valider → trou suivant → copier la carte en fin de partie), dans les 4
   //                 langues. Emplacement pensé pour un accès rapide en cours de partie.
-  const APP_VERSION = "SuarPark - V01.005.058";
+  //   V01.005.059 — Bouton "🗺️ Guide rapide" déplacé en haut, à côté de "📖 Notice utilisateur" (et
+  //                 avant "🎓 Briefing Directeur") — plus visible qu'au milieu des nombreux boutons
+  //                 du bas de page. Son contenu s'affiche désormais aussi juste sous l'en-tête,
+  //                 même emplacement que la Notice utilisateur, pour rester cohérent.
+  const APP_VERSION = "SuarPark - V01.005.059";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
