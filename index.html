@@ -1271,7 +1271,11 @@
   //                 reste après avoir retiré la date de la ligne titre). Repéré via un test réel du
   //                 Directeur de session. Jour et mois acceptent désormais 1 ou 2 chiffres, puis sont
   //                 normalisés avec un zéro en tête pour rester cohérents avec le reste de l'appli.
-  const APP_VERSION = "SuarPark - V01.005.061";
+  //   V01.005.062 — "📝 Copier ma carte" affiche désormais le contenu copié dans un panneau de
+  //                 vérification (même présentation que "Carte prête à photographier", avec un
+  //                 bandeau ✅ confirmant la copie) — permet de relire ce qui va être envoyé avant de
+  //                 le coller dans un message, plutôt que de faire confiance à une simple alerte.
+  const APP_VERSION = "SuarPark - V01.005.062";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1536,6 +1540,7 @@
       blankCardExportCopied: "Code copié dans le presse-papier ! Envoie-le à l'autre joueur (SMS, LINE...) pour qu'il puisse l'importer sur son téléphone.",
       blankCardExportFallbackTitle: "Copie ce code et envoie-le à l'autre joueur :",
       blankCardExportTextCopied: "Texte copié dans le presse-papier ! Colle-le directement dans un SMS, LINE, WhatsApp...",
+      blankCardCopiedPreviewTitle: "📝 Contenu copié",
       blankCardExportTextFallbackTitle: "Copie ce texte et envoie-le :",
       blankCardTextLabelTee: "Départ",
       blankCardTextLabelCaddie: "Caddie",
@@ -1789,6 +1794,7 @@
       blankCardExportCopied: "Code copied to clipboard! Send it to the other player (SMS, LINE...) so they can import it on their phone.",
       blankCardExportFallbackTitle: "Copy this code and send it to the other player:",
       blankCardExportTextCopied: "Text copied to clipboard! Paste it directly into a text message, LINE, WhatsApp...",
+      blankCardCopiedPreviewTitle: "📝 Copied content",
       blankCardExportTextFallbackTitle: "Copy this text and send it:",
       blankCardTextLabelTee: "Tee",
       blankCardTextLabelCaddie: "Caddie",
@@ -2042,6 +2048,7 @@
       blankCardExportCopied: "Code in die Zwischenablage kopiert! Sende ihn an den anderen Spieler (SMS, LINE...), damit er ihn auf seinem Handy importieren kann.",
       blankCardExportFallbackTitle: "Kopiere diesen Code und sende ihn an den anderen Spieler:",
       blankCardExportTextCopied: "Text in die Zwischenablage kopiert! Füge ihn direkt in eine SMS, LINE, WhatsApp... ein.",
+      blankCardCopiedPreviewTitle: "📝 Kopierter Inhalt",
       blankCardExportTextFallbackTitle: "Kopiere diesen Text und sende ihn:",
       blankCardTextLabelTee: "Abschlag",
       blankCardTextLabelCaddie: "Caddie",
@@ -2295,6 +2302,7 @@
       blankCardExportCopied: "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว! ส่งให้ผู้เล่นอีกคน (SMS, LINE...) เพื่อนำเข้าในโทรศัพท์ของเขา",
       blankCardExportFallbackTitle: "คัดลอกโค้ดนี้และส่งให้ผู้เล่นอีกคน:",
       blankCardExportTextCopied: "คัดลอกข้อความไปยังคลิปบอร์ดแล้ว! วางลงใน SMS, LINE, WhatsApp ได้โดยตรง",
+      blankCardCopiedPreviewTitle: "📝 เนื้อหาที่คัดลอก",
       blankCardExportTextFallbackTitle: "คัดลอกข้อความนี้และส่งต่อ:",
       blankCardTextLabelTee: "ทีออก",
       blankCardTextLabelCaddie: "แคดดี้",
@@ -4450,12 +4458,31 @@
 
   function blankCardExportText(){
     const text = buildBlankCardReadableText();
-    const finish = () => window.alert(t('blankCardExportTextCopied'));
+    const showPreview = () => blankCardShowCopiedPreview(text);
     if (navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(finish).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), text));
+      navigator.clipboard.writeText(text).then(showPreview).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), text));
     } else {
       window.prompt(t('blankCardExportTextFallbackTitle'), text);
     }
+  }
+
+  // Affiche le contenu qui vient d'être copié dans le presse-papier, pour vérification avant
+  // envoi — même présentation que "Carte prête à photographier", avec un bandeau de confirmation
+  // de copie en plus.
+  function blankCardShowCopiedPreview(text){
+    const panel = document.getElementById('scanReadyPanel');
+    panel.style.display = 'block';
+    panel.innerHTML = `
+      <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
+        <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
+        <h3 style="margin:12px 0 4px;">${t('blankCardCopiedPreviewTitle')}</h3>
+        <p class="sub" style="margin:10px 0; color:#2E7D32; font-weight:bold;">✅ ${t('blankCardExportTextCopied')}</p>
+        <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(14px, 3.6vw, 18px); line-height:1.5; color:#000; background:#f7f3ea; border:2px solid #c9a668; border-radius:8px; padding:14px; margin:0;">${text.replace(/</g,'&lt;')}</pre>
+      </div>`;
+    document.getElementById('btnScanReadyClose').addEventListener('click', () => {
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+    });
   }
 
   // Affiche la carte en plein écran, en gros caractères noirs sur fond blanc, sans couleurs
