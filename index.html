@@ -1275,7 +1275,13 @@
   //                 vérification (même présentation que "Carte prête à photographier", avec un
   //                 bandeau ✅ confirmant la copie) — permet de relire ce qui va être envoyé avant de
   //                 le coller dans un message, plutôt que de faire confiance à une simple alerte.
-  const APP_VERSION = "SuarPark - V01.005.062";
+  //   V01.005.063 — Ajout de boutons de partage direct dans le panneau "Contenu copié" : "📤
+  //                 Partager" (utilise le partage natif du téléphone — ouvre WhatsApp, Messenger,
+  //                 SMS, LINE... selon ce qui est installé, sans dépendre de liens spécifiques par
+  //                 appli) et "📧 E-mail" (lien mailto direct, avec le texte déjà rempli dans le
+  //                 corps du message). Le texte reste de toute façon déjà copié dans le
+  //                 presse-papier en parallèle.
+  const APP_VERSION = "SuarPark - V01.005.063";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1541,6 +1547,9 @@
       blankCardExportFallbackTitle: "Copie ce code et envoie-le à l'autre joueur :",
       blankCardExportTextCopied: "Texte copié dans le presse-papier ! Colle-le directement dans un SMS, LINE, WhatsApp...",
       blankCardCopiedPreviewTitle: "📝 Contenu copié",
+      blankCardBtnShareNative: "📤 Partager (WhatsApp, Messenger, SMS...)",
+      blankCardBtnShareEmail: "📧 E-mail",
+      blankCardShareHint: "Le texte est déjà copié : « Partager » ouvre les applis installées sur ton téléphone (WhatsApp, Messenger, SMS...), ou choisis « E-mail ».",
       blankCardExportTextFallbackTitle: "Copie ce texte et envoie-le :",
       blankCardTextLabelTee: "Départ",
       blankCardTextLabelCaddie: "Caddie",
@@ -1795,6 +1804,9 @@
       blankCardExportFallbackTitle: "Copy this code and send it to the other player:",
       blankCardExportTextCopied: "Text copied to clipboard! Paste it directly into a text message, LINE, WhatsApp...",
       blankCardCopiedPreviewTitle: "📝 Copied content",
+      blankCardBtnShareNative: "📤 Share (WhatsApp, Messenger, SMS...)",
+      blankCardBtnShareEmail: "📧 Email",
+      blankCardShareHint: "The text is already copied: \"Share\" opens the apps installed on your phone (WhatsApp, Messenger, SMS...), or choose \"Email\".",
       blankCardExportTextFallbackTitle: "Copy this text and send it:",
       blankCardTextLabelTee: "Tee",
       blankCardTextLabelCaddie: "Caddie",
@@ -2049,6 +2061,9 @@
       blankCardExportFallbackTitle: "Kopiere diesen Code und sende ihn an den anderen Spieler:",
       blankCardExportTextCopied: "Text in die Zwischenablage kopiert! Füge ihn direkt in eine SMS, LINE, WhatsApp... ein.",
       blankCardCopiedPreviewTitle: "📝 Kopierter Inhalt",
+      blankCardBtnShareNative: "📤 Teilen (WhatsApp, Messenger, SMS...)",
+      blankCardBtnShareEmail: "📧 E-Mail",
+      blankCardShareHint: "Der Text ist bereits kopiert: «Teilen» öffnet die auf deinem Telefon installierten Apps (WhatsApp, Messenger, SMS...), oder wähle «E-Mail».",
       blankCardExportTextFallbackTitle: "Kopiere diesen Text und sende ihn:",
       blankCardTextLabelTee: "Abschlag",
       blankCardTextLabelCaddie: "Caddie",
@@ -2303,6 +2318,9 @@
       blankCardExportFallbackTitle: "คัดลอกโค้ดนี้และส่งให้ผู้เล่นอีกคน:",
       blankCardExportTextCopied: "คัดลอกข้อความไปยังคลิปบอร์ดแล้ว! วางลงใน SMS, LINE, WhatsApp ได้โดยตรง",
       blankCardCopiedPreviewTitle: "📝 เนื้อหาที่คัดลอก",
+      blankCardBtnShareNative: "📤 แชร์ (WhatsApp, Messenger, SMS...)",
+      blankCardBtnShareEmail: "📧 อีเมล",
+      blankCardShareHint: "ข้อความถูกคัดลอกแล้ว: \"แชร์\" จะเปิดแอปที่ติดตั้งบนโทรศัพท์ของคุณ (WhatsApp, Messenger, SMS...) หรือเลือก \"อีเมล\"",
       blankCardExportTextFallbackTitle: "คัดลอกข้อความนี้และส่งต่อ:",
       blankCardTextLabelTee: "ทีออก",
       blankCardTextLabelCaddie: "แคดดี้",
@@ -4472,17 +4490,30 @@
   function blankCardShowCopiedPreview(text){
     const panel = document.getElementById('scanReadyPanel');
     panel.style.display = 'block';
+    const canShare = !!(navigator.share);
+    const shareBtn = canShare ? `<button class="btn no-print" id="btnCopiedShare" style="background:#2E7D32; margin-left:8px;">${t('blankCardBtnShareNative')}</button>` : '';
+    const mailHref = `mailto:?subject=${encodeURIComponent('SuarPark')}&body=${encodeURIComponent(text)}`;
     panel.innerHTML = `
       <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
         <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
         <h3 style="margin:12px 0 4px;">${t('blankCardCopiedPreviewTitle')}</h3>
         <p class="sub" style="margin:10px 0; color:#2E7D32; font-weight:bold;">✅ ${t('blankCardExportTextCopied')}</p>
+        <div style="margin:10px 0; display:flex; flex-wrap:wrap; gap:8px;">
+          ${shareBtn}
+          <a class="btn btn-secondary" href="${mailHref}" style="text-decoration:none; display:inline-block;">${t('blankCardBtnShareEmail')}</a>
+        </div>
+        <p class="sub" style="font-size:11px; margin:4px 0 10px;">${t('blankCardShareHint')}</p>
         <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(14px, 3.6vw, 18px); line-height:1.5; color:#000; background:#f7f3ea; border:2px solid #c9a668; border-radius:8px; padding:14px; margin:0;">${text.replace(/</g,'&lt;')}</pre>
       </div>`;
     document.getElementById('btnScanReadyClose').addEventListener('click', () => {
       panel.style.display = 'none';
       panel.innerHTML = '';
     });
+    if (canShare){
+      document.getElementById('btnCopiedShare').addEventListener('click', () => {
+        navigator.share({text}).catch(() => {}); // annulation par l'utilisateur : rien à faire
+      });
+    }
   }
 
   // Affiche la carte en plein écran, en gros caractères noirs sur fond blanc, sans couleurs
