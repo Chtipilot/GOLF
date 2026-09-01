@@ -1296,7 +1296,14 @@
   //                 partage natif — certains téléphones filtrent les applis compatibles selon les
   //                 champs fournis, un texte seul sans titre pouvait ne correspondre à aucune appli
   //                 enregistrée.
-  const APP_VERSION = "SuarPark - V01.005.065";
+  //   V01.005.066 — Données caddies (téléphones + photos) sorties de ce fichier vers un fichier
+  //                 local non versionné (caddies-data.js, voir .gitignore) : plus aucune donnée
+  //                 personnelle dans le dépôt GitHub. Ajout GPS dans "Afficher le trou" : chaque
+  //                 coup cliqué capte la position de l'appareil (asynchrone), le 1er coup sert de
+  //                 référence "départ" (Blanc/Rouge), distance au départ + au coup précédent
+  //                 affichées sous la photo. Bouton "📍 Recapturer le départ" pour re-capter le GPS
+  //                 du 1er coup sans re-cliquer sur la photo, si le relevé initial a échoué.
+  const APP_VERSION = "SuarPark - V01.005.066";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
