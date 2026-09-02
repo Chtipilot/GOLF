@@ -1303,7 +1303,14 @@
   //                 référence "départ" (Blanc/Rouge), distance au départ + au coup précédent
   //                 affichées sous la photo. Bouton "📍 Recapturer le départ" pour re-capter le GPS
   //                 du 1er coup sans re-cliquer sur la photo, si le relevé initial a échoué.
-  const APP_VERSION = "SuarPark - V01.005.066";
+  //   V01.005.067 — Correction : le "départ" n'est plus déduit du 1er coup cliqué (qui représente
+  //                 en réalité l'endroit où la balle est tombée, jamais le départ lui-même — cf.
+  //                 consigne "Touchez la photo à l'endroit où la balle atterrit"). Le départ est
+  //                 désormais capté séparément via le bouton renommé "📍 Marquer le départ ici",
+  //                 disponible à tout moment (avant même le 1er clic). Sans cette action explicite,
+  //                 aucune distance "depuis le départ" n'est affichée pour le trou plutôt qu'une
+  //                 valeur erronée basée sur le 1er coup.
+  const APP_VERSION = "SuarPark - V01.005.067";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1610,7 +1617,7 @@
       holeViewGeoFromPrev: (yd) => `${yd} yd du coup précédent`,
       holeViewGeoPending: "Localisation en cours…",
       holeViewGeoUnavailable: "GPS indisponible pour ce coup",
-      holeViewBtnRecaptureTee: "📍 Recapturer le départ",
+      holeViewBtnRecaptureTee: "📍 Marquer le départ ici",
       holeViewGeoRecaptured: "Position du départ mise à jour.",
       shotReplayHint: "Revoir les coups (lecture seule) — enregistré sur cet appareil au moment du jeu.",
       shotReplayNoDataHole: "Aucun coup enregistré sur ce trou.",
@@ -1873,7 +1880,7 @@
       holeViewGeoFromPrev: (yd) => `${yd} yd from previous shot`,
       holeViewGeoPending: "Locating…",
       holeViewGeoUnavailable: "GPS unavailable for this shot",
-      holeViewBtnRecaptureTee: "📍 Recapture tee",
+      holeViewBtnRecaptureTee: "📍 Mark tee here",
       holeViewGeoRecaptured: "Tee position updated.",
       shotReplayHint: "Replay of shots (read-only) — recorded on this device while playing.",
       shotReplayNoDataHole: "No shot recorded on this hole.",
@@ -2136,7 +2143,7 @@
       holeViewGeoFromPrev: (yd) => `${yd} yd vom letzten Schlag`,
       holeViewGeoPending: "Standort wird ermittelt…",
       holeViewGeoUnavailable: "GPS für diesen Schlag nicht verfügbar",
-      holeViewBtnRecaptureTee: "📍 Abschlag neu erfassen",
+      holeViewBtnRecaptureTee: "📍 Abschlag hier markieren",
       holeViewGeoRecaptured: "Abschlagposition aktualisiert.",
       shotReplayHint: "Schläge ansehen (nur Lesen) — auf diesem Gerät beim Spielen erfasst.",
       shotReplayNoDataHole: "Kein Schlag für dieses Loch erfasst.",
@@ -2399,7 +2406,7 @@
       holeViewGeoFromPrev: (yd) => `${yd} หลาจากช็อตก่อนหน้า`,
       holeViewGeoPending: "กำลังระบุตำแหน่ง…",
       holeViewGeoUnavailable: "ไม่มีสัญญาณ GPS สำหรับช็อตนี้",
-      holeViewBtnRecaptureTee: "📍 บันทึกตำแหน่งทีออฟใหม่",
+      holeViewBtnRecaptureTee: "📍 ทำเครื่องหมายจุดทีออฟที่นี่",
       holeViewGeoRecaptured: "อัปเดตตำแหน่งจุดทีออฟแล้ว",
       shotReplayHint: "ดูช็อตย้อนหลัง (อ่านอย่างเดียว) — บันทึกไว้บนอุปกรณ์นี้ขณะเล่น",
       shotReplayNoDataHole: "ไม่มีช็อตที่บันทึกไว้ในหลุมนี้",
@@ -4136,7 +4143,8 @@
       header: Object.fromEntries(BLANKCARD_HEADER_FIELDS.map(f => [f, ""])),
       scores: Array(18).fill(""),
       putts: Array(18).fill(""),
-      shotPoints: Array.from({length:18}, () => [])
+      shotPoints: Array.from({length:18}, () => []),
+      teeGeoByHole: Array(18).fill(null)
     };
   }
 
@@ -4154,7 +4162,8 @@
         header: Object.assign(empty.header, parsed.header || {}),
         scores: (parsed.scores && parsed.scores.length === 18) ? parsed.scores : empty.scores,
         putts: (parsed.putts && parsed.putts.length === 18) ? parsed.putts : empty.putts,
-        shotPoints: (Array.isArray(parsed.shotPoints) && parsed.shotPoints.length === 18) ? parsed.shotPoints : empty.shotPoints
+        shotPoints: (Array.isArray(parsed.shotPoints) && parsed.shotPoints.length === 18) ? parsed.shotPoints : empty.shotPoints,
+        teeGeoByHole: (Array.isArray(parsed.teeGeoByHole) && parsed.teeGeoByHole.length === 18) ? parsed.teeGeoByHole : empty.teeGeoByHole
       };
       if (!result.header.date) result.header.date = todayFrDate(); // proposée si jamais renseignée
       return result;
@@ -4180,7 +4189,7 @@
     section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => { scores[Number(inp.dataset.hole)] = inp.value; });
     const putts = Array(18).fill("");
     section.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => { putts[Number(inp.dataset.hole)] = inp.value; });
-    return {header, scores, putts, shotPoints: blankCardShotPointsByHole};
+    return {header, scores, putts, shotPoints: blankCardShotPointsByHole, teeGeoByHole: blankCardTeeGeoByHole};
   }
 
   function persistBlankCardDraft(){
@@ -5312,6 +5321,12 @@
   // la manche (18 trous), persistés avec le brouillon de carte (localStorage), afin de pouvoir
   // revoir plus tard le point de chute de chaque coup de chaque trou.
   let blankCardShotPointsByHole = Array.from({length:18}, () => []);
+  // Position GPS du DÉPART de chaque trou (distincte des points de chute ci-dessus) : capturée
+  // explicitement via le bouton "📍 Marquer le départ", PAS déduite du 1er coup cliqué — un 1er
+  // clic représente déjà l'endroit où la balle est tombée (cf. consigne "Touchez la photo à
+  // l'endroit où la balle atterrit"), donc jamais le départ lui-même. Sans cette capture explicite,
+  // aucune distance "depuis le départ" n'est affichée pour ce trou (plutôt qu'une valeur fausse).
+  let blankCardTeeGeoByHole = Array(18).fill(null);
   let holeViewShotPoints = [];
   let holeViewInfoExpanded = false;
 
@@ -5386,70 +5401,99 @@
     return p && typeof p.lat === 'number' && typeof p.lng === 'number';
   }
 
-  // Capture la position GPS de l'appareil et l'attache au point une fois disponible (asynchrone,
-  // ne bloque jamais la pose du marqueur qui a déjà eu lieu au clic). Échec silencieux (refus de
-  // permission, GPS coupé, timeout) : le coup reste enregistré, seule la distance n'apparaîtra pas.
-  function captureGeoForPoint(point, holeIdx, onSuccessToast){
-    if (!navigator.geolocation){ point.geoFailed = true; holeViewUpdateShotsUI(holeIdx); return; }
-    point.geoPending = true;
+  // Capture la position GPS de l'appareil et l'attache à `target` une fois disponible (asynchrone,
+  // ne bloque jamais l'affichage déjà en place). Échec silencieux (refus de permission, GPS coupé,
+  // timeout) : `target.geoFailed` est simplement posé, sans casser le reste des données.
+  function captureGeo(target, holeIdx, onSuccessToast){
+    if (!navigator.geolocation){ target.geoFailed = true; holeViewUpdateShotsUI(holeIdx); return; }
+    target.geoPending = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        point.lat = pos.coords.latitude;
-        point.lng = pos.coords.longitude;
-        point.accuracy = pos.coords.accuracy;
-        delete point.geoPending;
+        target.lat = pos.coords.latitude;
+        target.lng = pos.coords.longitude;
+        target.accuracy = pos.coords.accuracy;
+        delete target.geoPending;
+        delete target.geoFailed;
         persistBlankCardDraft();
         holeViewUpdateShotsUI(holeIdx);
         if (onSuccessToast) blankCardShowToast(onSuccessToast.title, onSuccessToast.note);
       },
       () => {
-        delete point.geoPending;
-        point.geoFailed = true;
+        delete target.geoPending;
+        target.geoFailed = true;
         holeViewUpdateShotsUI(holeIdx);
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 }
     );
   }
 
-  // Calcule, pour chaque coup avec position GPS, sa distance au départ (1er coup du trou) et au
-  // coup précédent. Retourne un tableau parallèle à `points` : null si le GPS n'a pas pu être
-  // capté pour ce coup ou pour le départ (impossible de mesurer une distance dans ce cas).
-  function computeShotGeoDistances(points){
+  // Marque explicitement la position GPS actuelle comme "départ" du trou en cours — totalement
+  // indépendant des coups déjà cliqués (utilisable avant le 1er clic, ou pour corriger un oubli
+  // tant qu'on est encore physiquement au départ). Sans cette action, aucune distance "depuis le
+  // départ" n'est calculée : un 1er clic sur la photo représente une chute de balle, jamais le
+  // départ lui-même, donc il ne peut pas servir de référence par défaut.
+  function markTeeHere(holeIdx){
+    if (!Array.isArray(blankCardTeeGeoByHole)) blankCardTeeGeoByHole = Array(18).fill(null);
+    const target = blankCardTeeGeoByHole[holeIdx] || {};
+    blankCardTeeGeoByHole[holeIdx] = target;
+    captureGeo(target, holeIdx, {title: t('holeViewBtnRecaptureTee'), note: t('holeViewGeoRecaptured')});
+  }
+
+  // Calcule, pour chaque coup, sa distance au départ (si connu) et au coup/départ précédent.
+  // `teeGeo` peut être null (départ jamais marqué) : dans ce cas les distances "depuis le départ"
+  // restent indisponibles pour tout le trou, mais les distances coup-à-coup entre points cliqués
+  // successifs (à partir du 2e coup) restent calculées normalement.
+  function computeShotGeoDistances(points, teeGeo){
     const list = points || [];
-    const tee = list[0];
+    const teeKnown = hasGeo(teeGeo);
     return list.map((p, idx) => {
-      if (idx === 0) return hasGeo(p) ? {fromTeeYd: 0, fromPrevYd: null, isTee: true} : null;
-      if (!hasGeo(p) || !hasGeo(tee)) return null;
-      const fromTeeYd = Math.round(haversineMeters(tee.lat, tee.lng, p.lat, p.lng) * METERS_TO_YARDS);
-      const prev = list[idx - 1];
-      const fromPrevYd = hasGeo(prev) ? Math.round(haversineMeters(prev.lat, prev.lng, p.lat, p.lng) * METERS_TO_YARDS) : null;
-      return {fromTeeYd, fromPrevYd, isTee: false};
+      if (!hasGeo(p)) return null;
+      const fromTeeYd = teeKnown ? Math.round(haversineMeters(teeGeo.lat, teeGeo.lng, p.lat, p.lng) * METERS_TO_YARDS) : null;
+      let fromPrevYd = null;
+      if (idx === 0){
+        fromPrevYd = teeKnown ? fromTeeYd : null; // distance du 1er coup = distance depuis le départ
+      } else {
+        const prev = list[idx - 1];
+        fromPrevYd = hasGeo(prev) ? Math.round(haversineMeters(prev.lat, prev.lng, p.lat, p.lng) * METERS_TO_YARDS) : null;
+      }
+      return {fromTeeYd, fromPrevYd};
     });
   }
 
-  // Construit le petit récapitulatif texte "Départ (Blanc) · 2: 145 yd du départ · ..." affiché
-  // sous la carte du trou. Coup en attente de GPS ou en échec : libellé dédié plutôt qu'un blanc.
-  function holeViewGeoSummaryInnerHTML(){
+  // Construit le petit récapitulatif texte affiché sous la carte du trou : position du départ (si
+  // marquée) puis, pour chaque coup, sa distance au départ et au coup précédent (si disponibles).
+  function holeViewGeoSummaryInnerHTML(holeIdx){
     const points = holeViewShotPoints;
-    if (!points || points.length === 0) return '';
+    const teeGeo = (blankCardTeeGeoByHole || [])[holeIdx];
     const tee = blankCardGetTee() || 'red';
-    const distances = computeShotGeoDistances(points);
-    const parts = points.map((p, idx) => {
-      const d = distances[idx];
-      if (idx === 0){
-        return d ? t('holeViewGeoTeeLabel', tee) : (p.geoPending ? t('holeViewGeoPending') : (p.geoFailed ? t('holeViewGeoUnavailable') : ''));
-      }
-      if (p.geoPending) return t('holeViewGeoPending');
-      if (!d) return p.geoFailed ? t('holeViewGeoUnavailable') : '';
-      const bits = [t('holeViewGeoFromTee', d.fromTeeYd)];
-      if (d.fromPrevYd !== null) bits.push(t('holeViewGeoFromPrev', d.fromPrevYd));
-      return `${idx+1}: ${bits.join(' · ')}`;
-    }).filter(Boolean);
+    const parts = [];
+
+    if (hasGeo(teeGeo)){
+      parts.push(t('holeViewGeoTeeLabel', tee));
+    } else if (teeGeo && teeGeo.geoPending){
+      parts.push(t('holeViewGeoPending'));
+    } else if (teeGeo && teeGeo.geoFailed){
+      parts.push(t('holeViewGeoUnavailable'));
+    }
+
+    if (points && points.length > 0){
+      const distances = computeShotGeoDistances(points, teeGeo);
+      points.forEach((p, idx) => {
+        if (p.geoPending){ parts.push(`${idx+1}: ${t('holeViewGeoPending')}`); return; }
+        const d = distances[idx];
+        if (!d){ if (p.geoFailed) parts.push(`${idx+1}: ${t('holeViewGeoUnavailable')}`); return; }
+        const bits = [];
+        if (d.fromTeeYd !== null) bits.push(t('holeViewGeoFromTee', d.fromTeeYd));
+        if (idx > 0 && d.fromPrevYd !== null) bits.push(t('holeViewGeoFromPrev', d.fromPrevYd));
+        if (bits.length > 0) parts.push(`${idx+1}: ${bits.join(' · ')}`);
+      });
+    }
+
     return parts.join(' &nbsp;|&nbsp; ');
   }
 
-  function holeViewGeoSummaryHTML(){
-    return `<div id="holeViewGeoList" style="font-size:10.5px; opacity:.85; text-align:center; margin:4px 0 0; color:#fff; line-height:1.6;">${holeViewGeoSummaryInnerHTML()}</div>`;
+  function holeViewGeoSummaryHTML(holeIdx){
+    return `<div id="holeViewGeoList" style="font-size:10.5px; opacity:.85; text-align:center; margin:4px 0 0; color:#fff; line-height:1.6;">${holeViewGeoSummaryInnerHTML(holeIdx)}</div>`;
   }
 
   function holeViewHTML(holeIdx){
@@ -5516,9 +5560,9 @@
               </div>
             </div>
             <p id="holeViewShotsHint" style="pointer-events:none; font-size:10.5px; opacity:.85; text-align:center; margin:6px 0 0; color:#fff; display:${holeViewShotPoints.length===0 ? 'block':'none'};">${t('holeViewNoShots')}</p>
-            ${holeViewGeoSummaryHTML()}
+            ${holeViewGeoSummaryHTML(holeIdx)}
             <div style="text-align:center; margin-top:4px;">
-              <button type="button" id="btnHoleViewRecaptureTee" class="btn btn-secondary no-print" style="font-size:10.5px; padding:4px 10px; margin:0; display:${holeViewShotPoints.length===0 ? 'none':'inline-block'};">${t('holeViewBtnRecaptureTee')}</button>
+              <button type="button" id="btnHoleViewRecaptureTee" class="btn btn-secondary no-print" style="font-size:10.5px; padding:4px 10px; margin:0;">${t('holeViewBtnRecaptureTee')}</button>
             </div>
           </div>
         </div>
@@ -5649,7 +5693,7 @@
       holeViewShotPoints.push(point);
       persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
-      captureGeoForPoint(point, holeIdx); // asynchrone : ne bloque pas l'affichage du marqueur
+      captureGeo(point, holeIdx); // asynchrone : ne bloque pas l'affichage du marqueur
     });
 
     const toggleBtn = document.getElementById('btnHoleViewToggleInfo');
@@ -5682,17 +5726,10 @@
     const validateBtn = document.getElementById('btnHoleViewValidate');
     if (validateBtn) validateBtn.addEventListener('click', () => holeViewValidateScore(holeIdx));
 
-    // Recapture uniquement le GPS du coup de départ (1er coup) : le marqueur reste où il est sur
-    // la photo, seule sa position réelle (lat/lng) est réécrite avec la localisation actuelle de
-    // l'appareil — utile si le 1er relevé a échoué, ou si le joueur clique après coup et revient
-    // ensuite se placer au départ avant d'appuyer sur ce bouton.
+    // Marque le départ (position GPS actuelle) indépendamment des coups déjà cliqués : à presser
+    // en étant physiquement au départ, avant ou après avoir cliqué le 1er coup peu importe.
     const recaptureBtn = document.getElementById('btnHoleViewRecaptureTee');
-    if (recaptureBtn) recaptureBtn.addEventListener('click', () => {
-      if (holeViewShotPoints.length === 0) return;
-      const tee = holeViewShotPoints[0];
-      delete tee.geoFailed;
-      captureGeoForPoint(tee, holeIdx, {title: t('holeViewBtnRecaptureTee'), note: t('holeViewGeoRecaptured')});
-    });
+    if (recaptureBtn) recaptureBtn.addEventListener('click', () => markTeeHere(holeIdx));
 
     // Repositionne précisément les marqueurs déjà existants (trou déjà joué/annoté précédemment),
     // le premier rendu utilisant un positionnement approximatif tant que le rectangle exact de la
@@ -5892,6 +5929,9 @@
     blankCardShotPointsByHole = Array.isArray(draft.shotPoints) && draft.shotPoints.length === 18
       ? draft.shotPoints
       : Array.from({length:18}, () => []);
+    blankCardTeeGeoByHole = Array.isArray(draft.teeGeoByHole) && draft.teeGeoByHole.length === 18
+      ? draft.teeGeoByHole
+      : Array(18).fill(null);
 
     const idxRow = `<tr style="background:#e8f0ee; color:#1a3c34; font-weight:bold;">
       <th>HCP</th>${IDX.map(i=>`<th>${i}</th>`).join("")}<th colspan="3"></th>
