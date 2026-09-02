@@ -1310,7 +1310,29 @@
   //                 disponible à tout moment (avant même le 1er clic). Sans cette action explicite,
   //                 aucune distance "depuis le départ" n'est affichée pour le trou plutôt qu'une
   //                 valeur erronée basée sur le 1er coup.
-  const APP_VERSION = "SuarPark - V01.005.067";
+  //   V01.005.068 — Deux ajouts suite à une carte reçue de Patrick affichant "?" à la place de son
+  //                 nom (score saisi sans avoir sélectionné son nom au préalable) :
+  //                 (1) Avertissement "⚠️ Sélectionne ton nom avant de continuer à saisir des
+  //                 scores..." affiché sous le sélecteur de joueur dès qu'un score existe sans nom
+  //                 choisi, disparaît automatiquement dès qu'un nom est sélectionné, dans les 4
+  //                 langues.
+  //                 (2) Manche du 01/09/2026 de PATRICK ajoutée à l'historique officiel avec les
+  //                 vraies données de sa carte (Score 62+68=130, Putts 20+21=41, départ WHITE).
+  //   V01.005.069 — Correction : la manche de PATRICK du 01/09/2026 était marquée départ WHITE,
+  //                 corrigé en RED (confirmé par le Directeur de session).
+  //   V01.005.070 — Manche de SANDY du 02/09/2026 ajoutée à l'historique officiel (Score 59+60=119,
+  //                 Putts 20+20=40, départ WHITE, caddie 41). Carte reçue en ALLEMAND
+  //                 ("Abschlag", "Gesamt", "Strafschläge") : testée et confirmée parfaitement
+  //                 reconnue par l'analyseur de texte, sans aucune correction nécessaire — preuve
+  //                 que la conception indépendante de la langue (repères par emoji et comptage de
+  //                 valeurs plutôt que mots-clés traduits) fonctionne comme prévu.
+  //   V01.005.071 — Manche de MARCUS du 02/09/2026 ajoutée à l'historique officiel (Score 57+68=125,
+  //                 Putts 13+15=28, départ WHITE, caddie 20). Carte reçue en allemand, vérifiée
+  //                 (totaux et pénalités cohérents) avant intégration.
+  //   V01.005.072 — Manche de LOUIS du 02/09/2026 ajoutée à l'historique officiel (Score 65+72=137,
+  //                 Putts 19+18=37, départ RED, caddie 136), totaux et pénalités (4) vérifiés avant
+  //                 intégration.
+  const APP_VERSION = "SuarPark - V01.005.072";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1594,6 +1616,7 @@
       blankCardImportOverwriteConfirm: (player, holes) => `Ta carte actuelle (${player || 'sans nom'}, ${holes} trou${holes > 1 ? 's' : ''} rempli${holes > 1 ? 's' : ''}) va être remplacée par les données reçues. Si tu veux la garder, annule et copie-la d'abord (bouton « Copier en texte lisible »). Continuer et remplacer ?`,
       blankCardClearConfirm: "Effacer définitivement le brouillon de cette carte de score (en-tête, noms et scores) ? Cette action est irréversible.",
       blankCardPlayerName: "Player's Name :",
+      blankCardNameWarningText: "Sélectionne ton nom avant de continuer à saisir des scores — sinon ta carte sera exportée avec « ? » à la place de ton nom.",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Plan du parcours",
       blankCardBtnShowMap: "Afficher le plan",
@@ -1857,6 +1880,7 @@
       blankCardImportOverwriteConfirm: (player, holes) => `Your current card (${player || 'unnamed'}, ${holes} hole${holes > 1 ? 's' : ''} filled) will be replaced by the received data. If you want to keep it, cancel and copy it first (\"Copy as readable text\" button). Continue and replace?`,
       blankCardClearConfirm: "Permanently clear this scorecard's draft (header, names and scores)? This cannot be undone.",
       blankCardPlayerName: "Player's Name :",
+      blankCardNameWarningText: "Select your name before entering more scores — otherwise your card will be exported with \"?\" instead of your name.",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Course layout",
       blankCardBtnShowMap: "Show map",
@@ -2120,6 +2144,7 @@
       blankCardImportOverwriteConfirm: (player, holes) => `Deine aktuelle Karte (${player || 'ohne Namen'}, ${holes} Loch/Löcher ausgefüllt) wird durch die empfangenen Daten ersetzt. Um sie zu behalten, abbrechen und zuerst kopieren („Als lesbaren Text kopieren"). Fortfahren und ersetzen?`,
       blankCardClearConfirm: "Diesen Kartenentwurf endgültig löschen (Kopfzeile, Namen und Scores)? Dies kann nicht rückgängig gemacht werden.",
       blankCardPlayerName: "Player's Name :",
+      blankCardNameWarningText: "Wähle deinen Namen aus, bevor du weitere Ergebnisse einträgst — sonst wird deine Karte mit «?» statt deinem Namen exportiert.",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Platzplan",
       blankCardBtnShowMap: "Plan anzeigen",
@@ -2383,6 +2408,7 @@
       blankCardImportOverwriteConfirm: (player, holes) => `การ์ดปัจจุบันของคุณ (${player || 'ไม่มีชื่อ'}, กรอกแล้ว ${holes} หลุม) จะถูกแทนที่ด้วยข้อมูลที่ได้รับ หากต้องการเก็บไว้ ให้ยกเลิกแล้วคัดลอกก่อน (ปุ่ม "คัดลอกเป็นข้อความอ่านได้") ดำเนินการต่อและแทนที่หรือไม่?`,
       blankCardClearConfirm: "ล้างร่างการ์ดคะแนนนี้อย่างถาวร (หัวข้อ ชื่อ และคะแนน) ใช่หรือไม่ ไม่สามารถย้อนกลับได้",
       blankCardPlayerName: "Player's Name :",
+      blankCardNameWarningText: "เลือกชื่อของคุณก่อนกรอกคะแนนต่อ ไม่เช่นนั้นการ์ดของคุณจะถูกส่งออกโดยมี \"?\" แทนชื่อของคุณ",
       blankCardDate: "Date :",
       blankCardCourseLayout: "แผนผังสนาม",
       blankCardBtnShowMap: "แสดงแผนผัง",
@@ -2585,7 +2611,8 @@
         ["27/07/2026",[6,6,7,4,5,6,7,6,6,5,7,5,6,3,7,9,6,7]],
         ["03/08/2026",[9,7,8,5,6,8,7,6,9,6,7,4,6,4,6,9,7,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[4,3,4,3,2,4,2,3,5,2,3,1,1,1,2,4,3,2],"white","41"],
         ["19/08/2026",[6,7,7,4,5,7,9,5,5,5,5,4,8,4,6,8,6,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,3,3,1,1,3,4,2,1,1,1,1,3,1,2,3,2,2],"white","41"],
-        ["26/08/2026",[10,5,5,6,5,9,7,7,7,7,6,4,7,3,7,8,7,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,1,2,2,2,3,2,2,2,2,2,2,1,2,3,2,3],"white","41"]
+        ["26/08/2026",[10,5,5,6,5,9,7,7,7,7,6,4,7,3,7,8,7,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,1,2,2,2,3,2,2,2,2,2,2,1,2,3,2,3],"white","41"],
+        ["02/09/2026",[7,6,6,4,5,9,8,6,8,7,7,3,9,4,6,10,7,7],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,1,2,2,2,2,3,3,3,3,3,1,2,2,2,3,2,2],"white","41"]
       ],
       // "Claude Caddie Assistant" — identité dédiée aux essais/tests du site (remplace LOUIS,
       // précédemment utilisé pour ça). Dates antérieures au 01/01/2024 = créneaux de test libres,
@@ -2705,7 +2732,8 @@
         ["22/07/2026",[8,7,5,6,7,7,7,8,7,7,7,4,8,3,8,8,5,5],null,null,null,"136"],
         ["27/07/2026",[9,11,7,4,6,8,7,7,5,6,6,5,7,4,9,7,8,9],null,null,null,"136"],
         ["03/08/2026",[8,8,7,10,8,9,5,5,5,6,6,8,10,4,6,8,7,12],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,3,2,2,3,2,1,1,1,2,2,4,2,3,2,3,2,2],"red","136"],
-        ["12/08/2026",[10,8,10,6,7,10,9,7,7,9,8,5,10,5,7,11,9,10],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,3,2,2,1,3,1,2,1,2,2,2,1,1,1,3,3,2],"red","136"]
+        ["12/08/2026",[10,8,10,6,7,10,9,7,7,9,8,5,10,5,7,11,9,10],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,3,2,2,1,3,1,2,1,2,2,2,1,1,1,3,3,2],"red","136"],
+        ["02/09/2026",[9,10,8,3,6,10,9,4,6,10,8,7,7,7,10,11,5,7],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[3,2,2,1,2,2,2,3,2,2,2,2,2,3,3,1,1,2],"red","136"]
       ],
       MARCUS: [
         ["23/04/2026",[10,7,8,4,5,8,8,3,9,9,6,5,6,4,5,10,6,6]],
@@ -2717,7 +2745,8 @@
         ["27/07/2026",[11,7,5,7,7,6,7,7,9,6,5,5,8,5,6,7,7,6]],
         ["03/08/2026",[7,9,7,10,7,7,8,5,7,9,9,4,11,4,6,9,9,8],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,4,1,3,1,2,2,3,2,3,3,2,2,2,1,2,2,2],"white","20"],
         ["19/08/2026",[7,10,9,6,7,10,11,3,6,6,8,3,10,5,6,10,8,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,3,2,2,2,3,2,1,2,1,2,2,2,3,2,3,1,1],"white","20"],
-        ["26/08/2026",[8,6,9,7,7,8,10,6,10,6,7,4,9,3,6,7,6,8],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,3,2,3,4,3,3,1,3,2,2,1,2,2,3,2],"white","20"]
+        ["26/08/2026",[8,6,9,7,7,8,10,6,10,6,7,4,9,3,6,7,6,8],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,3,2,3,4,3,3,1,3,2,2,1,2,2,3,2],"white","20"],
+        ["02/09/2026",[9,7,7,4,6,6,9,4,5,10,7,3,9,4,8,9,9,9],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[1,3,1,2,2,2,1,1,0,2,2,0,2,2,3,1,2,1],"white","20"]
       ],
       PATRICK: [
         ["01/12/2024",[9,6,8,5,6,7,12,6,7,9,11,5,8,6,9,12,8,7]],
@@ -2751,7 +2780,8 @@
         ["13/05/2026",[9,7,9,5,6,6,8,8,7,7,7,4,6,3,6,12,7,10]],
         ["27/05/2026",[9,9,7,4,8,6,7,7,8,6,7,6,7,4,6,9,9,7]],
         ["05/06/2026",[8,6,7,5,5,7,6,7,6,5,7,5,6,3,6,9,7,12]],
-        ["10/06/2026",[9,7,7,5,8,9,7,5,7,6,8,5,10,5,7,9,10,6]]
+        ["10/06/2026",[9,7,7,5,8,9,7,5,7,6,8,5,10,5,7,9,10,6]],
+        ["01/09/2026",[10,7,7,2,8,9,8,5,6,6,8,6,7,4,8,12,6,11],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[4,3,2,1,1,3,2,3,1,2,4,2,2,2,2,3,1,3],"red"]
       ]
     },
     weather: {
@@ -4214,6 +4244,7 @@
       inp.value = draft.putts[Number(inp.dataset.hole)] || "";
     });
     blankCardComputeTotals();
+    blankCardCheckNameWarning();
   }
 
   function blankCardUpdateOtherNameVisibility(){
@@ -5846,6 +5877,21 @@
     return false;
   }
 
+  // Affiche une bannière d'avertissement si un score a été saisi sans qu'aucun nom de joueur ne
+  // soit sélectionné — pour éviter une carte exportée avec "?" à la place du nom (ex. carte de
+  // Patrick du 01/09/2026, saisie sans avoir choisi son nom en premier).
+  function blankCardCheckNameWarning(){
+    const section = document.getElementById('blankCardSection');
+    const warning = document.getElementById('blankCardNameWarning');
+    if (!section || !warning) return;
+    const nameSel = section.querySelector('[data-field="playerName"]');
+    const otherInp = section.querySelector('[data-field="playerNameOther"]');
+    const hasName = !!((nameSel && nameSel.value && nameSel.value !== BLANKCARD_OTHER_VALUE) || (otherInp && otherInp.value));
+    const {scores} = blankCardReadScoresPutts();
+    const hasAnyScore = scores.some(s => s !== "");
+    warning.style.display = (!hasName && hasAnyScore) ? 'block' : 'none';
+  }
+
   function blankCardOnHoleInput(h){
     if (blankCardEnforceAceNoPutt(h)){ blankCardComputeTotals(); persistBlankCardDraft(); }
     if (h === blankCardFocusHole){
@@ -5857,6 +5903,7 @@
     }
     blankCardMaybeAdvance(h);
     blankCardUpdateTeeButtons();
+    blankCardCheckNameWarning();
   }
 
   function blankCardMaybeAdvance(h){
@@ -6020,6 +6067,7 @@
             <div class="blankcard-header-cell" style="flex-basis:100%;">
               <label class="blankcard-label-big">${t('blankCardPlayerName')}</label>
               <select class="blankcard-field blankcard-field-big" data-field="playerName" style="width:100%;">${playerOptions}</select>
+              <div id="blankCardNameWarning" style="display:none; background:#fff3cd; color:#8a6d00; border:1px solid #e6c200; border-radius:8px; padding:8px 12px; margin-top:8px; font-size:13px; font-weight:bold;">⚠️ ${t('blankCardNameWarningText')}</div>
             </div>
           </div>
           <div class="blankcard-header-row">
@@ -6150,6 +6198,7 @@
       blankCardUpdateOtherNameVisibility();
       persistBlankCardDraft();
       blankCardUpdateBigName();
+      blankCardCheckNameWarning();
     });
     container.querySelector('[data-field="caddieNumber"]').addEventListener('change', () => {
       blankCardUpdateOtherCaddieVisibility();
