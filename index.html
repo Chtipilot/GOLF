@@ -352,9 +352,12 @@
 
 </div>
 
-<!-- Données caddies (téléphones + photos) : fichier local NON versionné, voir .gitignore.
-     Absent sur GitHub par design ; l'app fonctionne quand même sans (liste caddies vide). -->
-<script src="caddies-data.js" onerror="console.warn('caddies-data.js absent — liste caddies vide (normal sur le dépôt public).')"></script>
+<!-- Données caddies (photos) : fichier local NON versionné sur le dépôt PUBLIC (incident du
+     03/09/2026 : caddies-data.js avait été committé par erreur sur un dépôt public, exposant les
+     photos — corrigé). Renommé "cfg-local.js" (nom volontairement neutre, mesure temporaire en
+     attendant un hébergement séparé, ex. Netlify avec dépôt privé). L'app fonctionne quand même
+     sans (liste caddies vide) si le fichier est absent. -->
+<script src="cfg-local.js" onerror="console.warn('cfg-local.js absent — liste caddies vide.')"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script>
   if (typeof Chart === 'undefined') {
@@ -1400,7 +1403,30 @@
   //                 le texte du BOUTON ("Clique sur la carte à l'endroit du départ"), ce qui
   //                 ressemblait à une instruction à refaire plutôt qu'à une confirmation. Remplacé
   //                 par un vrai message de succès : "✅ GPS ok, départ marqué".
-  const APP_VERSION = "SuarPark - V01.005.083";
+  //   V01.005.084 — Implémentation du plan validé avec le Directeur de session : replay OFFICIEL des
+  //                 coups GPS, visible par tout le monde (plus seulement l'appareil d'origine).
+  //                 (1) "📝 Copier ma carte" renommé "📝 Transmettre ma carte" (les 4 langues).
+  //                 (2) Nouveau fichier séparé shot-history-data.js (jamais committé dans
+  //                 index.html) : structure state.SHOT_HISTORY_DATA, clé "NOM|JJ/MM/AAAA" → points
+  //                 GPS par trou, avec règle de rétention documentée (fenêtre glissante d'1 an par
+  //                 joueur, appliquée manuellement par Claude à chaque mise à jour).
+  //                 (3) Chargement STRICTEMENT à la demande (jamais au démarrage) : une liste légère
+  //                 SHOT_HISTORY_KEYS (juste des clés, poids négligeable) reste embarquée dans
+  //                 index.html pour savoir où afficher le bouton "🎬 Revoir les coups (officiel)" ;
+  //                 le fichier lourd n'est chargé qu'au clic sur ce bouton (injection dynamique de
+  //                 <script>, une seule fois grâce à un cache de promesse).
+  //                 (4) openShotReplay() factorisé (nouvelle fonction openShotReplayWithPoints) pour
+  //                 unifier privé/équipe/officiel sans dupliquer la logique d'affichage.
+  //                 Fichier vide pour l'instant (aucune carte GPS officielle transmise à ce jour).
+  //   V01.005.085 — Incident de confidentialité (03/09/2026) : caddies-data.js avait été committé
+  //                 par erreur sur le dépôt GitHub PUBLIC, exposant les photos des caddies. Corrigé
+  //                 en urgence (passage temporaire en privé, casse GitHub Pages gratuit → retour en
+  //                 public + réactivation manuelle de Pages). Le fichier de données caddies est
+  //                 renommé "cfg-local.js" (nom neutre, mesure temporaire) — l'app le charge sous ce
+  //                 nouveau nom. Solution durable (hébergement séparé du fichier caddies, hors du
+  //                 dépôt public) à mettre en place plus tard, évoquée mais reportée à la demande du
+  //                 Directeur de session.
+  const APP_VERSION = "SuarPark - V01.005.085";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1658,7 +1684,7 @@
       blankCardBtnPrint: "🖨️ Imprimer",
       blankCardBtnClose: "Retour",
       blankCardBtnExport: "📤 Copier (presse-papier)",
-      blankCardBtnExportText: "📝 Copier ma carte",
+      blankCardBtnExportText: "📝 Transmettre ma carte",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
       blankCardExportImportNote: "« Copier en texte lisible » place un résumé clair dans le presse-papier, à coller (SMS, LINE...) pour l'envoyer. « Coller » lit automatiquement ce texte reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil. Si le navigateur l'autorise, « Coller » lit même directement ce presse-papier sans étape supplémentaire.",
@@ -1723,6 +1749,9 @@
       shotReplayNoDataHole: "Aucun coup enregistré sur ce trou.",
       historyReplayBtn: "🎬 Revoir les coups",
       historyReplayPublicBtn: "Revoir les coups (équipe)",
+      historyReplayOfficialBtn: "Revoir les coups (officiel)",
+      historyReplayLoading: "Chargement…",
+      historyReplayLoadError: "Aucun replay officiel trouvé pour cette manche.",
       blankCardChoosePlayer: "-- Choisir --",
       blankCardOtherPlayer: "Autre (invité)",
       blankCardOtherPlayerName: "Nom de l'invité :",
@@ -1927,7 +1956,7 @@
       blankCardBtnPrint: "🖨️ Print",
       blankCardBtnClose: "Back",
       blankCardBtnExport: "📤 Copy (clipboard)",
-      blankCardBtnExportText: "📝 Copy my card",
+      blankCardBtnExportText: "📝 Send my card",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
       blankCardExportImportNote: "\"Copy as readable text\" puts a clear summary on the clipboard, to paste (SMS, LINE...) and send it. \"Paste\" automatically reads this text received from another player, first copied to this device's clipboard. If the browser allows it, \"Paste\" even reads that clipboard directly, with no extra step.",
@@ -1992,6 +2021,9 @@
       shotReplayNoDataHole: "No shot recorded on this hole.",
       historyReplayBtn: "🎬 Replay shots",
       historyReplayPublicBtn: "Replay shots (team)",
+      historyReplayOfficialBtn: "Replay shots (official)",
+      historyReplayLoading: "Loading…",
+      historyReplayLoadError: "No official replay found for this round.",
       blankCardChoosePlayer: "-- Choose --",
       blankCardOtherPlayer: "Other (guest)",
       blankCardOtherPlayerName: "Guest name:",
@@ -2196,7 +2228,7 @@
       blankCardBtnPrint: "🖨️ Drucken",
       blankCardBtnClose: "Zurück",
       blankCardBtnExport: "📤 Kopieren (Zwischenablage)",
-      blankCardBtnExportText: "📝 Meine Karte kopieren",
+      blankCardBtnExportText: "📝 Meine Karte übermitteln",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
       blankCardExportImportNote: "«Als lesbaren Text kopieren» legt eine klare Zusammenfassung in die Zwischenablage, zum Einfügen (SMS, LINE...) und Versenden. «Einfügen» liest diesen Text automatisch, der von einem anderen Spieler zuvor in die Zwischenablage dieses Geräts kopiert wurde. Falls der Browser es erlaubt, liest «Einfügen» die Zwischenablage sogar direkt, ganz ohne zusätzlichen Schritt.",
@@ -2261,6 +2293,9 @@
       shotReplayNoDataHole: "Kein Schlag für dieses Loch erfasst.",
       historyReplayBtn: "🎬 Schläge ansehen",
       historyReplayPublicBtn: "Schläge ansehen (Team)",
+      historyReplayOfficialBtn: "Schläge ansehen (offiziell)",
+      historyReplayLoading: "Wird geladen…",
+      historyReplayLoadError: "Kein offizielles Replay für diese Runde gefunden.",
       blankCardChoosePlayer: "-- Auswählen --",
       blankCardOtherPlayer: "Andere (Gast)",
       blankCardOtherPlayerName: "Name des Gastes:",
@@ -2465,7 +2500,7 @@
       blankCardBtnPrint: "🖨️ พิมพ์",
       blankCardBtnClose: "กลับ",
       blankCardBtnExport: "📤 คัดลอก (คลิปบอร์ด)",
-      blankCardBtnExportText: "📝 คัดลอกการ์ดของฉัน",
+      blankCardBtnExportText: "📝 ส่งการ์ดของฉัน",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
       blankCardExportImportNote: "«คัดลอกเป็นข้อความอ่านได้» จะวางข้อความสรุปที่อ่านง่ายไว้ในคลิปบอร์ด เพื่อวาง (SMS, LINE...) และส่งต่อ «วาง» จะอ่านข้อความนี้ที่ได้รับจากผู้เล่นอีกคนโดยอัตโนมัติ ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว หากเบราว์เซอร์อนุญาต «วาง» จะอ่านคลิปบอร์ดนั้นให้อัตโนมัติโดยไม่ต้องทำขั้นตอนเพิ่มเติม",
@@ -2530,6 +2565,9 @@
       shotReplayNoDataHole: "ไม่มีช็อตที่บันทึกไว้ในหลุมนี้",
       historyReplayBtn: "🎬 ดูช็อตย้อนหลัง",
       historyReplayPublicBtn: "ดูช็อตย้อนหลัง (ทีม)",
+      historyReplayOfficialBtn: "ดูช็อตย้อนหลัง (ทางการ)",
+      historyReplayLoading: "กำลังโหลด…",
+      historyReplayLoadError: "ไม่พบการเล่นซ้ำอย่างเป็นทางการสำหรับรอบนี้",
       blankCardChoosePlayer: "-- เลือก --",
       blankCardOtherPlayer: "อื่นๆ (แขก)",
       blankCardOtherPlayerName: "ชื่อแขก:",
@@ -3485,8 +3523,13 @@
         // uniquement si PUBLIC_REPLAY_VISIBLE passe à true — l'archive tourne déjà en coulisses.
         const hasPublicReplay = PUBLIC_REPLAY_VISIBLE && !!publicReplays[shotReplayKey(name, date)];
         const publicReplayBtn = hasPublicReplay ? `<br> <button type="button" class="btn no-print history-replay-public-btn" data-name="${name}" data-date="${date}" style="font-size:11px; font-weight:bold; padding:3px 10px; margin-top:3px; background:#2E7D32; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);">🌐 ${t('historyReplayPublicBtn')}</button>` : '';
+        // Replay OFFICIEL : visible par tout le monde (pas juste l'appareil d'origine), stocké
+        // dans shot-history-data.js (fichier séparé, chargé seulement au clic — voir
+        // loadShotHistoryData). SHOT_HISTORY_KEYS (léger, embarqué) dit juste SI ça existe.
+        const hasOfficialReplay = SHOT_HISTORY_KEYS.includes(shotReplayKey(name, date));
+        const officialReplayBtn = hasOfficialReplay ? `<br> <button type="button" class="btn no-print history-replay-official-btn" data-name="${name}" data-date="${date}" style="font-size:11px; font-weight:bold; padding:3px 10px; margin-top:3px; background:#1565C0; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);">🎬 ${t('historyReplayOfficialBtn')}</button>` : '';
         rows += `<tr id="row-${name}-${i}" style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
-          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}${publicReplayBtn}</td>
+          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}${publicReplayBtn}${officialReplayBtn}</td>
           ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
           <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
           <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
@@ -3508,6 +3551,24 @@
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         openShotReplay(btn.dataset.name, btn.dataset.date, true);
+      });
+    });
+    // Replay officiel : charge shot-history-data.js à la demande (jamais avant), puis ouvre le
+    // replay avec les points trouvés pour ce joueur+date exact.
+    document.querySelectorAll('.history-replay-official-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const name = btn.dataset.name, date = btn.dataset.date;
+        const originalLabel = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = t('historyReplayLoading');
+        loadShotHistoryData().then(data => {
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+          const points = data[shotReplayKey(name, date)];
+          if (points) openShotReplayWithPoints(name, date, points);
+          else window.alert(t('historyReplayLoadError'));
+        });
       });
     });
 
@@ -3552,6 +3613,14 @@
   function openShotReplay(name, date, usePublic){
     const data = usePublic ? loadShotReplaysPublic() : loadShotReplays();
     const points = data[shotReplayKey(name, date)];
+    if (!points) return;
+    openShotReplayWithPoints(name, date, points);
+  }
+
+  // Variante directe : ouvre le replay à partir de points DÉJÀ EN MAIN (pas de lookup dans une
+  // archive locale) — utilisée par le replay OFFICIEL, une fois shot-history-data.js chargé à la
+  // demande et le tableau de points pour ce joueur+date extrait.
+  function openShotReplayWithPoints(name, date, points){
     if (!points) return;
     shotReplayCurrentPoints = points;
     let overlay = document.getElementById('shotReplayOverlay');
@@ -4205,6 +4274,32 @@
 
   const BLANKCARD_DRAFT_KEY = "suarpark-blankcard-draft";
   const SHOT_REPLAY_KEY = "suarpark-shot-replays";
+
+  // --- Replay OFFICIEL (GPS), fichier séparé chargé à la demande ------------------------------
+  // Liste ultra-légère des clés "NOM|JJ/MM/AAAA" pour lesquelles un replay officiel existe dans
+  // shot-history-data.js (fichier séparé, voir ce fichier pour le format complet et la règle de
+  // rétention). Cette liste, elle, reste EMBARQUÉE ici (poids négligeable, juste des clés) pour
+  // savoir sur quelles lignes de l'historique afficher le bouton "🎬" SANS avoir à charger le
+  // fichier lourd — celui-ci n'est récupéré qu'au moment où le bouton est réellement cliqué.
+  const SHOT_HISTORY_KEYS = [
+    // Complétée par le Directeur de session au fur et à mesure des cartes GPS reçues.
+  ];
+
+  let shotHistoryLoadPromise = null;
+  // Charge shot-history-data.js UNE SEULE FOIS, à la demande (jamais au démarrage) : injecte une
+  // balise <script> et attend son exécution, qui pose window.SHOT_HISTORY_DATA.
+  function loadShotHistoryData(){
+    if (window.SHOT_HISTORY_DATA) return Promise.resolve(window.SHOT_HISTORY_DATA);
+    if (shotHistoryLoadPromise) return shotHistoryLoadPromise;
+    shotHistoryLoadPromise = new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'shot-history-data.js';
+      script.onload = () => resolve(window.SHOT_HISTORY_DATA || {});
+      script.onerror = () => resolve({});
+      document.body.appendChild(script);
+    });
+    return shotHistoryLoadPromise;
+  }
 
   // Archive locale (sur cet appareil) des points de chute par manche, indépendante du brouillon en
   // cours : contrairement à blankCardShotPointsByHole (remis à zéro par "Effacer ma carte"), cette
