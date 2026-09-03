@@ -1386,7 +1386,17 @@
   //                 passage un bug de timing : l'état "en attente" était bien posé en interne mais
   //                 jamais réellement affiché avant la réponse du GPS, faute d'un rafraîchissement
   //                 immédiat de la vue au moment où la capture démarre.
-  const APP_VERSION = "SuarPark - V01.005.081";
+  //   V01.005.082 — Correction possible du bug "distance du 1er coup jamais affichée" : captureGeo()
+  //                 mutait un objet capturé une seule fois par référence — si la carte se rechargeait
+  //                 pendant qu'une capture GPS était en cours (ex. blankCardTeeGeoByHole réaffecté),
+  //                 la position résolue s'écrivait sur un objet devenu orphelin, perdue en silence.
+  //                 Corrigé : la cible est désormais relue "à chaud" (par référence dynamique) au
+  //                 moment de la résolution, pour toujours écrire sur l'objet réellement utilisé par
+  //                 l'affichage. Ajustements visuels demandés : taille des balles réduite de moitié
+  //                 (13px/15px), numéro du coup centré directement sur la balle (halo blanc pour la
+  //                 lisibilité, plus de badge/anneau séparé) — n'affiche plus que le numéro et la
+  //                 distance, sans autre décoration.
+  const APP_VERSION = "SuarPark - V01.005.082";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5511,21 +5521,20 @@
       const leftCss = typeof left === 'number' ? left + 'px' : left;
       const topCss = typeof top === 'number' ? top + 'px' : top;
       const isLast = highlightLastGreen && idx === list.length - 1;
-      // Anneau de couleur autour de la balle : vert = dernier coup validé, rouge = pénalité,
-      // blanc = coup normal. Badge numéro : même code couleur que l'ancien fond de cercle.
-      const ringColor = isLast ? '#2E7D32' : (p.penaltyAfter ? '#dc3545' : '#fff');
-      const badgeColor = isLast ? '#2E7D32' : (p.penaltyAfter ? '#dc3545' : '#1565C0');
-      const label = p.penaltyAfter ? '⚠️' : myNum;
-      const size = p.penaltyAfter ? 30 : 26;
+      // Couleur du numéro (centré sur la balle) : vert = dernier coup validé, rouge = pénalité,
+      // bleu foncé = coup normal — plus d'anneau ni de badge séparé, juste le numéro et la
+      // distance, rien d'autre.
+      const numColor = isLast ? '#2E7D32' : (p.penaltyAfter ? '#dc3545' : '#0d3b66');
+      const size = p.penaltyAfter ? 15 : 13; // taille divisée par 2 par rapport à l'ancien rendu
       const d = distances ? distances[idx] : null;
       const distYd = d ? (idx > 0 ? d.fromPrevYd : d.fromTeeYd) : null;
-      const distLabel = (distYd !== null && distYd !== undefined) ? `<div style="position:absolute; top:100%; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:10px; font-weight:800; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.9); margin-top:2px;">${distYd} yd</div>` : '';
+      const distLabel = (distYd !== null && distYd !== undefined) ? `<div style="position:absolute; top:100%; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:10px; font-weight:800; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.9); margin-top:1px;">${distYd} yd</div>` : '';
       // Clignote tant que le GPS de ce coup n'a pas encore répondu — retour visuel clair sur le
       // terrain plutôt qu'un simple texte "en attente" facile à manquer.
       const pendingClass = p.geoPending ? 'geo-pending' : '';
       return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-50%); width:${size}px; height:${size}px;" class="${pendingClass}">
-        <img src="${GOLF_BALL_MARKER_IMG}" style="width:100%; height:100%; border-radius:50%; display:block; border:2px solid ${ringColor}; box-shadow:0 2px 6px rgba(0,0,0,0.6);">
-        <span style="position:absolute; top:-6px; right:-6px; width:15px; height:15px; border-radius:50%; background:${badgeColor}; color:#fff; font-size:9px; font-weight:900; display:flex; align-items:center; justify-content:center; border:1.5px solid #fff;">${label}</span>
+        <img src="${GOLF_BALL_MARKER_IMG}" style="width:100%; height:100%; border-radius:50%; display:block; box-shadow:0 1px 4px rgba(0,0,0,0.6);">
+        <span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; color:${numColor}; text-shadow:0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;">${myNum}</span>
         ${distLabel}
       </div>`;
     }).join('');
@@ -5599,13 +5608,20 @@
   // Capture la position GPS de l'appareil et l'attache à `target` une fois disponible (asynchrone,
   // ne bloque jamais l'affichage déjà en place). Échec silencieux (refus de permission, GPS coupé,
   // timeout) : `target.geoFailed` est simplement posé, sans casser le reste des données.
-  function captureGeo(target, holeIdx, onSuccessToast){
-    if (!navigator.geolocation){ target.geoFailed = true; holeViewUpdateShotsUI(holeIdx); return; }
-    target.geoPending = true;
+  // `getTarget` est une fonction qui retourne l'objet à mettre à jour, RE-APPELÉE à la résolution
+  // du GPS (pas juste capturée une fois au début) — évite de muter un objet devenu orphelin si la
+  // carte a été rechargée entre-temps (ex. blankCardTeeGeoByHole réaffecté par un renderBlankCard()
+  // pendant que le GPS répondait), ce qui faisait perdre silencieusement la position du départ.
+  function captureGeo(getTarget, holeIdx, onSuccessToast){
+    const t0 = getTarget();
+    if (!t0) return;
+    if (!navigator.geolocation){ t0.geoFailed = true; holeViewUpdateShotsUI(holeIdx); return; }
+    t0.geoPending = true;
     holeViewUpdateShotsUI(holeIdx); // affiche tout de suite le clignotement "en attente" (sinon
                                      // il ne serait jamais rendu avant la résolution du GPS)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        const target = getTarget() || t0;
         target.lat = pos.coords.latitude;
         target.lng = pos.coords.longitude;
         target.accuracy = pos.coords.accuracy;
@@ -5616,6 +5632,7 @@
         if (onSuccessToast) blankCardShowToast(onSuccessToast.title, onSuccessToast.note);
       },
       () => {
+        const target = getTarget() || t0;
         delete target.geoPending;
         target.geoFailed = true;
         holeViewUpdateShotsUI(holeIdx);
@@ -5631,8 +5648,9 @@
   function toggleGreenReached(holeIdx){
     blankCardGreenReachedByHole[holeIdx] = !blankCardGreenReachedByHole[holeIdx];
     if (blankCardGreenReachedByHole[holeIdx] && holeViewShotPoints.length > 0){
-      const last = holeViewShotPoints[holeViewShotPoints.length - 1];
-      if (!hasGeo(last) && !last.geoPending) captureGeo(last, holeIdx);
+      const lastIdx = holeViewShotPoints.length - 1;
+      const last = holeViewShotPoints[lastIdx];
+      if (!hasGeo(last) && !last.geoPending) captureGeo(() => holeViewShotPoints[lastIdx], holeIdx);
     }
     persistBlankCardDraft();
     renderHoleView(holeIdx);
@@ -5660,7 +5678,7 @@
     holeViewTeeArmed = false;
     persistBlankCardDraft();
     renderHoleView(holeIdx);
-    captureGeo(target, holeIdx, {title: t('holeViewBtnRecaptureTee'), note: t('holeViewGeoRecaptured')});
+    captureGeo(() => blankCardTeeGeoByHole[holeIdx], holeIdx, {title: t('holeViewBtnRecaptureTee'), note: t('holeViewGeoRecaptured')});
   }
 
   // Calcule, pour chaque coup, sa distance au départ (si connu) et au coup/départ précédent.
@@ -5930,9 +5948,10 @@
       }
       const point = {x: relX.toFixed(2), y: relY.toFixed(2)};
       holeViewShotPoints.push(point);
+      const shotIdx = holeViewShotPoints.length - 1;
       persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
-      captureGeo(point, holeIdx); // asynchrone : ne bloque pas l'affichage du marqueur
+      captureGeo(() => holeViewShotPoints[shotIdx], holeIdx); // asynchrone : ne bloque pas l'affichage du marqueur ; relecture "fraîche" à la résolution, voir captureGeo
     });
 
     const toggleBtn = document.getElementById('btnHoleViewToggleInfo');
