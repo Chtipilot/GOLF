@@ -1347,7 +1347,17 @@
   //                 colonne "Téléphone" retirée du tableau et de la fiche dépliée dans "🎽 Afficher
   //                 les caddies", clé de traduction associée nettoyée. Le fichier caddies-data.js
   //                 (externe, non versionné) ne doit plus contenir de champ "phone" non plus.
-  const APP_VERSION = "SuarPark - V01.005.076";
+  //   V01.005.077 — Design "3 zones" pour le GPS dans "Afficher le trou", suite au constat que le
+  //                 téléphone reste dans la voiturette pendant les putts (donc aucun clic GPS
+  //                 fiable possible sur le green) : 1) Départ (déjà en place, inchangé) ; 2)
+  //                 Approche — plusieurs coups possibles avant le green, chacun avec sa position
+  //                 GPS, comme avant, sans limite de nombre ; 3) Nouveau bouton "⛳ Green atteint" :
+  //                 capture le GPS du dernier coup cliqué (qui a bien atteint le green, donc une
+  //                 vraie donnée utile), désactive les clics sur la photo, et affiche un compteur
+  //                 de putts à tap rapide (0 à 5+, sans clavier) qui écrit directement dans le champ
+  //                 putt classique. Le total reporté par "✓ Valider" inclut désormais coups
+  //                 d'approche + putts comptés. Réversible (bouton "Annuler « Green atteint »").
+  const APP_VERSION = "SuarPark - V01.005.077";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1656,6 +1666,10 @@
       holeViewGeoPending: "Localisation en cours…",
       holeViewGeoUnavailable: "GPS indisponible pour ce coup",
       holeViewBtnRecaptureTee: "📍 Marquer le départ ici",
+      holeViewBtnGreenReached: "Green atteint — compter les putts",
+      holeViewBtnGreenUndo: "Annuler « Green atteint »",
+      holeViewGreenReachedBadge: "Green atteint — comptage des putts",
+      holeViewPuttCounterTitle: "Nombre de putts sur ce trou :",
       holeViewGeoRecaptured: "Position du départ mise à jour.",
       shotReplayHint: "Revoir les coups (lecture seule) — enregistré sur cet appareil au moment du jeu.",
       shotReplayNoDataHole: "Aucun coup enregistré sur ce trou.",
@@ -1919,6 +1933,10 @@
       holeViewGeoPending: "Locating…",
       holeViewGeoUnavailable: "GPS unavailable for this shot",
       holeViewBtnRecaptureTee: "📍 Mark tee here",
+      holeViewBtnGreenReached: "Green reached — count putts",
+      holeViewBtnGreenUndo: "Undo \"Green reached\"",
+      holeViewGreenReachedBadge: "Green reached — counting putts",
+      holeViewPuttCounterTitle: "Number of putts on this hole:",
       holeViewGeoRecaptured: "Tee position updated.",
       shotReplayHint: "Replay of shots (read-only) — recorded on this device while playing.",
       shotReplayNoDataHole: "No shot recorded on this hole.",
@@ -2182,6 +2200,10 @@
       holeViewGeoPending: "Standort wird ermittelt…",
       holeViewGeoUnavailable: "GPS für diesen Schlag nicht verfügbar",
       holeViewBtnRecaptureTee: "📍 Abschlag hier markieren",
+      holeViewBtnGreenReached: "Green erreicht — Putts zählen",
+      holeViewBtnGreenUndo: "«Green erreicht» rückgängig machen",
+      holeViewGreenReachedBadge: "Green erreicht — Putts werden gezählt",
+      holeViewPuttCounterTitle: "Anzahl Putts an diesem Loch:",
       holeViewGeoRecaptured: "Abschlagposition aktualisiert.",
       shotReplayHint: "Schläge ansehen (nur Lesen) — auf diesem Gerät beim Spielen erfasst.",
       shotReplayNoDataHole: "Kein Schlag für dieses Loch erfasst.",
@@ -2445,6 +2467,10 @@
       holeViewGeoPending: "กำลังระบุตำแหน่ง…",
       holeViewGeoUnavailable: "ไม่มีสัญญาณ GPS สำหรับช็อตนี้",
       holeViewBtnRecaptureTee: "📍 ทำเครื่องหมายจุดทีออฟที่นี่",
+      holeViewBtnGreenReached: "ถึงกรีนแล้ว — นับพัตต์",
+      holeViewBtnGreenUndo: "ยกเลิก \"ถึงกรีนแล้ว\"",
+      holeViewGreenReachedBadge: "ถึงกรีนแล้ว — กำลังนับพัตต์",
+      holeViewPuttCounterTitle: "จำนวนพัตต์ในหลุมนี้:",
       holeViewGeoRecaptured: "อัปเดตตำแหน่งจุดทีออฟแล้ว",
       shotReplayHint: "ดูช็อตย้อนหลัง (อ่านอย่างเดียว) — บันทึกไว้บนอุปกรณ์นี้ขณะเล่น",
       shotReplayNoDataHole: "ไม่มีช็อตที่บันทึกไว้ในหลุมนี้",
@@ -4229,7 +4255,7 @@
     section.querySelectorAll('input[data-blanktype="score"]').forEach(inp => { scores[Number(inp.dataset.hole)] = inp.value; });
     const putts = Array(18).fill("");
     section.querySelectorAll('input[data-blanktype="putt"]').forEach(inp => { putts[Number(inp.dataset.hole)] = inp.value; });
-    return {header, scores, putts, shotPoints: blankCardShotPointsByHole, teeGeoByHole: blankCardTeeGeoByHole};
+    return {header, scores, putts, shotPoints: blankCardShotPointsByHole, teeGeoByHole: blankCardTeeGeoByHole, greenReachedByHole: blankCardGreenReachedByHole};
   }
 
   function persistBlankCardDraft(){
@@ -4344,6 +4370,37 @@
   // de pénalité automatiques attachés via penaltyAfter).
   function holeViewStrokeTotal(points){
     return (points || []).length + (points || []).filter(p => p.penaltyAfter).length;
+  }
+
+  // Lit le nombre de putts actuellement saisi pour ce trou (champ classique, réutilisé tel quel
+  // pour le compteur rapide "⛳ Green atteint").
+  function holeViewCurrentPutts(holeIdx){
+    const el = document.getElementById(`bcPutt-${holeIdx}`);
+    const v = el ? Number(el.value) : NaN;
+    return isNaN(v) ? null : v;
+  }
+
+  // Total du trou = coups cliqués sur la photo (départ + approche, éventuelles pénalités) + putts
+  // comptés une fois le green atteint. Avant d'atteindre le green, les putts ne sont pas encore
+  // connus donc ne comptent pas dans ce total affiché.
+  function holeViewTotalWithPutts(holeIdx){
+    const shots = holeViewStrokeTotal(holeViewShotPoints);
+    if (!blankCardGreenReachedByHole[holeIdx]) return shots;
+    const putts = holeViewCurrentPutts(holeIdx);
+    return shots + (putts || 0);
+  }
+
+  // Compteur de putts à tap rapide (0 à 5+), affiché une fois "⛳ Green atteint" pressé — pas de
+  // clavier à faire apparaître, adapté à une utilisation sur le terrain d'une seule main.
+  function holeViewPuttCounterHTML(holeIdx, currentPutts){
+    const current = currentPutts === '' ? null : Number(currentPutts);
+    const options = [0,1,2,3,4,5];
+    const buttons = options.map(n => `<button type="button" class="btn btn-secondary no-print holeview-putt-btn" data-putt="${n}" style="flex:1; margin:0; padding:8px 4px; font-size:14px; font-weight:900; ${current===n ? 'background:#2E7D32; color:#fff;' : ''}">${n===5 ? '5+' : n}</button>`).join('');
+    return `
+      <div style="margin-top:2px;">
+        <div style="font-size:11px; opacity:.85; text-align:center; margin-bottom:4px;">${t('holeViewPuttCounterTitle')}</div>
+        <div style="display:flex; gap:5px;">${buttons}</div>
+      </div>`;
   }
 
   // Nombre de pénalités (bouton "⚠️ + Pénalité" dans "Afficher le trou") comptées par trou, à
@@ -5368,6 +5425,11 @@
   // l'endroit où la balle atterrit"), donc jamais le départ lui-même. Sans cette capture explicite,
   // aucune distance "depuis le départ" n'est affichée pour ce trou (plutôt qu'une valeur fausse).
   let blankCardTeeGeoByHole = Array(18).fill(null);
+  // "⛳ Green atteint" : marque, par trou, que le dernier coup cliqué a atteint les abords du
+  // green — à partir de là, on arrête de suivre les coups un par un au GPS (le téléphone reste
+  // dans la voiturette pendant que le joueur va putter, donc plus aucun clic GPS n'est fiable) et
+  // on bascule sur un compteur de putts à tap rapide (0 à 5+), sans clavier.
+  let blankCardGreenReachedByHole = Array(18).fill(false);
   let holeViewShotPoints = [];
   let holeViewInfoExpanded = false;
 
@@ -5468,7 +5530,21 @@
     );
   }
 
-  // Marque explicitement la position GPS actuelle comme "départ" du trou en cours — totalement
+  // Bascule "green atteint" : capture le GPS du dernier coup cliqué (il représente bien le coup
+  // qui a amené la balle sur/près du green, donc un vrai point GPS utile), puis désactive les
+  // clics sur la photo au profit du compteur de putts. Un second appui revient en arrière (utile
+  // en cas d'erreur, ou s'il reste finalement un coup d'approche à cliquer).
+  function toggleGreenReached(holeIdx){
+    blankCardGreenReachedByHole[holeIdx] = !blankCardGreenReachedByHole[holeIdx];
+    if (blankCardGreenReachedByHole[holeIdx] && holeViewShotPoints.length > 0){
+      const last = holeViewShotPoints[holeViewShotPoints.length - 1];
+      if (!hasGeo(last) && !last.geoPending) captureGeo(last, holeIdx);
+    }
+    persistBlankCardDraft();
+    renderHoleView(holeIdx);
+  }
+
+
   // indépendant des coups déjà cliqués (utilisable avant le 1er clic, ou pour corriger un oubli
   // tant qu'on est encore physiquement au départ). Sans cette action, aucune distance "depuis le
   // départ" n'est calculée : un 1er clic sur la photo représente une chute de balle, jamais le
@@ -5544,6 +5620,8 @@
     const club = clubLabelForHole(holeIdx, tee);
     const bgImg = HOLE_MAP_IMG[holeIdx];
     const penalty = holeHasPenalty(holeIdx);
+    const greenReached = !!blankCardGreenReachedByHole[holeIdx];
+    const currentPutts = document.getElementById(`bcPutt-${holeIdx}`) ? document.getElementById(`bcPutt-${holeIdx}`).value : '';
     // Mise en page en colonne flex : bandeau haut (hauteur auto) / zone photo (occupe tout
     // l'espace restant) / bandeau bas (hauteur auto). La photo n'est donc JAMAIS recouverte par
     // les bandeaux — elle occupe exactement l'espace disponible entre eux, ce qui permet aussi de
@@ -5566,8 +5644,9 @@
 
         <div id="holeViewImageArea" style="flex:1 1 auto; position:relative; min-height:0; overflow:hidden;">
           <div style="position:absolute; inset:0; background-image:url('${bgImg}'); background-size:contain; background-repeat:no-repeat; background-position:center;"></div>
-          <div id="holeViewClickLayer" style="position:absolute; inset:0; cursor:crosshair;"></div>
+          <div id="holeViewClickLayer" style="position:absolute; inset:0; cursor:${greenReached ? 'default' : 'crosshair'}; pointer-events:${greenReached ? 'none' : 'auto'};"></div>
           <div id="holeViewMarkers" style="position:absolute; inset:0; pointer-events:none;">${holeViewShotMarkersHTML(null)}</div>
+          ${greenReached ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;"><div style="background:rgba(10,25,20,0.7); color:#fff; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold;">⛳ ${t('holeViewGreenReachedBadge')}</div></div>` : ''}
         </div>
 
         <div style="flex:0 0 auto; z-index:2; padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:rgba(0,0,0,0.55);">
@@ -5590,7 +5669,7 @@
               <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" id="btnHoleViewToggleInfo" class="btn btn-secondary no-print" style="margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;">${t('holeViewInfoToggle')}</button>
                 <div style="flex:1; text-align:center;">
-                  <div style="font-size:13px;"><span style="opacity:.85;">${t('holeViewShotsLabel')} :</span> <span id="holeViewShotsCount" style="font-size:20px; font-weight:900; margin-left:4px;">${holeViewStrokeTotal(holeViewShotPoints)}</span></div>
+                  <div style="font-size:13px;"><span style="opacity:.85;">${t('holeViewShotsLabel')} :</span> <span id="holeViewShotsCount" style="font-size:20px; font-weight:900; margin-left:4px;">${holeViewTotalWithPutts(holeIdx)}</span></div>
                   <div id="holeViewPenaltyCount" style="font-size:10.5px; opacity:.8; display:${holeViewPenaltyStrokes(holeViewShotPoints)>0 ? 'block':'none'};">${t('holeViewPenaltyCount', holeViewPenaltyStrokes(holeViewShotPoints))}</div>
                 </div>
                 <button type="button" id="btnHoleViewValidate" class="btn no-print" style="margin:0; font-size:12px; padding:6px 12px; white-space:nowrap; background:#2E7D32;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnValidate')}</button>
@@ -5599,8 +5678,10 @@
                 <button type="button" id="btnHoleViewPenalty" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap; ${holeViewShotPoints.length && holeViewShotPoints[holeViewShotPoints.length-1].penaltyAfter ? 'background:#dc3545; color:#fff;' : ''}" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnPenalty')}</button>
                 <button type="button" id="btnHoleViewUndo" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnUndo')}</button>
               </div>
+              <button type="button" id="btnHoleViewGreenReached" class="btn no-print" style="margin:0; font-size:12px; padding:7px 10px; white-space:nowrap; background:${greenReached ? '#2E7D32' : 'rgba(255,255,255,0.15)'};" ${holeViewShotPoints.length===0?'disabled':''}>⛳ ${t(greenReached ? 'holeViewBtnGreenUndo' : 'holeViewBtnGreenReached')}</button>
+              ${greenReached ? holeViewPuttCounterHTML(holeIdx, currentPutts) : ''}
             </div>
-            <p id="holeViewShotsHint" style="pointer-events:none; font-size:10.5px; opacity:.85; text-align:center; margin:6px 0 0; color:#fff; display:${holeViewShotPoints.length===0 ? 'block':'none'};">${t('holeViewNoShots')}</p>
+            <p id="holeViewShotsHint" style="pointer-events:none; font-size:10.5px; opacity:.85; text-align:center; margin:6px 0 0; color:#fff; display:${(holeViewShotPoints.length===0 && !greenReached) ? 'block':'none'};">${t('holeViewNoShots')}</p>
             ${holeViewGeoSummaryHTML(holeIdx)}
             <div style="text-align:center; margin-top:4px;">
               <button type="button" id="btnHoleViewRecaptureTee" class="btn btn-secondary no-print" style="font-size:10.5px; padding:4px 10px; margin:0;">${t('holeViewBtnRecaptureTee')}</button>
@@ -5615,7 +5696,7 @@
     const markers = document.getElementById('holeViewMarkers');
     if (markers) markers.innerHTML = holeViewShotMarkersHTML(holeViewGetImageRect(holeIdx));
     const countEl = document.getElementById('holeViewShotsCount');
-    if (countEl) countEl.textContent = holeViewStrokeTotal(holeViewShotPoints);
+    if (countEl) countEl.textContent = holeViewTotalWithPutts(holeIdx);
     const penaltyCount = holeViewPenaltyStrokes(holeViewShotPoints);
     const penaltyEl = document.getElementById('holeViewPenaltyCount');
     if (penaltyEl){
@@ -5643,9 +5724,10 @@
     if (geoList) geoList.innerHTML = holeViewGeoSummaryInnerHTML();
   }
 
-  // Reporte le nombre de coups comptés dans la carte de score (même logique que la saisie normale).
+  // Reporte le nombre de coups comptés dans la carte de score (coups cliqués + putts comptés une
+  // fois le green atteint — même logique que la saisie normale).
   function holeViewValidateScore(holeIdx){
-    const count = holeViewStrokeTotal(holeViewShotPoints);
+    const count = holeViewTotalWithPutts(holeIdx);
     if (count === 0) return;
 
     // Retour visuel : le dernier coup passe en vert (le trou est "fait"), puis on attend 3 s avant
@@ -5771,6 +5853,27 @@
     // en étant physiquement au départ, avant ou après avoir cliqué le 1er coup peu importe.
     const recaptureBtn = document.getElementById('btnHoleViewRecaptureTee');
     if (recaptureBtn) recaptureBtn.addEventListener('click', () => markTeeHere(holeIdx));
+
+    // "⛳ Green atteint" : bascule le mode (voir toggleGreenReached) et redessine toute la vue,
+    // puisque ça change à la fois la zone photo (clics désactivés) et le panneau du bas (compteur
+    // de putts qui apparaît/disparaît).
+    const greenBtn = document.getElementById('btnHoleViewGreenReached');
+    if (greenBtn) greenBtn.addEventListener('click', () => toggleGreenReached(holeIdx));
+
+    // Compteur de putts à tap rapide : écrit directement dans le champ putt classique (même
+    // logique que la saisie manuelle), puis met à jour le total affiché dans "Afficher le trou".
+    document.querySelectorAll('.holeview-putt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const puttInp = document.getElementById(`bcPutt-${holeIdx}`);
+        if (puttInp){
+          puttInp.value = btn.dataset.putt;
+          blankCardComputeTotals();
+          persistBlankCardDraft();
+          blankCardOnHoleInput(holeIdx);
+        }
+        renderHoleView(holeIdx);
+      });
+    });
 
     // Repositionne précisément les marqueurs déjà existants (trou déjà joué/annoté précédemment),
     // le premier rendu utilisant un positionnement approximatif tant que le rectangle exact de la
@@ -5989,6 +6092,9 @@
     blankCardTeeGeoByHole = Array.isArray(draft.teeGeoByHole) && draft.teeGeoByHole.length === 18
       ? draft.teeGeoByHole
       : Array(18).fill(null);
+    blankCardGreenReachedByHole = Array.isArray(draft.greenReachedByHole) && draft.greenReachedByHole.length === 18
+      ? draft.greenReachedByHole
+      : Array(18).fill(false);
 
     const idxRow = `<tr style="background:#e8f0ee; color:#1a3c34; font-weight:bold;">
       <th>HCP</th>${IDX.map(i=>`<th>${i}</th>`).join("")}<th colspan="3"></th>
