@@ -1396,7 +1396,11 @@
   //                 (13px/15px), numéro du coup centré directement sur la balle (halo blanc pour la
   //                 lisibilité, plus de badge/anneau séparé) — n'affiche plus que le numéro et la
   //                 distance, sans autre décoration.
-  const APP_VERSION = "SuarPark - V01.005.082";
+  //   V01.005.083 — Correction du message affiché après avoir marqué le départ : le titre réutilisait
+  //                 le texte du BOUTON ("Clique sur la carte à l'endroit du départ"), ce qui
+  //                 ressemblait à une instruction à refaire plutôt qu'à une confirmation. Remplacé
+  //                 par un vrai message de succès : "✅ GPS ok, départ marqué".
+  const APP_VERSION = "SuarPark - V01.005.083";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1713,6 +1717,7 @@
       holeViewBtnGreenUndo: "Annuler « Green atteint »",
       holeViewGreenReachedBadge: "Green atteint — comptage des putts",
       holeViewPuttCounterTitle: "Nombre de putts sur ce trou :",
+      holeViewGeoOkTitle: "✅ GPS ok, départ marqué",
       holeViewGeoRecaptured: "Position du départ mise à jour.",
       shotReplayHint: "Revoir les coups (lecture seule) — enregistré sur cet appareil au moment du jeu.",
       shotReplayNoDataHole: "Aucun coup enregistré sur ce trou.",
@@ -1981,6 +1986,7 @@
       holeViewBtnGreenUndo: "Undo \"Green reached\"",
       holeViewGreenReachedBadge: "Green reached — counting putts",
       holeViewPuttCounterTitle: "Number of putts on this hole:",
+      holeViewGeoOkTitle: "✅ GPS ok, tee marked",
       holeViewGeoRecaptured: "Tee position updated.",
       shotReplayHint: "Replay of shots (read-only) — recorded on this device while playing.",
       shotReplayNoDataHole: "No shot recorded on this hole.",
@@ -2249,6 +2255,7 @@
       holeViewBtnGreenUndo: "«Green erreicht» rückgängig machen",
       holeViewGreenReachedBadge: "Green erreicht — Putts werden gezählt",
       holeViewPuttCounterTitle: "Anzahl Putts an diesem Loch:",
+      holeViewGeoOkTitle: "✅ GPS ok, Abschlag markiert",
       holeViewGeoRecaptured: "Abschlagposition aktualisiert.",
       shotReplayHint: "Schläge ansehen (nur Lesen) — auf diesem Gerät beim Spielen erfasst.",
       shotReplayNoDataHole: "Kein Schlag für dieses Loch erfasst.",
@@ -2517,6 +2524,7 @@
       holeViewBtnGreenUndo: "ยกเลิก \"ถึงกรีนแล้ว\"",
       holeViewGreenReachedBadge: "ถึงกรีนแล้ว — กำลังนับพัตต์",
       holeViewPuttCounterTitle: "จำนวนพัตต์ในหลุมนี้:",
+      holeViewGeoOkTitle: "✅ GPS พร้อม บันทึกจุดทีออฟแล้ว",
       holeViewGeoRecaptured: "อัปเดตตำแหน่งจุดทีออฟแล้ว",
       shotReplayHint: "ดูช็อตย้อนหลัง (อ่านอย่างเดียว) — บันทึกไว้บนอุปกรณ์นี้ขณะเล่น",
       shotReplayNoDataHole: "ไม่มีช็อตที่บันทึกไว้ในหลุมนี้",
@@ -5678,7 +5686,7 @@
     holeViewTeeArmed = false;
     persistBlankCardDraft();
     renderHoleView(holeIdx);
-    captureGeo(() => blankCardTeeGeoByHole[holeIdx], holeIdx, {title: t('holeViewBtnRecaptureTee'), note: t('holeViewGeoRecaptured')});
+    captureGeo(() => blankCardTeeGeoByHole[holeIdx], holeIdx, {title: t('holeViewGeoOkTitle'), note: t('holeViewGeoRecaptured')});
   }
 
   // Calcule, pour chaque coup, sa distance au départ (si connu) et au coup/départ précédent.
