@@ -1343,7 +1343,11 @@
   //   V01.005.075 — Correction de date (suite) : les 4 manches (LOUIS, PATRICK, MARCUS, SANDY) sont
   //                 en fait bien datées du **02/09/2026** (retour arrière sur la correction 02/08
   //                 précédente, confirmé par le Directeur de session).
-  const APP_VERSION = "SuarPark - V01.005.075";
+  //   V01.005.076 — Suppression complète des numéros de téléphone des caddies (confidentialité) :
+  //                 colonne "Téléphone" retirée du tableau et de la fiche dépliée dans "🎽 Afficher
+  //                 les caddies", clé de traduction associée nettoyée. Le fichier caddies-data.js
+  //                 (externe, non versionné) ne doit plus contenir de champ "phone" non plus.
+  const APP_VERSION = "SuarPark - V01.005.076";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1750,7 +1754,6 @@
       caddiesTitle: "🎽 Liste des caddies",
       caddieNumber: "N° caddie",
       caddieName: "Nom",
-      caddiePhone: "Téléphone",
       caddiePhoto: "Photo",
       noCaddies: "Aucun caddie enregistré.",
       caddieCardRounds: (n) => `${n} manche(s) enregistrée(s) avec ce caddie`,
@@ -2014,7 +2017,6 @@
       caddiesTitle: "🎽 Caddie list",
       caddieNumber: "Caddie #",
       caddieName: "Name",
-      caddiePhone: "Phone",
       caddiePhoto: "Photo",
       noCaddies: "No caddies registered.",
       caddieCardRounds: (n) => `${n} round(s) recorded with this caddie`,
@@ -2278,7 +2280,6 @@
       caddiesTitle: "🎽 Caddie-Liste",
       caddieNumber: "Caddie-Nr.",
       caddieName: "Name",
-      caddiePhone: "Telefon",
       caddiePhoto: "Foto",
       noCaddies: "Keine Caddies erfasst.",
       caddieCardRounds: (n) => `${n} erfasste Runde(n) mit diesem Caddie`,
@@ -2542,7 +2543,6 @@
       caddiesTitle: "🎽 รายชื่อแคดดี้",
       caddieNumber: "หมายเลขแคดดี้",
       caddieName: "ชื่อ",
-      caddiePhone: "เบอร์โทรศัพท์",
       caddiePhoto: "รูปภาพ",
       noCaddies: "ยังไม่มีแคดดี้ที่บันทึกไว้",
       caddieCardRounds: (n) => `บันทึกไว้ ${n} รอบกับแคดดี้คนนี้`,
@@ -2974,7 +2974,6 @@
           <td style="padding:4px 6px; text-align:center;">${photoCell}</td>
           <td style="padding:4px 6px;">${c.number}</td>
           <td style="padding:4px 6px;">${c.name}</td>
-          <td style="padding:4px 6px;">${c.phone || ''}</td>
         </tr>`;
         if (isOpen){
           const stats = caddieRoundStats(c.number);
@@ -2988,12 +2987,12 @@
             ? `<div style="font-size:12px; color:#333; margin-top:2px;">${t('caddieCardRounds', stats.count)}</div>`
             : `<div style="font-size:12px; color:#888; margin-top:2px; font-style:italic;">${t('caddieCardNoRounds')}</div>`;
           rows += `<tr class="caddie-row" data-caddie-number="${c.number}" style="cursor:pointer; background:#f4faf8;">
-            <td colspan="4" style="padding:8px;">
+            <td colspan="3" style="padding:8px;">
               <div style="display:flex; align-items:center; gap:8px;">
                 ${bigPhoto}
                 <div>
                   <div style="font-weight:800; font-size:16px; color:#1a3c34;">${c.name || t('caddieNumber')+' '+c.number}</div>
-                  <div style="font-size:12px; color:#555;">${t('caddieNumber')} : ${c.number}${c.phone ? ' · '+t('caddiePhone')+' : '+c.phone : ''}</div>
+                  <div style="font-size:12px; color:#555;">${t('caddieNumber')} : ${c.number}</div>
                   ${roundsLine}
                   ${playersLine}
                 </div>
@@ -3012,7 +3011,6 @@
             <th style="padding:4px 6px;">${t('caddiePhoto')}</th>
             <th style="padding:4px 6px;">${t('caddieNumber')}</th>
             <th style="padding:4px 6px;">${t('caddieName')}</th>
-            <th style="padding:4px 6px;">${t('caddiePhone')}</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
