@@ -1478,7 +1478,16 @@
   //                 doit maintenant apparaître dans "📜 Afficher l'historique" sur cette ligne,
   //                 visible par tout le monde (pas seulement l'appareil d'origine) — chaîne complète
   //                 du plan validé (V01.005.084) testée de bout en bout pour la première fois.
-  const APP_VERSION = "SuarPark - V01.005.092";
+  //   V01.005.093 — Simplification à la demande du Directeur de session, suite au test du
+  //                 04/09/2026 :
+  //                 (1) Le bouton "🎬 Revoir les coups" PRIVÉ (archive locale à l'appareil) est
+  //                 retiré de "📜 Afficher l'historique" — ne reste que "🎬 Revoir les coups
+  //                 (officiel)", pour éviter la confusion entre les deux.
+  //                 (2) "📝 Transmettre ma carte" génère désormais un seul bloc combiné : le texte
+  //                 lisible (pour les humains) suivi du code technique complet avec GPS (pour le
+  //                 replay officiel) — le bouton séparé "🛰️ Code technique" redevient masqué,
+  //                 devenu inutile.
+  const APP_VERSION = "SuarPark - V01.005.093";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1750,6 +1759,7 @@
       blankCardBtnShareEmail: "📧 E-mail",
       blankCardShareHint: "Le texte est déjà copié : « Partager » ouvre les applis installées sur ton téléphone (WhatsApp, Messenger, SMS...), ou choisis « E-mail ».",
       blankCardTechnicalHint: "Code technique (illisible, normal) — contient toutes les données dont les positions GPS des coups. Envoie-le au Directeur de session pour le replay officiel.",
+      blankCardTechnicalCodeLabel: "🛰️ Code technique (ne pas modifier, transmets-le avec le texte ci-dessus — permet le replay officiel des coups GPS) :",
       blankCardExportTextFallbackTitle: "Copie ce texte et envoie-le :",
       blankCardTextLabelTee: "Départ",
       blankCardTextLabelCaddie: "Caddie",
@@ -2023,6 +2033,7 @@
       blankCardBtnShareEmail: "📧 Email",
       blankCardShareHint: "The text is already copied: \"Share\" opens the apps installed on your phone (WhatsApp, Messenger, SMS...), or choose \"Email\".",
       blankCardTechnicalHint: "Technical code (unreadable, that's normal) — contains all data including GPS shot positions. Send it to the Session Director for the official replay.",
+      blankCardTechnicalCodeLabel: "🛰️ Technical code (don't modify, send it along with the text above — enables the official GPS shot replay):",
       blankCardExportTextFallbackTitle: "Copy this text and send it:",
       blankCardTextLabelTee: "Tee",
       blankCardTextLabelCaddie: "Caddie",
@@ -2296,6 +2307,7 @@
       blankCardBtnShareEmail: "📧 E-Mail",
       blankCardShareHint: "Der Text ist bereits kopiert: «Teilen» öffnet die auf deinem Telefon installierten Apps (WhatsApp, Messenger, SMS...), oder wähle «E-Mail».",
       blankCardTechnicalHint: "Technischer Code (unlesbar, das ist normal) — enthält alle Daten inklusive GPS-Schlagpositionen. Sende ihn an den Session-Direktor für das offizielle Replay.",
+      blankCardTechnicalCodeLabel: "🛰️ Technischer Code (nicht ändern, zusammen mit obigem Text senden — ermöglicht das offizielle GPS-Schlag-Replay):",
       blankCardExportTextFallbackTitle: "Kopiere diesen Text und sende ihn:",
       blankCardTextLabelTee: "Abschlag",
       blankCardTextLabelCaddie: "Caddie",
@@ -2569,6 +2581,7 @@
       blankCardBtnShareEmail: "📧 อีเมล",
       blankCardShareHint: "ข้อความถูกคัดลอกแล้ว: \"แชร์\" จะเปิดแอปที่ติดตั้งบนโทรศัพท์ของคุณ (WhatsApp, Messenger, SMS...) หรือเลือก \"อีเมล\"",
       blankCardTechnicalHint: "โค้ดเทคนิค (อ่านไม่ออก เป็นเรื่องปกติ) — มีข้อมูลทั้งหมดรวมถึงตำแหน่ง GPS ของแต่ละช็อต ส่งให้ผู้อำนวยการเซสชันเพื่อการเล่นซ้ำอย่างเป็นทางการ",
+      blankCardTechnicalCodeLabel: "🛰️ โค้ดเทคนิค (ห้ามแก้ไข ส่งไปพร้อมกับข้อความด้านบน — ช่วยให้เล่นช็อต GPS ซ้ำได้อย่างเป็นทางการ):",
       blankCardExportTextFallbackTitle: "คัดลอกข้อความนี้และส่งต่อ:",
       blankCardTextLabelTee: "ทีออก",
       blankCardTextLabelCaddie: "แคดดี้",
@@ -3580,15 +3593,15 @@
         <span class="date-slider-label" id="sliderLabel-${name}">${teeBadge(roundIsRed(rounds[lastIdx], rounds[lastIdx][0], name), name, rounds[lastIdx][0])}${rounds[lastIdx][0]}</span>
       </div>`;
       let rows = "";
-      const replays = loadShotReplays();
       const publicReplays = loadShotReplaysPublic(); // essai masqué (V01.005.057), voir PUBLIC_REPLAY_VISIBLE
       rounds.forEach((r, i) => {
         const [date, scores] = r;
         const {out, inn, tot} = computeOutInTot(scores);
         const caddieNum = roundCaddie(r);
         const caddieTag = caddieNum ? ` <span style="font-weight:normal; color:#888; font-size:9px;">/${caddieDisplayText(caddieNum)}</span>` : '';
-        const hasReplay = !!replays[shotReplayKey(name, date)];
-        const replayBtn = hasReplay ? `<br> <button type="button" class="btn no-print history-replay-btn" data-name="${name}" data-date="${date}" style="font-size:11px; font-weight:bold; padding:3px 10px; margin-top:3px; background:#B8860B; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);">🎬 ${t('historyReplayBtn').replace('🎬 ', '')}</button>` : '';
+        // Replay PRIVÉ (archive locale à l'appareil) retiré de l'affichage à la demande du
+        // Directeur de session : seul le replay OFFICIEL (visible par tout le monde) reste
+        // affiché, pour éviter la confusion entre les deux boutons "🎬" vue le 04/09/2026.
         // Essai masqué du replay "public" : bouton distinct (vert, icône 🌐) construit mais rendu
         // uniquement si PUBLIC_REPLAY_VISIBLE passe à true — l'archive tourne déjà en coulisses.
         const hasPublicReplay = PUBLIC_REPLAY_VISIBLE && !!publicReplays[shotReplayKey(name, date)];
@@ -3599,7 +3612,7 @@
         const hasOfficialReplay = SHOT_HISTORY_KEYS.includes(shotReplayKey(name, date));
         const officialReplayBtn = hasOfficialReplay ? `<br> <button type="button" class="btn no-print history-replay-official-btn" data-name="${name}" data-date="${date}" style="font-size:11px; font-weight:bold; padding:3px 10px; margin-top:3px; background:#1565C0; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);">🎬 ${t('historyReplayOfficialBtn')}</button>` : '';
         rows += `<tr id="row-${name}-${i}" style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
-          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${replayBtn}${publicReplayBtn}${officialReplayBtn}</td>
+          <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${publicReplayBtn}${officialReplayBtn}</td>
           ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
           <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
           <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
@@ -3611,12 +3624,6 @@
     });
     container.innerHTML = html;
 
-    document.querySelectorAll('.history-replay-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openShotReplay(btn.dataset.name, btn.dataset.date, false);
-      });
-    });
     document.querySelectorAll('.history-replay-public-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4842,8 +4849,15 @@
     }
   }
 
+  // Combine le texte lisible ET le code technique (avec les positions GPS) en un seul bloc — à la
+  // demande du Directeur de session, pour n'avoir qu'un seul bouton de transmission au lieu de
+  // deux (le texte reste lisible pour les humains, le code technique en dessous permet au
+  // Directeur de session de récupérer le replay officiel sans étape supplémentaire).
   function blankCardExportText(){
-    const text = buildBlankCardReadableText();
+    const readable = buildBlankCardReadableText();
+    const draft = collectBlankCardDraftFromDOM();
+    const technical = btoa(unescape(encodeURIComponent(JSON.stringify(draft))));
+    const text = `${readable}\n\n${t('blankCardTechnicalCodeLabel')}\n${technical}`;
     const showPreview = () => blankCardShowCopiedPreview(text);
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(text).then(showPreview).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), text));
@@ -6476,7 +6490,7 @@
       <fieldset class="no-print" style="border:2px solid #0d47a1; border-radius:8px; padding:10px 12px 12px; margin-top:10px;">
         <legend style="font-size:12px; font-weight:bold; color:#0d47a1; padding:0 6px;">📡 ${t('blankCardTransferLabel')}</legend>
         <div class="toolbar" style="margin:0;">
-          <button class="btn btn-transfer" id="btnBlankCardExport">${t('blankCardBtnExport')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
           <button class="btn btn-transfer" id="btnBlankCardPrepareScan">${t('blankCardBtnPrepareScan')}</button>
