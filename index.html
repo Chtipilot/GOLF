@@ -1579,7 +1579,11 @@
   //   V02.000.003 — Flèche rouge Sud→Nord ajoutée sur les 18 photos satellite (bord gauche, "S" en
   //                 bas, "N" en haut, halo blanc pour la lisibilité) — repère visuel confirmant
   //                 l'orientation uniforme du parcours mise en place en V02.000.002.
-  const APP_VERSION = "SuarPark - V02.000.003";
+  //   V02.000.004 — Manche de test "Claude Caddie Assistant" du 04/09/2026 effacée de l'historique
+  //                 (score, GPS et replay officiel), à la demande du Directeur de session. Ne reste
+  //                 que les 2 créneaux de test 01/01/2023 et 02/01/2023. shot-history-data.js vidé
+  //                 en conséquence.
+  const APP_VERSION = "SuarPark - V02.000.004";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2910,10 +2914,7 @@
       // les statistiques d'équipe.
       "Claude Caddie Assistant": [
         ["01/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"red","19"],
-        ["02/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"white","19"],
-        // 04/09/2026 — Test GPS/replay en conditions réelles (marche du Directeur de session),
-        // manche volontairement partielle (1 seul trou joué).
-        ["04/09/2026",[8,"","","","","","","","","","","","","","","","",""],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],["","","","","","","","","","","","","","","","","",""],"","45"]
+        ["02/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"white","19"]
       ],
       ALAN: [
         ["13/01/2025",[7,7,7,4,5,7,8,5,7,6,8,5,7,5,6,8,7,4]],
@@ -4461,7 +4462,7 @@
   // savoir sur quelles lignes de l'historique afficher le bouton "🎬" SANS avoir à charger le
   // fichier lourd — celui-ci n'est récupéré qu'au moment où le bouton est réellement cliqué.
   const SHOT_HISTORY_KEYS = [
-    "Claude Caddie Assistant|04/09/2026", // 1er test GPS/replay en conditions réelles (trou 1, 8 coups)
+    // Complétée par le Directeur de session au fur et à mesure des cartes GPS reçues.
   ];
 
   let shotHistoryLoadPromise = null;
