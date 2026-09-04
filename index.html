@@ -1450,7 +1450,18 @@
   //                 qu'à la fermeture. Appliqué à toutes les sections à bascule (Historique,
   //                 Éclectique, Stats, Faits marquants, Rouge vs Blanc, Règlement, Guide rapide,
   //                 Afficher ma carte, Récap équipe, Caddies, Notice, Détails).
-  const APP_VERSION = "SuarPark - V01.005.088";
+  //   V01.005.089 — Consigne explicite du Directeur de session : "Claude Caddie Assistant" ne doit
+  //                 JAMAIS contribuer aux statistiques ni apparaître dans les faits marquants.
+  //                 Nouvelle constante STATS_PLAYERS (state.players sans "Claude Caddie Assistant"),
+  //                 utilisée à la place de state.players dans toutes les fonctions d'agrégats/
+  //                 comparaisons d'équipe : renderStats (📊), renderInsights (📌 Faits marquants),
+  //                 renderTeeCompare (🔴⚪ Rouge vs Blanc), renderEclectic (🏆 Éclectique équipe),
+  //                 caddieRoundStats. Reste inchangé et VOLONTAIREMENT non filtré (pour permettre les
+  //                 tests GPS/replay) : sélecteur de joueur, "📜 Afficher l'historique", tableau de
+  //                 saisie principal, reconnaissance de nom dans le texte collé. Petite correction
+  //                 annexe : commentaire obsolète mentionnant encore "caddies-data.js" au lieu de
+  //                 "cfg-local.js" mis à jour.
+  const APP_VERSION = "SuarPark - V01.005.089";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2948,12 +2959,23 @@
     // en excès), redimensionné en 200x200px, JPEG qualité ~82 (~9 Ko en base64) — cf. YUI (136)
     // Ordre des caddies fixé manuellement (pas d'ordre naturel) : 136,19,20,41,2,45, puis les
     // nouveaux caddies ajoutés ensuite à la suite
-    // Données caddies (téléphones + photos) : volontairement PAS versionnées ici.
-    // Elles vivent dans caddies-data.js (fichier local, listé dans .gitignore) et sont
-    // injectées via window.CADDIES_DATA au chargement (voir <script> juste avant celui-ci).
+    // Données caddies (photos) : volontairement PAS versionnées ici. Elles vivent dans un fichier
+    // local séparé (nommé cfg-local.js — renommé pour rester discret sur le dépôt public depuis
+    // l'incident du 03/09/2026, voir échange avec le Directeur de session) et sont injectées via
+    // window.CADDIES_DATA au chargement (voir <script> juste avant celui-ci).
     // En son absence (ex. clone public du dépôt), la liste reste vide plutôt que de planter.
     caddies: (window.CADDIES_DATA || [])
   };
+
+  // "Claude Caddie Assistant" est présent dans DEFAULT_DATA.players pour rester sélectionnable
+  // (tests GPS/replay), mais ne doit JAMAIS apparaître dans les statistiques d'équipe ni les faits
+  // marquants (podium, records, comparaisons) — consigne explicite du Directeur de session. Cette
+  // liste filtrée est utilisée à la place de state.players dans toutes les fonctions de calcul
+  // d'agrégats/comparaisons d'équipe (renderStats, renderInsights, renderTeeCompare, renderEclectic,
+  // caddieRoundStats). Les vues d'affichage individuel simple (Afficher l'historique, tableau de
+  // saisie principal, sélecteur de joueur) continuent d'utiliser state.players normalement, pour
+  // que les tests restent possibles.
+  const STATS_PLAYERS = DEFAULT_DATA.players.filter(p => p !== "Claude Caddie Assistant");
 
   const STORAGE_KEY = "suarpark-golf-data";
   let state = null;
@@ -3081,7 +3103,7 @@
   function caddieRoundStats(number){
     let count = 0;
     const playersSet = new Set();
-    state.players.forEach(name => {
+    STATS_PLAYERS.forEach(name => {
       (state.history[name] || []).forEach(round => {
         const caddieNum = round[5];
         if (String(caddieNum) === String(number)){
@@ -3709,7 +3731,7 @@
   function renderEclectic(){
     const container = document.getElementById('eclecticSection');
     let rows = "";
-    state.players.forEach((name, i) => {
+    STATS_PLAYERS.forEach((name, i) => {
       const rounds = state.history[name] || [];
       let best = Array(18).fill(null);
       rounds.forEach(([date, scores]) => {
@@ -3772,7 +3794,7 @@
     if (chartTemp) chartTemp.destroy();
 
     // --- Progression chart ---
-    const progDatasets = state.players.map(name => {
+    const progDatasets = STATS_PLAYERS.map(name => {
       const rounds = (state.history[name] || []).slice().sort((a,b) => new Date(frToIso(a[0])) - new Date(frToIso(b[0])));
       return {
         label: name,
@@ -3862,7 +3884,7 @@
 
     // --- Holes chart (bar per player + distance line) ---
     const holeLabels = Array.from({length:18}, (_, i) => `${i+1}`);
-    const holeDatasets = state.players.map(name => {
+    const holeDatasets = STATS_PLAYERS.map(name => {
       const rounds = state.history[name] || [];
       const avgByHole = Array(18).fill(0);
       if (rounds.length > 0){
@@ -3895,7 +3917,7 @@
     });
 
     // --- Min / average / max total per player ---
-    const avgLabels = state.players;
+    const avgLabels = STATS_PLAYERS;
     const totalsByPlayer = avgLabels.map(name => {
       const rounds = state.history[name] || [];
       return rounds.map(r => r[1].reduce((a,b)=>a+b,0));
@@ -4006,7 +4028,7 @@
 
   function renderInsights(){
     const container = document.getElementById('insightsSection');
-    const players = state.players.filter(name => (state.history[name] || []).length > 0);
+    const players = STATS_PLAYERS.filter(name => (state.history[name] || []).length > 0);
 
     // Historique filtré pour "Faits marquants" : si une date a été sélectionnée dans le curseur
     // de "📜 Afficher l'historique" (insightsSelectedDate), ne garde que les manches jouées à
@@ -4244,7 +4266,7 @@
 
   function renderTeeCompare(){
     const container = document.getElementById('teeCompareSection');
-    const players = state.players.filter(name => (state.history[name] || []).length > 0);
+    const players = STATS_PLAYERS.filter(name => (state.history[name] || []).length > 0);
     if (players.length === 0){
       container.innerHTML = `<h3>${t('teeCompareTitle')}</h3><p class="sub">${t('noDataForInsights')}</p>`;
       return;
