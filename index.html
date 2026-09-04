@@ -1471,7 +1471,14 @@
   //                 (avec GPS)" pour bien le distinguer de "📝 Transmettre ma carte" (texte lisible,
   //                 sans GPS), et doté du même aperçu/partage que ce dernier (contenu affiché avant
   //                 envoi, boutons Partager/E-mail).
-  const APP_VERSION = "SuarPark - V01.005.091";
+  //   V01.005.092 — 🎉 Premier replay OFFICIEL réel : code technique de la manche test du Directeur
+  //                 de session (Claude Caddie Assistant, 04/09/2026, trou 1) décodé et intégré à
+  //                 shot-history-data.js — 8 coups GPS reçus, cohérents avec le score déclaré (8).
+  //                 Clé ajoutée à SHOT_HISTORY_KEYS : le bouton "🎬 Revoir les coups (officiel)"
+  //                 doit maintenant apparaître dans "📜 Afficher l'historique" sur cette ligne,
+  //                 visible par tout le monde (pas seulement l'appareil d'origine) — chaîne complète
+  //                 du plan validé (V01.005.084) testée de bout en bout pour la première fois.
+  const APP_VERSION = "SuarPark - V01.005.092";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4345,7 +4352,7 @@
   // savoir sur quelles lignes de l'historique afficher le bouton "🎬" SANS avoir à charger le
   // fichier lourd — celui-ci n'est récupéré qu'au moment où le bouton est réellement cliqué.
   const SHOT_HISTORY_KEYS = [
-    // Complétée par le Directeur de session au fur et à mesure des cartes GPS reçues.
+    "Claude Caddie Assistant|04/09/2026", // 1er test GPS/replay en conditions réelles (trou 1, 8 coups)
   ];
 
   let shotHistoryLoadPromise = null;
