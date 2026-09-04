@@ -43,6 +43,35 @@
   /* Clignotement pendant l'attente du GPS (balle de coup ou punaise de départ) */
   @keyframes geoPendingBlink { 0%, 100% { opacity:1; } 50% { opacity:0.35; } }
   .geo-pending { animation: geoPendingBlink 0.9s ease-in-out infinite; }
+  /* Titre "GOLF_TEAM" en néon : quelques clignotements façon enseigne qui s'allume, puis se
+     stabilise en glow permanent + relief 3D (ombres dorées superposées). Joué une seule fois au
+     chargement de la page (pas de "infinite"), la dernière étape du keyframe reste l'état final
+     affiché indéfiniment. */
+  @keyframes neonSignOn {
+    0%   { opacity:.25; text-shadow:none; }
+    3%   { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    6%   { opacity:.3; text-shadow:none; }
+    9%   { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    11%  { opacity:.25; text-shadow:none; }
+    14%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    16%  { opacity:.35; text-shadow:none; }
+    19%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    22%  { opacity:.3; text-shadow:none; }
+    25%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    28%  { opacity:.2; text-shadow:none; }
+    32%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    36%  { opacity:.3; text-shadow:none; }
+    40%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    45%  { opacity:.25; text-shadow:none; }
+    50%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    100% {
+      opacity:1;
+      text-shadow:
+        0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300, 0 0 38px #ff9800,
+        1px 1px 0 #b8860b, 2px 2px 0 #b8860b, 3px 3px 0 #8a6d1f, 4px 4px 6px rgba(0,0,0,0.55);
+    }
+  }
+  #neonTitle { display:inline-block; animation: neonSignOn 6s steps(1) 1 both; }
   #app .btn { background:var(--green-deep); color:#fff; border:none; border-radius:9px; padding:8px 14px; font-size:12px; cursor:pointer; margin:3px 4px 3px 0; box-shadow:0 3px 0 rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.2); transition:background 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease; min-height:38px; }
   #app .btn:hover { background:var(--green-mid); }
   #app .btn:active { transform:translateY(3px); box-shadow:0 0 0 rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15); }
@@ -214,7 +243,7 @@
 
 <div style="background-image: linear-gradient(rgba(26,60,52,0.55), rgba(26,60,52,0.8)), url('golf-course.jpg'); background-size:cover; background-position:center 65%; border-radius:12px; padding:16px 18px; margin-bottom:6px;">
   <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
-    <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;">GOLF_TEAM <span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
+    <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;"><span id="neonTitle">GOLF_TEAM</span> <span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
     <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
     <button class="btn btn-secondary info-ref" id="btnToggleGuide" style="font-size:11px; padding:4px 8px;">🗺️ Guide rapide</button>
     <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
@@ -1487,7 +1516,20 @@
   //                 lisible (pour les humains) suivi du code technique complet avec GPS (pour le
   //                 replay officiel) — le bouton séparé "🛰️ Code technique" redevient masqué,
   //                 devenu inutile.
-  const APP_VERSION = "SuarPark - V01.005.093";
+  //   V01.005.094 — Bouton "🎬 Revoir les coups (officiel)" simplifié en icône seule ("🎬"), affichée
+  //                 directement à côté de la date au lieu de sur sa propre ligne — le texte complet
+  //                 reste accessible en info-bulle (survol sur ordinateur).
+  //   V01.005.095 — Bouton "🎬" réduit à environ 1/4 de sa taille précédente (11×11px, coins
+  //                 légèrement arrondis) — vraiment discret à côté de la date. Le texte complet
+  //                 reste disponible en info-bulle au survol.
+  //   V01.005.096 — Titre "GOLF_TEAM" animé en néon au chargement de la page : quelques
+  //                 clignotements façon enseigne lumineuse qui s'allume (opacité + glow doré
+  //                 toggle), puis se stabilise définitivement en glow permanent avec un effet de
+  //                 relief 3D (ombres dorées superposées). Joué une seule fois par chargement.
+  //   V01.005.097 — Effet néon allongé : durée totale 2,6s → 6s, avec plus de clignotements
+  //                 (11 flashs au lieu de 4) répartis sur la première moitié de l'animation, avant
+  //                 de se stabiliser en glow 3D permanent.
+  const APP_VERSION = "SuarPark - V01.005.097";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3610,7 +3652,7 @@
         // dans shot-history-data.js (fichier séparé, chargé seulement au clic — voir
         // loadShotHistoryData). SHOT_HISTORY_KEYS (léger, embarqué) dit juste SI ça existe.
         const hasOfficialReplay = SHOT_HISTORY_KEYS.includes(shotReplayKey(name, date));
-        const officialReplayBtn = hasOfficialReplay ? `<br> <button type="button" class="btn no-print history-replay-official-btn" data-name="${name}" data-date="${date}" style="font-size:11px; font-weight:bold; padding:3px 10px; margin-top:3px; background:#1565C0; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);">🎬 ${t('historyReplayOfficialBtn')}</button>` : '';
+        const officialReplayBtn = hasOfficialReplay ? ` <button type="button" class="btn no-print history-replay-official-btn" data-name="${name}" data-date="${date}" title="${t('historyReplayOfficialBtn')}" style="font-size:7px; font-weight:bold; padding:0; width:11px; height:11px; margin:0 0 0 4px; vertical-align:middle; background:#1565C0; color:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.3); min-height:auto; line-height:11px; text-align:center; border-radius:3px;">🎬</button>` : '';
         rows += `<tr id="row-${name}-${i}" style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
           <td style="text-align:left; padding-left:4px; font-weight:bold; white-space:normal; overflow-wrap:break-word; line-height:1.5;">${teeBadge(roundIsRed(r, date, name), name, date)}${date}${caddieTag}${publicReplayBtn}${officialReplayBtn}</td>
           ${scores.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
