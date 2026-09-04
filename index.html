@@ -1461,7 +1461,17 @@
   //                 saisie principal, reconnaissance de nom dans le texte collé. Petite correction
   //                 annexe : commentaire obsolète mentionnant encore "caddies-data.js" au lieu de
   //                 "cfg-local.js" mis à jour.
-  const APP_VERSION = "SuarPark - V01.005.089";
+  //   V01.005.090 — Manche de test "Claude Caddie Assistant" du 04/09/2026 ajoutée à l'historique
+  //                 (test GPS/replay en conditions réelles, trou 1 = 8, manche volontairement
+  //                 partielle). N'affecte aucune statistique d'équipe (voir V01.005.089).
+  //   V01.005.091 — Correction importante : le bouton du CODE TECHNIQUE (celui qui transporte les
+  //                 vraies coordonnées GPS, nécessaire pour le replay officiel) était resté masqué
+  //                 (display:none) dans "Afficher ma carte" — inaccessible pour le Directeur de
+  //                 session lors du test de ce matin. Rendu visible, renommé "🛰️ Code technique
+  //                 (avec GPS)" pour bien le distinguer de "📝 Transmettre ma carte" (texte lisible,
+  //                 sans GPS), et doté du même aperçu/partage que ce dernier (contenu affiché avant
+  //                 envoi, boutons Partager/E-mail).
+  const APP_VERSION = "SuarPark - V01.005.091";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1718,7 +1728,7 @@
       blankCardIntro: "À imprimer ou à remplir directement à l'écran avant/pendant la manche.",
       blankCardBtnPrint: "🖨️ Imprimer",
       blankCardBtnClose: "Retour",
-      blankCardBtnExport: "📤 Copier (presse-papier)",
+      blankCardBtnExport: "🛰️ Code technique (avec GPS)",
       blankCardBtnExportText: "📝 Transmettre ma carte",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
@@ -1732,6 +1742,7 @@
       blankCardBtnShareNative: "📤 Partager (WhatsApp, Messenger, SMS...)",
       blankCardBtnShareEmail: "📧 E-mail",
       blankCardShareHint: "Le texte est déjà copié : « Partager » ouvre les applis installées sur ton téléphone (WhatsApp, Messenger, SMS...), ou choisis « E-mail ».",
+      blankCardTechnicalHint: "Code technique (illisible, normal) — contient toutes les données dont les positions GPS des coups. Envoie-le au Directeur de session pour le replay officiel.",
       blankCardExportTextFallbackTitle: "Copie ce texte et envoie-le :",
       blankCardTextLabelTee: "Départ",
       blankCardTextLabelCaddie: "Caddie",
@@ -1990,7 +2001,7 @@
       blankCardIntro: "Print it or fill it in directly on screen before/during the round.",
       blankCardBtnPrint: "🖨️ Print",
       blankCardBtnClose: "Back",
-      blankCardBtnExport: "📤 Copy (clipboard)",
+      blankCardBtnExport: "🛰️ Technical code (with GPS)",
       blankCardBtnExportText: "📝 Send my card",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
@@ -2004,6 +2015,7 @@
       blankCardBtnShareNative: "📤 Share (WhatsApp, Messenger, SMS...)",
       blankCardBtnShareEmail: "📧 Email",
       blankCardShareHint: "The text is already copied: \"Share\" opens the apps installed on your phone (WhatsApp, Messenger, SMS...), or choose \"Email\".",
+      blankCardTechnicalHint: "Technical code (unreadable, that's normal) — contains all data including GPS shot positions. Send it to the Session Director for the official replay.",
       blankCardExportTextFallbackTitle: "Copy this text and send it:",
       blankCardTextLabelTee: "Tee",
       blankCardTextLabelCaddie: "Caddie",
@@ -2262,7 +2274,7 @@
       blankCardIntro: "Zum Ausdrucken oder direkt am Bildschirm vor/während der Runde ausfüllen.",
       blankCardBtnPrint: "🖨️ Drucken",
       blankCardBtnClose: "Zurück",
-      blankCardBtnExport: "📤 Kopieren (Zwischenablage)",
+      blankCardBtnExport: "🛰️ Technischer Code (mit GPS)",
       blankCardBtnExportText: "📝 Meine Karte übermitteln",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
@@ -2276,6 +2288,7 @@
       blankCardBtnShareNative: "📤 Teilen (WhatsApp, Messenger, SMS...)",
       blankCardBtnShareEmail: "📧 E-Mail",
       blankCardShareHint: "Der Text ist bereits kopiert: «Teilen» öffnet die auf deinem Telefon installierten Apps (WhatsApp, Messenger, SMS...), oder wähle «E-Mail».",
+      blankCardTechnicalHint: "Technischer Code (unlesbar, das ist normal) — enthält alle Daten inklusive GPS-Schlagpositionen. Sende ihn an den Session-Direktor für das offizielle Replay.",
       blankCardExportTextFallbackTitle: "Kopiere diesen Text und sende ihn:",
       blankCardTextLabelTee: "Abschlag",
       blankCardTextLabelCaddie: "Caddie",
@@ -2534,7 +2547,7 @@
       blankCardIntro: "พิมพ์หรือกรอกโดยตรงบนหน้าจอ ก่อน/ระหว่างรอบการเล่น",
       blankCardBtnPrint: "🖨️ พิมพ์",
       blankCardBtnClose: "กลับ",
-      blankCardBtnExport: "📤 คัดลอก (คลิปบอร์ด)",
+      blankCardBtnExport: "🛰️ โค้ดเทคนิค (พร้อม GPS)",
       blankCardBtnExportText: "📝 ส่งการ์ดของฉัน",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
@@ -2548,6 +2561,7 @@
       blankCardBtnShareNative: "📤 แชร์ (WhatsApp, Messenger, SMS...)",
       blankCardBtnShareEmail: "📧 อีเมล",
       blankCardShareHint: "ข้อความถูกคัดลอกแล้ว: \"แชร์\" จะเปิดแอปที่ติดตั้งบนโทรศัพท์ของคุณ (WhatsApp, Messenger, SMS...) หรือเลือก \"อีเมล\"",
+      blankCardTechnicalHint: "โค้ดเทคนิค (อ่านไม่ออก เป็นเรื่องปกติ) — มีข้อมูลทั้งหมดรวมถึงตำแหน่ง GPS ของแต่ละช็อต ส่งให้ผู้อำนวยการเซสชันเพื่อการเล่นซ้ำอย่างเป็นทางการ",
       blankCardExportTextFallbackTitle: "คัดลอกข้อความนี้และส่งต่อ:",
       blankCardTextLabelTee: "ทีออก",
       blankCardTextLabelCaddie: "แคดดี้",
@@ -2784,7 +2798,10 @@
       // les statistiques d'équipe.
       "Claude Caddie Assistant": [
         ["01/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"red","19"],
-        ["02/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"white","19"]
+        ["02/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"white","19"],
+        // 04/09/2026 — Test GPS/replay en conditions réelles (marche du Directeur de session),
+        // manche volontairement partielle (1 seul trou joué).
+        ["04/09/2026",[8,"","","","","","","","","","","","","","","","",""],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],["","","","","","","","","","","","","","","","","",""],"","45"]
       ],
       ALAN: [
         ["13/01/2025",[7,7,7,4,5,7,8,5,7,6,8,5,7,5,6,8,7,4]],
@@ -4649,9 +4666,9 @@
   function blankCardExport(){
     const draft = collectBlankCardDraftFromDOM();
     const code = btoa(unescape(encodeURIComponent(JSON.stringify(draft))));
-    const finish = () => window.alert(t('blankCardExportCopied'));
+    const showPreview = () => blankCardShowCopiedPreview(code, true);
     if (navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(code).then(finish).catch(() => window.prompt(t('blankCardExportFallbackTitle'), code));
+      navigator.clipboard.writeText(code).then(showPreview).catch(() => window.prompt(t('blankCardExportFallbackTitle'), code));
     } else {
       window.prompt(t('blankCardExportFallbackTitle'), code);
     }
@@ -4831,22 +4848,24 @@
   // Affiche le contenu qui vient d'être copié dans le presse-papier, pour vérification avant
   // envoi — même présentation que "Carte prête à photographier", avec un bandeau de confirmation
   // de copie en plus.
-  function blankCardShowCopiedPreview(text){
+  function blankCardShowCopiedPreview(text, isTechnical){
     const panel = document.getElementById('scanReadyPanel');
     panel.style.display = 'block';
     const canShare = !!(navigator.share);
     const shareBtn = canShare ? `<button class="btn no-print" id="btnCopiedShare" style="background:#2E7D32; margin-left:8px;">${t('blankCardBtnShareNative')}</button>` : '';
     const mailHref = `mailto:?subject=${encodeURIComponent('SuarPark')}&body=${encodeURIComponent(text)}`;
+    const title = isTechnical ? t('blankCardBtnExport') : t('blankCardCopiedPreviewTitle');
+    const hint = isTechnical ? t('blankCardTechnicalHint') : t('blankCardShareHint');
     panel.innerHTML = `
       <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
         <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
-        <h3 style="margin:12px 0 4px;">${t('blankCardCopiedPreviewTitle')}</h3>
+        <h3 style="margin:12px 0 4px;">${title}</h3>
         <p class="sub" style="margin:10px 0; color:#2E7D32; font-weight:bold;">✅ ${t('blankCardExportTextCopied')}</p>
         <div style="margin:10px 0; display:flex; flex-wrap:wrap; gap:8px;">
           ${shareBtn}
           <a class="btn btn-secondary" href="${mailHref}" style="text-decoration:none; display:inline-block;">${t('blankCardBtnShareEmail')}</a>
         </div>
-        <p class="sub" style="font-size:11px; margin:4px 0 10px;">${t('blankCardShareHint')}</p>
+        <p class="sub" style="font-size:11px; margin:4px 0 10px;">${hint}</p>
         <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(14px, 3.6vw, 18px); line-height:1.5; color:#000; background:#f7f3ea; border:2px solid #c9a668; border-radius:8px; padding:14px; margin:0;">${text.replace(/</g,'&lt;')}</pre>
       </div>`;
     document.getElementById('btnScanReadyClose').addEventListener('click', () => {
@@ -6450,7 +6469,7 @@
       <fieldset class="no-print" style="border:2px solid #0d47a1; border-radius:8px; padding:10px 12px 12px; margin-top:10px;">
         <legend style="font-size:12px; font-weight:bold; color:#0d47a1; padding:0 6px;">📡 ${t('blankCardTransferLabel')}</legend>
         <div class="toolbar" style="margin:0;">
-          <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardExport">${t('blankCardBtnExport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
           <button class="btn btn-transfer" id="btnBlankCardPrepareScan">${t('blankCardBtnPrepareScan')}</button>
