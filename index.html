@@ -1583,7 +1583,38 @@
   //                 (score, GPS et replay officiel), à la demande du Directeur de session. Ne reste
   //                 que les 2 créneaux de test 01/01/2023 et 02/01/2023. shot-history-data.js vidé
   //                 en conséquence.
-  const APP_VERSION = "SuarPark - V02.000.004";
+  //   V02.000.005 — Trois ajustements ergonomie GPS demandés par le Directeur de session :
+  //                 (1) Sur un trou vierge (aucun coup, aucun départ marqué), le mode "pose du
+  //                 départ" s'arme désormais AUTOMATIQUEMENT à l'ouverture — plus besoin de presser
+  //                 le petit bouton avant. Un grand message "📍 Clique sur la carte à l'endroit du
+  //                 départ" apparaît centré sur la photo (fond semi-transparent, ne bloque pas le
+  //                 clic ni ne cache la carte en dessous).
+  //                 (2) Bouton "Valider" agrandi (12px→17px, padding doublé) pour plus de visibilité.
+  //                 (3) Vérifié : le 1er clic pose toujours le départ en priorité (même logique
+  //                 qu'avant, juste automatique désormais), donc la distance du 1er coup depuis le
+  //                 départ reste fiable dans ce flux simplifié.
+  //   V02.000.006 — Retiré le petit texte "Touche la photo à l'endroit du départ..." sous le bouton,
+  //                 devenu redondant avec le grand message centré ajouté en V02.000.005. Le bouton
+  //                 lui-même reste (utile pour re-marquer le départ plus tard si besoin).
+  //   V02.000.007 — Correction (capture d'écran à l'appui) : le bouton "📍 Clique sur la carte à
+  //                 l'endroit du départ" restait affiché même une fois le départ déjà marqué (punaise
+  //                 déjà visible sur la photo), inutile dans ce cas. Il ne s'affiche désormais que
+  //                 si le départ n'est pas encore marqué, ou si le mode "re-marquer" est activé.
+  //   V02.000.008 — Correction : l'auto-armement (et donc le grand message centré) n'était déclenché
+  //                 que sur un trou totalement vierge (aucun coup) — si le départ était effacé alors
+  //                 que des coups existaient déjà, rien ne se redéclenchait automatiquement. Corrigé :
+  //                 le mode "pose du départ" s'arme désormais dès que le départ n'est pas marqué,
+  //                 peu importe le nombre de coups déjà enregistrés — sur l'ouverture du trou ET sur
+  //                 la navigation précédent/suivant.
+  //   V02.000.009 — Retiré "📸 Préparer ma carte à photographier" (bouton, fonction
+  //                 blankCardShowScanReady, traductions associées), devenu inutile à la demande du
+  //                 Directeur de session — remplacé dans les faits par "📝 Transmettre ma carte" et
+  //                 son aperçu partageable. Le panneau scanReadyPanel et la traduction scanReadyClose
+  //                 restent (partagés avec l'aperçu de transmission).
+  //   V02.000.010 — Historique de "Claude Caddie Assistant" entièrement vidé (créneaux de test
+  //                 01/01/2023 et 02/01/2023 retirés), à la demande du Directeur de session. Reste
+  //                 sélectionnable normalement, simplement sans historique préexistant.
+  const APP_VERSION = "SuarPark - V02.000.010";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1817,9 +1848,6 @@
       teamRecapTitle: "👥 Récapitulatif de l'équipe",
       teamRecapIntro: "Cartes reçues des joueurs, regroupées ici sans jamais écraser ta propre carte en cours.",
       blankCardBtnReceiveTeam: "👥 Recevoir la carte d'un joueur",
-      blankCardBtnPrepareScan: "📸 Préparer ma carte à photographier",
-      scanReadyTitle: "📸 Carte prête à photographier",
-      scanReadyHint: "Montre cet écran à la personne qui doit voir ta carte, ou photographie-le pour l'envoyer par message. Texte volontairement gros et net pour une bonne lisibilité.",
       scanReadyClose: "🚪 Fermer",
       teamRecapEmpty: "Aucune carte reçue pour l'instant. Utilise \"👥 Recevoir la carte d'un joueur\" depuis la carte de score vierge.",
       teamRecapReceiveSuccess: (n) => `Carte de ${n} ajoutée au récapitulatif d'équipe !`,
@@ -2091,9 +2119,6 @@
       teamRecapTitle: "👥 Team recap",
       teamRecapIntro: "Cards received from players, gathered here without ever overwriting your own card in progress.",
       blankCardBtnReceiveTeam: "👥 Receive a player's card",
-      blankCardBtnPrepareScan: "📸 Prepare my card to be photographed",
-      scanReadyTitle: "📸 Card ready to be photographed",
-      scanReadyHint: "Show this screen to whoever needs to see your card, or photograph it to send by message. Text is deliberately large and clear for good readability.",
       scanReadyClose: "🚪 Close",
       teamRecapEmpty: "No card received yet. Use \"👥 Receive a player's card\" from the blank scorecard.",
       teamRecapReceiveSuccess: (n) => `${n}'s card added to the team recap!`,
@@ -2365,9 +2390,6 @@
       teamRecapTitle: "👥 Team-Übersicht",
       teamRecapIntro: "Von Spielern erhaltene Karten, hier gesammelt, ohne je die eigene laufende Karte zu überschreiben.",
       blankCardBtnReceiveTeam: "👥 Karte eines Spielers empfangen",
-      blankCardBtnPrepareScan: "📸 Meine Karte zum Fotografieren vorbereiten",
-      scanReadyTitle: "📸 Karte bereit zum Fotografieren",
-      scanReadyHint: "Zeige diesen Bildschirm der Person, die deine Karte sehen soll, oder fotografiere ihn, um ihn per Nachricht zu senden. Text bewusst groß und klar für gute Lesbarkeit.",
       scanReadyClose: "🚪 Schließen",
       teamRecapEmpty: "Noch keine Karte empfangen. \"👥 Karte eines Spielers empfangen\" auf der leeren Scorekarte verwenden.",
       teamRecapReceiveSuccess: (n) => `Karte von ${n} zur Team-Übersicht hinzugefügt!`,
@@ -2639,9 +2661,6 @@
       teamRecapTitle: "👥 สรุปทีม",
       teamRecapIntro: "การ์ดที่ได้รับจากผู้เล่น รวบรวมไว้ที่นี่ โดยไม่เขียนทับการ์ดของคุณเองที่กำลังกรอกอยู่",
       blankCardBtnReceiveTeam: "👥 รับการ์ดของผู้เล่น",
-      blankCardBtnPrepareScan: "📸 เตรียมการ์ดของฉันเพื่อถ่ายภาพ",
-      scanReadyTitle: "📸 การ์ดพร้อมถ่ายภาพ",
-      scanReadyHint: "แสดงหน้าจอนี้ให้คนที่ต้องดูการ์ดของคุณ หรือถ่ายภาพเพื่อส่งเป็นข้อความ ข้อความตั้งใจทำให้ใหญ่และชัดเจนเพื่อให้อ่านง่าย",
       scanReadyClose: "🚪 ปิด",
       teamRecapEmpty: "ยังไม่มีการ์ดที่ได้รับ ใช้ \"👥 รับการ์ดของผู้เล่น\" จากการ์ดคะแนนเปล่า",
       teamRecapReceiveSuccess: (n) => `เพิ่มการ์ดของ ${n} ในสรุปทีมแล้ว!`,
@@ -2909,13 +2928,11 @@
         ["02/09/2026",[7,6,6,4,5,9,8,6,8,7,7,3,9,4,6,10,7,7],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,1,2,2,2,2,3,3,3,3,3,1,2,2,2,3,2,2],"white","41"]
       ],
       // "Claude Caddie Assistant" — identité dédiée aux essais/tests du site (remplace LOUIS,
-      // précédemment utilisé pour ça). Dates antérieures au 01/01/2024 = créneaux de test libres,
-      // scores placeholder (= Par sur chaque trou) : à ne jamais utiliser comme vraie manche pour
-      // les statistiques d'équipe.
-      "Claude Caddie Assistant": [
-        ["01/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"red","19"],
-        ["02/01/2023",[5,4,4,3,4,4,5,3,4,4,4,3,5,3,4,5,4,4],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"white","19"]
-      ],
+      // précédemment utilisé pour ça). Historique volontairement VIDE (V02.000.010, à la demande du
+      // Directeur de session) : aucune manche de test conservée, quelle que soit la date. Reste
+      // sélectionnable normalement pour de futurs tests (GPS/replay, etc.), simplement sans
+      // historique préexistant.
+      "Claude Caddie Assistant": [],
       ALAN: [
         ["13/01/2025",[7,7,7,4,5,7,8,5,7,6,8,5,7,5,6,8,7,4]],
         ["10/02/2025",[8,6,8,10,7,7,7,7,8,7,6,5,7,5,6,6,6,5]],
@@ -5018,23 +5035,6 @@
   // Affiche la carte en plein écran, en gros caractères noirs sur fond blanc, sans couleurs
   // ni décoration — pensé pour être photographié/scanné par une autre personne (meilleure
   // chance de reconnaissance OCR qu'une photo de l'écran normal de l'app, coloré et dense).
-  function blankCardShowScanReady(){
-    const text = buildBlankCardReadableText();
-    const panel = document.getElementById('scanReadyPanel');
-    panel.style.display = 'block';
-    panel.innerHTML = `
-      <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
-        <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
-        <h3 style="margin:12px 0 4px;">${t('scanReadyTitle')}</h3>
-        <p class="sub" style="margin:10px 0; color:#555;">${t('scanReadyHint')}</p>
-        <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(16px, 4.2vw, 22px); font-weight:700; line-height:1.5; color:#000; background:#fff; border:3px solid #000; border-radius:8px; padding:14px; margin:0;">${text.replace(/</g,'&lt;')}</pre>
-      </div>`;
-    document.getElementById('btnScanReadyClose').addEventListener('click', () => {
-      panel.style.display = 'none';
-      panel.innerHTML = '';
-    });
-  }
-
   // Reconnaît et relit le format "texte lisible" produit par blankCardExportText(),
   // indépendamment de la langue (labels traduits) : on s'appuie sur des repères stables
   // (émojis, séparateur "—", motif date JJ/MM/AAAA, lignes contenant "|" dans l'ordre
@@ -6070,6 +6070,7 @@
     const bgImg = HOLE_MAP_IMG[holeIdx];
     const penalty = holeHasPenalty(holeIdx);
     const greenReached = !!blankCardGreenReachedByHole[holeIdx];
+    const teeIsSet = !!((blankCardTeeGeoByHole || [])[holeIdx] && (blankCardTeeGeoByHole || [])[holeIdx].x !== undefined);
     const currentPutts = document.getElementById(`bcPutt-${holeIdx}`) ? document.getElementById(`bcPutt-${holeIdx}`).value : '';
     // Mise en page en colonne flex : bandeau haut (hauteur auto) / zone photo (occupe tout
     // l'espace restant) / bandeau bas (hauteur auto). La photo n'est donc JAMAIS recouverte par
@@ -6097,6 +6098,7 @@
           <div id="holeViewTrail" style="position:absolute; inset:0; pointer-events:none;">${trailLinesHTML(holeIdx, null)}</div>
           <div id="holeViewMarkers" style="position:absolute; inset:0; pointer-events:none;">${holeViewShotMarkersHTML(null, false, holeIdx)}${teeMarkerHTML(holeIdx, null)}</div>
           ${greenReached ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;"><div style="background:rgba(10,25,20,0.7); color:#fff; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold;">⛳ ${t('holeViewGreenReachedBadge')}</div></div>` : ''}
+          ${holeViewTeeArmed ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; padding:20px;"><div style="background:rgba(10,25,20,0.55); color:#fff; padding:16px 22px; border-radius:18px; font-size:clamp(16px,4.2vw,22px); font-weight:900; text-align:center; text-shadow:0 2px 6px rgba(0,0,0,0.6); box-shadow:0 4px 16px rgba(0,0,0,0.4);">📍 ${t('holeViewBtnRecaptureTee')}</div></div>` : ''}
         </div>
 
         <div style="flex:0 0 auto; z-index:2; padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:rgba(0,0,0,0.55);">
@@ -6122,7 +6124,7 @@
                   <div style="font-size:13px;"><span style="opacity:.85;">${t('holeViewShotsLabel')} :</span> <span id="holeViewShotsCount" style="font-size:20px; font-weight:900; margin-left:4px;">${holeViewTotalWithPutts(holeIdx)}</span></div>
                   <div id="holeViewPenaltyCount" style="font-size:10.5px; opacity:.8; display:${holeViewPenaltyStrokes(holeViewShotPoints)>0 ? 'block':'none'};">${t('holeViewPenaltyCount', holeViewPenaltyStrokes(holeViewShotPoints))}</div>
                 </div>
-                <button type="button" id="btnHoleViewValidate" class="btn no-print" style="margin:0; font-size:12px; padding:6px 12px; white-space:nowrap; background:#2E7D32;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnValidate')}</button>
+                <button type="button" id="btnHoleViewValidate" class="btn no-print" style="margin:0; font-size:17px; padding:10px 20px; white-space:nowrap; background:#2E7D32;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnValidate')}</button>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" id="btnHoleViewPenalty" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap; ${holeViewShotPoints.length && holeViewShotPoints[holeViewShotPoints.length-1].penaltyAfter ? 'background:#dc3545; color:#fff;' : ''}" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnPenalty')}</button>
@@ -6133,10 +6135,9 @@
             </div>
             <p id="holeViewShotsHint" style="pointer-events:none; font-size:10.5px; opacity:.85; text-align:center; margin:6px 0 0; color:#fff; display:${(holeViewShotPoints.length===0 && !greenReached) ? 'block':'none'};">${t('holeViewNoShots')}</p>
             ${holeViewGeoSummaryHTML(holeIdx)}
-            <div style="text-align:center; margin-top:4px;">
+            ${(!teeIsSet || holeViewTeeArmed) ? `<div style="text-align:center; margin-top:4px;">
               <button type="button" id="btnHoleViewRecaptureTee" class="btn ${holeViewTeeArmed ? '' : 'btn-secondary'} no-print" style="font-size:10.5px; padding:4px 10px; margin:0; ${holeViewTeeArmed ? 'background:#dc3545; color:#fff;' : ''}">${t('holeViewBtnRecaptureTee')}</button>
-              ${holeViewTeeArmed ? `<p style="pointer-events:none; font-size:10.5px; color:#fff; opacity:.9; margin:4px 0 0;">📍 ${t('holeViewTeeArmedHint')}</p>` : ''}
-            </div>
+            </div>` : ''}
           </div>
         </div>
 
@@ -6229,7 +6230,13 @@
     if (!Array.isArray(blankCardShotPointsByHole[holeIdx])) blankCardShotPointsByHole[holeIdx] = [];
     holeViewShotPoints = blankCardShotPointsByHole[holeIdx];
     holeViewInfoExpanded = false;
-    holeViewTeeArmed = false;
+    // Départ pas encore marqué (que des coups existent déjà ou non) : arme automatiquement le mode
+    // "pose du départ" — évite d'avoir à presser le petit bouton en plus, dès l'ouverture de la
+    // vue. Se redéclenche aussi si le départ a été effacé entre-temps (pas seulement sur un trou
+    // totalement vierge).
+    const teeAlready = (blankCardTeeGeoByHole || [])[holeIdx];
+    const teeAlreadySet = teeAlready && teeAlready.x !== undefined;
+    holeViewTeeArmed = !teeAlreadySet;
     renderHoleView(holeIdx);
   }
 
@@ -6248,8 +6255,8 @@
     document.getElementById('btnHoleViewBack').addEventListener('click', closeHoleView);
     const prevBtn = document.getElementById('btnHoleViewPrev');
     const nextBtn = document.getElementById('btnHoleViewNext');
-    if (prevBtn) prevBtn.addEventListener('click', () => { holeViewTeeArmed = false; if (!Array.isArray(blankCardShotPointsByHole[holeIdx-1])) blankCardShotPointsByHole[holeIdx-1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx-1]; renderHoleView(holeIdx - 1); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { holeViewTeeArmed = false; if (!Array.isArray(blankCardShotPointsByHole[holeIdx+1])) blankCardShotPointsByHole[holeIdx+1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx+1]; renderHoleView(holeIdx + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { const t2 = (blankCardTeeGeoByHole||[])[holeIdx-1]; holeViewTeeArmed = !(t2 && t2.x !== undefined); if (!Array.isArray(blankCardShotPointsByHole[holeIdx-1])) blankCardShotPointsByHole[holeIdx-1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx-1]; renderHoleView(holeIdx - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { const t2 = (blankCardTeeGeoByHole||[])[holeIdx+1]; holeViewTeeArmed = !(t2 && t2.x !== undefined); if (!Array.isArray(blankCardShotPointsByHole[holeIdx+1])) blankCardShotPointsByHole[holeIdx+1] = []; holeViewShotPoints = blankCardShotPointsByHole[holeIdx+1]; renderHoleView(holeIdx + 1); });
 
     // Précharge l'image pour connaître ses dimensions naturelles : nécessaire pour convertir un clic
     // en coordonnées relatives à la PHOTO (et non à l'écran entier), puisqu'avec background-size:
@@ -6628,7 +6635,6 @@
           <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
-          <button class="btn btn-transfer" id="btnBlankCardPrepareScan">${t('blankCardBtnPrepareScan')}</button>
         </div>
       </fieldset>
       <div id="scanReadyPanel" style="display:none;"></div>
@@ -6751,7 +6757,6 @@
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
-    document.getElementById('btnBlankCardPrepareScan').addEventListener('click', blankCardShowScanReady);
     document.getElementById('btnToggleTeamRecapFromCard').addEventListener('click', () => {
       teamRecapSetVisible(!teamRecapVisible);
     });
