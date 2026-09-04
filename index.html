@@ -48,21 +48,23 @@
      chargement de la page (pas de "infinite"), la dernière étape du keyframe reste l'état final
      affiché indéfiniment. */
   @keyframes neonSignOn {
-    0%   { opacity:.25; text-shadow:none; }
-    3%   { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    6%   { opacity:.3; text-shadow:none; }
-    9%   { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    11%  { opacity:.25; text-shadow:none; }
-    14%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    16%  { opacity:.35; text-shadow:none; }
-    19%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    22%  { opacity:.3; text-shadow:none; }
-    25%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    28%  { opacity:.2; text-shadow:none; }
+    0%   { opacity:.08; text-shadow:none; }
+    2%   { opacity:.35; text-shadow:0 0 3px #fff, 0 0 6px #ffd766; }
+    4%   { opacity:.06; text-shadow:none; }
+    6%   { opacity:.3; text-shadow:0 0 3px #fff, 0 0 6px #ffd766; }
+    8%   { opacity:.08; text-shadow:none; }
+    10%  { opacity:.45; text-shadow:0 0 4px #fff, 0 0 9px #ffd766; }
+    12%  { opacity:.1; text-shadow:none; }
+    14%  { opacity:.5; text-shadow:0 0 4px #fff, 0 0 10px #ffd766; }
+    16%  { opacity:.15; text-shadow:none; }
+    19%  { opacity:.65; text-shadow:0 0 5px #fff, 0 0 12px #ffd766, 0 0 18px #ffb300; }
+    22%  { opacity:.2; text-shadow:none; }
+    25%  { opacity:.8; text-shadow:0 0 5px #fff, 0 0 13px #ffd766, 0 0 20px #ffb300; }
+    28%  { opacity:.3; text-shadow:none; }
     32%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    36%  { opacity:.3; text-shadow:none; }
+    36%  { opacity:.35; text-shadow:none; }
     40%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    45%  { opacity:.25; text-shadow:none; }
+    45%  { opacity:.3; text-shadow:none; }
     50%  { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
     100% {
       opacity:1;
@@ -1529,7 +1531,11 @@
   //   V01.005.097 — Effet néon allongé : durée totale 2,6s → 6s, avec plus de clignotements
   //                 (11 flashs au lieu de 4) répartis sur la première moitié de l'animation, avant
   //                 de se stabiliser en glow 3D permanent.
-  const APP_VERSION = "SuarPark - V01.005.097";
+  //   V01.005.098 — Effet néon plus réaliste : les premiers clignotements sont maintenant faibles
+  //                 et hésitants (opacité très basse, lueur discrète), comme une enseigne qui a du
+  //                 mal à s'allumer au démarrage, puis montent progressivement en intensité jusqu'à
+  //                 atteindre le plein éclat vers le tiers de l'animation.
+  const APP_VERSION = "SuarPark - V01.005.098";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
