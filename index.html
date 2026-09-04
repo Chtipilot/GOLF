@@ -1540,7 +1540,11 @@
   //   V01.005.100 — Effet néon recalibré avec les dernières valeurs ajustées par le Directeur de
   //                 session dans le simulateur "simu enseigne" (pauses entre étapes distinctes cette
   //                 fois : 380/500/700/600/800/450ms) — durée totale 4s → 5,8s.
-  const APP_VERSION = "SuarPark - V01.005.100";
+  //   V01.005.101 — Clic droit ("Enregistrer l'image sous") désactivé sur les photos de caddies
+  //                 (miniature et grande photo), + protection glisser/sélection sur mobile
+  //                 (-webkit-touch-callout, user-select). Protection basique, pas infaillible
+  //                 (une capture d'écran contourne toujours ça), mais bloque le réflexe courant.
+  const APP_VERSION = "SuarPark - V01.005.101";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3221,7 +3225,7 @@
       caddies.forEach(c => {
         const watermark = `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; overflow:hidden; border-radius:50%;"><span style="transform:rotate(-30deg); font-weight:900; color:rgba(255,255,255,0.6); text-shadow:0 1px 2px rgba(0,0,0,0.6); white-space:nowrap; font-family:var(--font-display);">GOLF_TEAM</span></div>`;
         const photoCell = c.photo
-          ? `<div style="position:relative; width:28px; height:28px; margin:auto;"><img src="${c.photo}" alt="${c.name || c.number}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; display:block;">${watermark.replace('font-weight:900;', 'font-weight:900; font-size:6px;')}</div>`
+          ? `<div style="position:relative; width:28px; height:28px; margin:auto;"><img src="${c.photo}" alt="${c.name || c.number}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; display:block; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none;" draggable="false" oncontextmenu="return false;">${watermark.replace('font-weight:900;', 'font-weight:900; font-size:6px;')}</div>`
           : `<span style="display:inline-block; width:28px; height:28px; border-radius:50%; background:#e8f0ee; color:#1a3c34; font-size:11px; line-height:28px; text-align:center;">${(c.name||'?').charAt(0) || '?'}</span>`;
         const isOpen = expandedCaddie === String(c.number);
         rows += `<tr class="caddie-row" data-caddie-number="${c.number}" style="cursor:pointer; ${isOpen ? 'background:#eaf4f0;' : ''}">
@@ -3232,7 +3236,7 @@
         if (isOpen){
           const stats = caddieRoundStats(c.number);
           const bigPhoto = c.photo
-            ? `<div style="position:relative; width:144px; height:144px; box-shadow:0 2px 6px rgba(0,0,0,0.2); border-radius:50%; flex-shrink:0;"><img src="${c.photo}" alt="${c.name || c.number}" style="width:144px; height:144px; border-radius:50%; object-fit:cover; display:block;">${watermark.replace('font-weight:900;', 'font-weight:900; font-size:16px;')}</div>`
+            ? `<div style="position:relative; width:144px; height:144px; box-shadow:0 2px 6px rgba(0,0,0,0.2); border-radius:50%; flex-shrink:0;"><img src="${c.photo}" alt="${c.name || c.number}" style="width:144px; height:144px; border-radius:50%; object-fit:cover; display:block; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none;" draggable="false" oncontextmenu="return false;">${watermark.replace('font-weight:900;', 'font-weight:900; font-size:16px;')}</div>`
             : `<span style="display:inline-block; width:144px; height:144px; border-radius:50%; background:#e8f0ee; color:#1a3c34; font-size:52px; line-height:144px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.2); flex-shrink:0;">${(c.name||'?').charAt(0) || '?'}</span>`;
           const playersLine = stats.players.length > 0
             ? `<div style="font-size:12px; color:#333; margin-top:4px;">${t('caddieCardPlayers')}${stats.players.join(', ')}</div>`
