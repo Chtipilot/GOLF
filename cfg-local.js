@@ -1,6 +1,6 @@
-// caddies-data.js — Données confidentielles des caddies (photos uniquement, pas de téléphones).
-// Fichier LOCAL : à ne PAS committer sur un dépôt GitHub PUBLIC (voir échange avec le
-// Directeur de session du 03/09/2026 — exposition accidentelle détectée et corrigée).
+// cfg-local.js — Données confidentielles des caddies (photos uniquement, pas de téléphones).
+// Fichier LOCAL : à ne PAS committer sur un dépôt GitHub PUBLIC.
+// Doit être déployé À CÔTÉ de index.html, sur le même hébergement.
 // Photos manquantes pour 2 (TITI), 45 (SOMCHAI), 9 (?) — à compléter si besoin.
 window.CADDIES_DATA = [
   {
