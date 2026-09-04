@@ -1544,7 +1544,21 @@
   //                 (miniature et grande photo), + protection glisser/sélection sur mobile
   //                 (-webkit-touch-callout, user-select). Protection basique, pas infaillible
   //                 (une capture d'écran contourne toujours ça), mais bloque le réflexe courant.
-  const APP_VERSION = "SuarPark - V01.005.101";
+  //   V01.005.102 — Correction : le replay (historique) n'affichait que les balles, sans ligne de
+  //                 trajet ni distances (contrairement à la vue en direct "Afficher le trou") — les
+  //                 archives (privée, équipe, officielle) ne conservaient pas la position du départ,
+  //                 nécessaire aux deux. Corrigé en profondeur :
+  //                 (1) Nouveau format d'archive {shotPoints, teeGeoByHole} au lieu d'un simple
+  //                 tableau, avec lecture rétrocompatible (replayPointsFromEntry) pour les anciennes
+  //                 archives déjà enregistrées.
+  //                 (2) trailLinesHTML et teeMarkerHTML génériques (trailLinesFromData,
+  //                 teeMarkerFromData) réutilisables par le replay, qui n'a pas accès aux variables
+  //                 de la carte en cours.
+  //                 (3) Le replay affiche désormais la punaise de départ, la ligne de trajet et les
+  //                 distances en yards, comme "Afficher le trou".
+  //                 (4) shot-history-data.js mis à jour au nouveau format, avec le départ du 1er
+  //                 test GPS (04/09/2026) réintégré à partir des données déjà transmises.
+  const APP_VERSION = "SuarPark - V01.005.102";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3699,8 +3713,8 @@
         loadShotHistoryData().then(data => {
           btn.disabled = false;
           btn.textContent = originalLabel;
-          const points = data[shotReplayKey(name, date)];
-          if (points) openShotReplayWithPoints(name, date, points);
+          const entry = replayPointsFromEntry(data[shotReplayKey(name, date)]);
+          if (entry) openShotReplayWithPoints(name, date, entry.shotPoints, entry.teeGeoByHole);
           else window.alert(t('historyReplayLoadError'));
         });
       });
@@ -3743,20 +3757,22 @@
   // rien pour un trou sans point archivé.
   let shotReplayCurrentHole = 0;
   let shotReplayCurrentPoints = null;
+  let shotReplayCurrentTeeGeo = null;
 
   function openShotReplay(name, date, usePublic){
     const data = usePublic ? loadShotReplaysPublic() : loadShotReplays();
-    const points = data[shotReplayKey(name, date)];
-    if (!points) return;
-    openShotReplayWithPoints(name, date, points);
+    const entry = replayPointsFromEntry(data[shotReplayKey(name, date)]);
+    if (!entry) return;
+    openShotReplayWithPoints(name, date, entry.shotPoints, entry.teeGeoByHole);
   }
 
   // Variante directe : ouvre le replay à partir de points DÉJÀ EN MAIN (pas de lookup dans une
   // archive locale) — utilisée par le replay OFFICIEL, une fois shot-history-data.js chargé à la
   // demande et le tableau de points pour ce joueur+date extrait.
-  function openShotReplayWithPoints(name, date, points){
+  function openShotReplayWithPoints(name, date, points, teeGeoByHole){
     if (!points) return;
     shotReplayCurrentPoints = points;
+    shotReplayCurrentTeeGeo = teeGeoByHole || [];
     let overlay = document.getElementById('shotReplayOverlay');
     if (!overlay){
       overlay = document.createElement('div');
@@ -3783,6 +3799,8 @@
     if (!overlay) return;
     const holeIdx = shotReplayCurrentHole;
     const points = (shotReplayCurrentPoints && shotReplayCurrentPoints[holeIdx]) || [];
+    const teeGeo = (shotReplayCurrentTeeGeo && shotReplayCurrentTeeGeo[holeIdx]) || null;
+    const distances = computeShotGeoDistances(points, teeGeo);
     const bgImg = HOLE_MAP_IMG[holeIdx];
     const totalStrokes = holeViewStrokeTotal(points);
     overlay.innerHTML = `
@@ -3800,7 +3818,8 @@
         </div>
         <div id="shotReplayImageArea" style="flex:1 1 auto; position:relative; min-height:0; overflow:hidden;">
           <div style="position:absolute; inset:0; background-image:url('${bgImg}'); background-size:contain; background-repeat:no-repeat; background-position:center;"></div>
-          <div id="shotReplayMarkers" style="position:absolute; inset:0; pointer-events:none;">${shotMarkersHTML(points, getImageRectFor('shotReplayImageArea', holeIdx))}</div>
+          <div id="shotReplayTrail" style="position:absolute; inset:0; pointer-events:none;">${trailLinesFromData(teeGeo, points, getImageRectFor('shotReplayImageArea', holeIdx))}</div>
+          <div id="shotReplayMarkers" style="position:absolute; inset:0; pointer-events:none;">${shotMarkersHTML(points, getImageRectFor('shotReplayImageArea', holeIdx), false, distances)}${teeGeo ? teeMarkerFromData(teeGeo, getImageRectFor('shotReplayImageArea', holeIdx)) : ''}</div>
         </div>
         <div style="flex:0 0 auto; z-index:2; padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:rgba(0,0,0,0.55); text-align:center;">
           <p class="sub" style="margin:0; color:#fff; opacity:.85; font-size:11px;">${points.length === 0 ? t('shotReplayNoDataHole') : t('shotReplayHint')}</p>
@@ -3811,9 +3830,14 @@
     const nextBtn = document.getElementById('btnShotReplayNext');
     if (prevBtn) prevBtn.addEventListener('click', () => { shotReplayCurrentHole--; renderShotReplay(name, date); });
     if (nextBtn) nextBtn.addEventListener('click', () => { shotReplayCurrentHole++; renderShotReplay(name, date); });
-    // Recalcule la position exacte des marqueurs une fois le rectangle réel de la photo mesurable.
+    // Recalcule la position exacte des marqueurs/tracé une fois le rectangle réel de la photo
+    // mesurable (le 1er rendu ci-dessus utilise un positionnement approximatif tant que le DOM
+    // n'a pas pu être mesuré).
+    const rect = getImageRectFor('shotReplayImageArea', holeIdx);
     const markers = document.getElementById('shotReplayMarkers');
-    if (markers) markers.innerHTML = shotMarkersHTML(points, getImageRectFor('shotReplayImageArea', holeIdx));
+    if (markers) markers.innerHTML = shotMarkersHTML(points, rect, false, distances) + (teeGeo ? teeMarkerFromData(teeGeo, rect) : '');
+    const trail = document.getElementById('shotReplayTrail');
+    if (trail) trail.innerHTML = trailLinesFromData(teeGeo, points, rect);
   }
 
   function renderEclectic(){
@@ -4474,8 +4498,20 @@
     const hasAny = (blankCardShotPointsByHole || []).some(h => (h || []).length > 0);
     if (!hasAny) return;
     const data = loadShotReplays();
-    data[shotReplayKey(name, date)] = blankCardShotPointsByHole;
+    // Nouveau format : objet {shotPoints, teeGeoByHole} au lieu d'un simple tableau — pour
+    // conserver la position du départ (nécessaire à la distance du 1er coup et à la ligne de
+    // trajet en replay). Voir replayPointsFromEntry() pour la compatibilité avec les anciennes
+    // archives (simple tableau) déjà enregistrées.
+    data[shotReplayKey(name, date)] = {shotPoints: blankCardShotPointsByHole, teeGeoByHole: blankCardTeeGeoByHole};
     saveShotReplays(data);
+  }
+
+  // Normalise une entrée d'archive (privée, équipe ou officielle) vers {shotPoints, teeGeoByHole}
+  // — accepte l'ancien format (simple tableau de shotPoints, sans tee) pour compatibilité.
+  function replayPointsFromEntry(entry){
+    if (!entry) return null;
+    if (Array.isArray(entry)) return {shotPoints: entry, teeGeoByHole: []};
+    return {shotPoints: entry.shotPoints || [], teeGeoByHole: entry.teeGeoByHole || []};
   }
 
   const BLANKCARD_HEADER_FIELDS = ["playerName","playerNameOther","date","tee","caddieNumber","caddieOtherNumber","caddieOtherName","weatherTemp","weatherWind","weatherWindDir","weatherCondition"];
@@ -5289,12 +5325,12 @@
   // Archive, sous une clé séparée de l'archive privée, les points de chute reçus via une carte
   // (texte/code technique) — alimentée dès qu'une carte contenant des shotPoints est reçue dans le
   // récap équipe, que le bouton public soit visible ou non.
-  function archivePublicShotPoints(name, date, shotPoints){
+  function archivePublicShotPoints(name, date, shotPoints, teeGeoByHole){
     if (!name || !date || !Array.isArray(shotPoints)) return;
     const hasAny = shotPoints.some(h => (h || []).length > 0);
     if (!hasAny) return;
     const data = loadShotReplaysPublic();
-    data[shotReplayKey(name, date)] = shotPoints;
+    data[shotReplayKey(name, date)] = {shotPoints, teeGeoByHole: teeGeoByHole || []};
     saveShotReplaysPublic(data);
   }
 
@@ -5312,7 +5348,7 @@
     // replay "public" — sans effet visible tant que PUBLIC_REPLAY_VISIBLE est à false.
     const recvName = teamRecapDisplayName(draft.header);
     const recvDate = draft.header ? draft.header.date : '';
-    if (Array.isArray(draft.shotPoints)) archivePublicShotPoints(recvName, recvDate, draft.shotPoints);
+    if (Array.isArray(draft.shotPoints)) archivePublicShotPoints(recvName, recvDate, draft.shotPoints, draft.teeGeoByHole);
     return {status: 'success', name: recvName};
   }
 
@@ -5795,6 +5831,18 @@
   // Punaise rouge de départ, posée à l'endroit tapé via "📍 Marquer le départ ici" — distincte des
   // coups (bleus/rouges ronds) par sa forme de goutte, pour ne jamais les confondre au premier
   // coup d'œil sur la photo.
+  // Version générique de la punaise de départ, à partir d'un objet {x,y} donné directement —
+  // utilisée par le replay (historique), qui n'a pas accès à blankCardTeeGeoByHole (données de la
+  // carte en cours, pas d'une manche passée).
+  function teeMarkerFromData(tee, rect){
+    if (!tee || tee.x === undefined || tee.y === undefined) return '';
+    const left = rect ? (rect.offX + (tee.x/100)*rect.dispW) : tee.x + '%';
+    const top = rect ? (rect.offY + (tee.y/100)*rect.dispH) : tee.y + '%';
+    const leftCss = typeof left === 'number' ? left + 'px' : left;
+    const topCss = typeof top === 'number' ? top + 'px' : top;
+    return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-100%); font-size:26px; text-shadow:0 2px 4px rgba(0,0,0,0.6);">📍</div>`;
+  }
+
   function teeMarkerHTML(holeIdx, rect){
     const tee = (blankCardTeeGeoByHole || [])[holeIdx];
     if (!tee || tee.x === undefined || tee.y === undefined) return '';
@@ -5809,12 +5857,15 @@
   // pour visualiser le trajet de la balle sur la photo — en plus des distances déjà affichées en
   // texte sous la photo. Ne se dessine qu'une fois le rectangle exact de la photo mesuré (sinon
   // le tracé serait mal placé tant que les bandes vides éventuelles ne sont pas connues).
-  function trailLinesHTML(holeIdx, rect){
+  // Version générique : trace le trajet à partir d'un départ (x,y) et d'une liste de points
+  // donnés directement — utilisée par la vue d'édition (via trailLinesHTML, ci-dessous) ET par le
+  // replay (historique), qui n'a pas accès aux variables globales blankCardTeeGeoByHole/
+  // holeViewShotPoints (données figées d'une manche passée, pas la carte en cours).
+  function trailLinesFromData(tee, points, rect){
     if (!rect) return '';
-    const tee = (blankCardTeeGeoByHole || [])[holeIdx];
     const pts = [];
     if (tee && tee.x !== undefined && tee.y !== undefined) pts.push({x: Number(tee.x), y: Number(tee.y)});
-    (holeViewShotPoints || []).forEach(p => {
+    (points || []).forEach(p => {
       if (p.x !== undefined && p.y !== undefined) pts.push({x: Number(p.x), y: Number(p.y)});
     });
     if (pts.length < 2) return '';
@@ -5828,6 +5879,11 @@
       segments.push(`<line x1="${a.left}" y1="${a.top}" x2="${b.left}" y2="${b.top}" stroke="#fff" stroke-width="2.5" stroke-dasharray="6,5" stroke-linecap="round" opacity="0.9"/>`);
     }
     return `<svg style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;">${segments.join('')}</svg>`;
+  }
+
+  function trailLinesHTML(holeIdx, rect){
+    const tee = (blankCardTeeGeoByHole || [])[holeIdx];
+    return trailLinesFromData(tee, holeViewShotPoints, rect);
   }
 
   // --- Distances GPS entre coups -------------------------------------------------------------

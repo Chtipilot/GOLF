@@ -9,88 +9,123 @@
 // d'UN AN par joueur. Quand une nouvelle manche avec GPS est ajoutée pour un joueur, toute manche
 // de CE MÊME joueur datée de plus d'un an est retirée.
 //
-// Structure : clé "NOM|JJ/MM/AAAA" → tableau de 18 entrées (une par trou), chaque entrée = tableau
-// de points {x, y, lat, lng, accuracy}.
+// Structure (V01.005.102+) : clé "NOM|JJ/MM/AAAA" → {shotPoints, teeGeoByHole}.
+// - shotPoints : tableau de 18 entrées (une par trou), chaque entrée = tableau de points
+//   {x, y, lat, lng, accuracy}.
+// - teeGeoByHole : tableau de 18 entrées (une par trou), chaque entrée = {x, y, lat, lng,
+//   accuracy} du départ, ou null si non marqué — nécessaire pour la distance du 1er coup et
+//   la ligne de trajet départ→1er coup en replay.
+// (Ancien format V01.005.084-101 : valeur = simple tableau shotPoints sans tee — toujours lu
+// correctement grâce à replayPointsFromEntry() côté index.html, juste sans point de départ.)
 //
 // Première entrée réelle : test GPS/replay en conditions réelles du Directeur de session
 // (04/09/2026, identité "Claude Caddie Assistant", trou 1 uniquement, manche volontairement
-// partielle — 8 coups pour un score déclaré de 8, cohérent).
+// partielle — 8 coups pour un score déclaré de 8, cohérent). Départ ajouté rétroactivement
+// (V01.005.102) à partir des données GPS déjà transmises dans le code technique d'origine.
 window.SHOT_HISTORY_DATA = {
-  "Claude Caddie Assistant|04/09/2026": [
-    [
-      {
-        "x": "77.33",
-        "y": "10.24",
-        "lat": 15.4469569,
-        "lng": 102.3337669,
-        "accuracy": 45.599998474121094
-      },
-      {
-        "x": "69.17",
-        "y": "22.43",
-        "lat": 15.4465212,
-        "lng": 102.3329499,
-        "accuracy": 98.4000015258789
-      },
-      {
-        "x": "64.16",
-        "y": "31.35",
-        "lat": 15.4463571,
-        "lng": 102.3328559,
-        "accuracy": 38.85599899291992
-      },
-      {
-        "x": "50.00",
-        "y": "43.21",
-        "lat": 15.4486123,
-        "lng": 102.3334401,
-        "accuracy": 30.5
-      },
-      {
-        "x": "47.84",
-        "y": "50.47",
-        "lat": 15.4486559,
-        "lng": 102.3335486,
-        "accuracy": 81.02899932861328
-      },
-      {
-        "x": "37.07",
-        "y": "58.30",
-        "lat": 15.4488426,
-        "lng": 102.3347051,
-        "accuracy": 10
-      },
-      {
-        "x": "31.22",
-        "y": "81.96",
-        "lat": 15.4471197,
-        "lng": 102.3339143,
-        "accuracy": 43.2400016784668
-      },
-      {
-        "x": "26.31",
-        "y": "90.96",
-        "lat": 15.4469449,
-        "lng": 102.3337503,
-        "accuracy": 48.900001525878906
-      }
+  "Claude Caddie Assistant|04/09/2026": {
+    "shotPoints": [
+      [
+        {
+          "x": "77.33",
+          "y": "10.24",
+          "lat": 15.4469569,
+          "lng": 102.3337669,
+          "accuracy": 45.599998474121094
+        },
+        {
+          "x": "69.17",
+          "y": "22.43",
+          "lat": 15.4465212,
+          "lng": 102.3329499,
+          "accuracy": 98.4000015258789
+        },
+        {
+          "x": "64.16",
+          "y": "31.35",
+          "lat": 15.4463571,
+          "lng": 102.3328559,
+          "accuracy": 38.85599899291992
+        },
+        {
+          "x": "50.00",
+          "y": "43.21",
+          "lat": 15.4486123,
+          "lng": 102.3334401,
+          "accuracy": 30.5
+        },
+        {
+          "x": "47.84",
+          "y": "50.47",
+          "lat": 15.4486559,
+          "lng": 102.3335486,
+          "accuracy": 81.02899932861328
+        },
+        {
+          "x": "37.07",
+          "y": "58.30",
+          "lat": 15.4488426,
+          "lng": 102.3347051,
+          "accuracy": 10
+        },
+        {
+          "x": "31.22",
+          "y": "81.96",
+          "lat": 15.4471197,
+          "lng": 102.3339143,
+          "accuracy": 43.2400016784668
+        },
+        {
+          "x": "26.31",
+          "y": "90.96",
+          "lat": 15.4469449,
+          "lng": 102.3337503,
+          "accuracy": 48.900001525878906
+        }
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
     ],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    []
-  ]
+    "teeGeoByHole": [
+      {
+        "x": "85.96",
+        "y": "9.32",
+        "lat": 15.4469548,
+        "lng": 102.3337656,
+        "accuracy": 68.4000015258789
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  }
 };
