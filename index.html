@@ -1703,7 +1703,14 @@
   //                 désormais automatiquement après 3 secondes max (au lieu de 10s). Durée rendue
   //                 réglable au cas par cas dans blankCardShowToast() : le message de célébration
   //                 "🏆 Record éclectique" garde ses 10 secondes, inchangé.
-  const APP_VERSION = "SuarPark - V02.000.026";
+  //   V02.000.027 — Correction d'un bug important : afficher/masquer le panneau d'infos change la
+  //                 hauteur disponible pour la photo (colonne flex), donc la taille réelle de la
+  //                 zone image change aussi — les punaises/balles gardaient leur ancienne position
+  //                 en pixels et se retrouvaient décalées par rapport à la photo redimensionnée.
+  //                 Corrigé : recalcul systématique des positions juste après le basculement du
+  //                 panneau "Infos". Devenu plus visible depuis que le panneau s'ouvre par défaut
+  //                 (V02.000.024).
+  const APP_VERSION = "SuarPark - V02.000.027";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6506,6 +6513,11 @@
       const panel = document.getElementById('holeViewInfoPanel');
       if (panel) panel.style.display = holeViewInfoExpanded ? 'block' : 'none';
       toggleBtn.textContent = holeViewInfoExpanded ? t('holeViewInfoToggleClose') : t('holeViewInfoToggle');
+      // Afficher/masquer ce panneau change la hauteur disponible pour la photo (mise en page en
+      // colonne flex), donc la taille réelle de la zone image change aussi — sans ce
+      // recalcul, les punaises/balles gardaient leur ancienne position en pixels et se
+      // retrouvaient décalées par rapport à la photo redimensionnée.
+      requestAnimationFrame(() => holeViewUpdateShotsUI(holeIdx));
     });
 
     const undoBtn = document.getElementById('btnHoleViewUndo');
