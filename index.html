@@ -20,9 +20,6 @@
 </head>
 <body style="margin:0; padding:12px; background:#f7f3ea;" ontouchstart="">
 <div id="app" style="width:100%; max-width:100%; overflow-x:hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing:border-box; color:#1a1a1a;">
-  <div id="testWatermark" style="position:fixed; top:50%; left:50%; width:160vmax; height:160vmax; transform:translate(-50%,-50%); z-index:5; pointer-events:none; display:flex; align-items:center; justify-content:center; overflow:visible; text-align:center;">
-    <span style="font-family:var(--font-display, Georgia, serif); font-weight:900; font-size:clamp(14px, 3.6vw, 34px); color:rgba(178,58,58,0.34); transform:rotate(-28deg); white-space:normal; letter-spacing:0.5px; text-transform:uppercase; line-height:1.35; max-width:70vw;">Site en test<br>actuellement<br>Vos données ne sont pas concernées<br>Ne pas tenir compte des scores ajoutés pour Claude Caddie Assistant</span>
-  </div>
 
 <style>
   #app {
@@ -237,6 +234,7 @@
   <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
     <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;"><span id="neonTitle">GOLF_TEAM</span> <span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
     <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
+    <button class="btn btn-secondary info-ref" id="btnEvolutions" style="font-size:11px; padding:4px 8px;">📖 Historique du projet</button>
   </div>
 </div>
 <div class="page-subtitle-row" id="homeSubtitleRow"></div>
@@ -1722,7 +1720,17 @@
   //   V02.001.000 — 🎉 Le Directeur de session confirme : le zoom au pincement (V02.000.028) apporte
   //                 une bien meilleure précision de marquage des coups sur le terrain — étape jugée
   //                 assez significative pour incrémenter le numéro intermédiaire de version.
-  const APP_VERSION = "SuarPark - V02.001.000";
+  //   V02.001.001 — Nouvelle page "evolutions.html" : historique narratif des grandes évolutions du
+  //                 projet (fondations, suivi GPS coup par coup, transmission de carte, incident de
+  //                 confidentialité, Version 2.0), à la demande du Directeur de session. Accessible
+  //                 via un nouveau bouton "📖 Historique du projet" à côté de "🎓 Briefing Directeur".
+  //   V02.001.002 — Renommé "evolutions.html" → "Historique_Site.html", et le bouton "📖 Historique
+  //                 du projet" → "📖 Historique_Site" (les 4 langues), pour coller à la convention de
+  //                 nommage du Directeur de session (ex. GOLF_TEAM).
+  //   V02.001.003 — Retiré le filigrane diagonal "Site en test actuellement" (introduit en
+  //                 V01.005.053-056, pendant la période de test) — la phase de test est désormais
+  //                 dépassée, plus besoin de cet avertissement.
+  const APP_VERSION = "SuarPark - V02.001.003";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2149,6 +2157,7 @@
       windDirS: "S", windDirSW: "SO", windDirW: "O", windDirNW: "NO",
       btnNotice: "📖 Notice utilisateur",
       btnBriefing: "🎓 Briefing Directeur",
+      btnEvolutions: "📖 Historique_Site",
       noticeTitle: "📖 Notice d'utilisation rapide",
       noticeItems: [
         "<strong>Fichier de consultation :</strong> ce fichier n'accepte aucune saisie ni sauvegarde — il présente simplement les données au moment de son envoi.",
@@ -2427,6 +2436,7 @@
       windDirS: "S", windDirSW: "SW", windDirW: "W", windDirNW: "NW",
       btnNotice: "📖 User guide",
       btnBriefing: "🎓 Director briefing",
+      btnEvolutions: "📖 Historique_Site",
       noticeTitle: "📖 Quick user guide",
       noticeItems: [
         "<strong>View-only file:</strong> this file accepts no input and saves nothing — it simply shows the data as of when it was sent.",
@@ -2705,6 +2715,7 @@
       windDirS: "S", windDirSW: "SW", windDirW: "W", windDirNW: "NW",
       btnNotice: "📖 Bedienungsanleitung",
       btnBriefing: "🎓 Direktor-Briefing",
+      btnEvolutions: "📖 Historique_Site",
       noticeTitle: "📖 Kurzanleitung",
       noticeItems: [
         "<strong>Nur-Lese-Datei:</strong> diese Datei erlaubt keine Eingabe und speichert nichts — sie zeigt lediglich die Daten zum Zeitpunkt des Versands.",
@@ -2983,6 +2994,7 @@
       windDirS: "ใต้", windDirSW: "ตต.เฉียงใต้", windDirW: "ตะวันตก", windDirNW: "ตต.เฉียงเหนือ",
       btnNotice: "📖 คู่มือการใช้งาน",
       btnBriefing: "🎓 บรีฟฟิ่งผู้อำนวยการ",
+      btnEvolutions: "📖 Historique_Site",
       noticeTitle: "📖 คู่มือการใช้งานฉบับย่อ",
       noticeItems: [
         "<strong>ไฟล์สำหรับดูข้อมูลเท่านั้น:</strong> ไฟล์นี้ไม่รับการกรอกหรือบันทึกข้อมูลใดๆ — เพียงแสดงข้อมูล ณ เวลาที่ส่งไฟล์เท่านั้น",
@@ -3038,6 +3050,7 @@
     document.getElementById('tileTeamRecapLabel').textContent = teamRecapVisible ? t('btnHideTeamRecap') : t('btnShowTeamRecap');
     document.getElementById('btnNotice').textContent = t('btnNotice');
     document.getElementById('btnBriefing').textContent = t('btnBriefing');
+    document.getElementById('btnEvolutions').textContent = t('btnEvolutions');
     renderNotice();
     document.getElementById('thHole').textContent = t('thHole');
     document.getElementById('rotateHintText').textContent = t('rotateHint');
@@ -7111,6 +7124,9 @@
     });
     document.getElementById('btnBriefing').addEventListener('click', () => {
       window.location.href = 'briefing.html?lang=' + lang;
+    });
+    document.getElementById('btnEvolutions').addEventListener('click', () => {
+      window.location.href = 'Historique_Site.html';
     });
     document.getElementById('btnToggleDetails').addEventListener('click', () => {
       detailsVisible = !detailsVisible;
