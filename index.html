@@ -1795,7 +1795,11 @@
   //                 série passée de 8 manches en juin-août 2026, série actuelle de 1 seule pour le
   //                 moment — n'affiche donc rien pour lui tant qu'une 2e manche consécutive
   //                 n'améliore pas son éclectique).
-  const APP_VERSION = "SuarPark - V02.001.015";
+  //   V02.001.016 — Ligne "HCP" (index de difficulté du trou) ajoutée dans "🏆 Afficher l'éclectique",
+  //                 sous la ligne "Par" — nouvelle fonction parHeaderRowDarkWithHcp() dédiée à ce
+  //                 tableau uniquement (la table "Afficher ma carte" garde sa propre ligne HCP déjà
+  //                 existante, pour éviter tout doublon).
+  const APP_VERSION = "SuarPark - V02.001.016";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3475,6 +3479,16 @@
     </tr>`;
   }
 
+  // Même principe que parHeaderRowDark(), avec une ligne HCP en plus — utilisée uniquement par le
+  // tableau "Éclectique" (parHeaderRowDark() seul reste inchangé pour "Afficher ma carte", qui a
+  // déjà sa propre ligne HCP séparée : lui en ajouter une ici créerait un doublon).
+  function parHeaderRowDarkWithHcp(){
+    return `${parHeaderRowDark()}
+    <tr style="background:#e8f0ee; color:#1a3c34; font-weight:bold;">
+      <th>HCP</th>${IDX.map(i=>`<th>${i}</th>`).join("")}<th colspan="3"></th>
+    </tr>`;
+  }
+
   function scoreColor(score, holeIdx){
     const diff = Number(score) - PAR[holeIdx];
     if (diff < 0) return {bg:'#87CEEB', fg:'#0a2f40'};      // sous le par : bleu ciel
@@ -4226,7 +4240,7 @@
       </tr>`;
     }
     container.innerHTML = `<h3>${t('eclecticTitle')}</h3><p class="sub">${t('eclecticSubtitle')}</p>` +
-      scorecardTableHTML("eclectic", rows, parHeaderRowDark(), "Hole");
+      scorecardTableHTML("eclectic", rows, parHeaderRowDarkWithHcp(), "Hole");
   }
 
   let chartProgression = null, chartHoles = null, chartAvg = null, chartTemp = null;
