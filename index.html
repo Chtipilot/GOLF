@@ -1699,7 +1699,11 @@
   //   V02.000.025 — Le bouton "Infos" affiche désormais "ⓘ Fermer infos" quand le panneau est ouvert
   //                 (état par défaut), et redevient "ⓘ Infos" une fois fermé — cohérent avec le
   //                 nouveau comportement par défaut ouvert de V02.000.024.
-  const APP_VERSION = "SuarPark - V02.000.025";
+  //   V02.000.026 — Le message "✅ GPS ok, départ marqué" (nouveau marquage de départ) disparaît
+  //                 désormais automatiquement après 3 secondes max (au lieu de 10s). Durée rendue
+  //                 réglable au cas par cas dans blankCardShowToast() : le message de célébration
+  //                 "🏆 Record éclectique" garde ses 10 secondes, inchangé.
+  const APP_VERSION = "SuarPark - V02.000.026";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6109,7 +6113,7 @@
         delete target.geoFailed;
         persistBlankCardDraft();
         holeViewUpdateShotsUI(holeIdx);
-        if (onSuccessToast) blankCardShowToast(onSuccessToast.title, onSuccessToast.note);
+        if (onSuccessToast) blankCardShowToast(onSuccessToast.title, onSuccessToast.note, 3000);
       },
       () => {
         const target = getTarget() || t0;
@@ -6606,7 +6610,8 @@
   // Annonce plein écran (grand format, centrée, 10 secondes) pour un nouveau record éclectique
   // personnel — volontairement très visible pour marquer le coup, contrairement aux petites
   // notifications discrètes.
-  function blankCardShowToast(title, note){
+  function blankCardShowToast(title, note, duration){
+    const dur = duration || 10000;
     let toast = document.getElementById('blankCardToast');
     if (toast) toast.remove();
     toast = document.createElement('div');
@@ -6621,7 +6626,7 @@
       <style>@keyframes bcEclecticPop { 0% { transform:scale(0.75); opacity:0; } 100% { transform:scale(1); opacity:1; } }</style>`;
     toast.addEventListener('click', () => toast.remove()); // fermeture anticipée possible au tap
     document.body.appendChild(toast);
-    setTimeout(() => { if (!toast.isConnected) return; toast.style.transition = 'opacity 0.6s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 700); }, 10000);
+    setTimeout(() => { if (!toast.isConnected) return; toast.style.transition = 'opacity 0.3s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, dur);
   }
 
 
