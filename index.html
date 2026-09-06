@@ -1715,7 +1715,14 @@
   //                 Directeur de session), alors que d'autres navigateurs plus récents l'ignoraient
   //                 déjà (accessibilité). Le zoom est maintenant autorisé partout de façon
   //                 cohérente.
-  const APP_VERSION = "SuarPark - V02.000.028";
+  //   V02.000.029 — La DERNIÈRE balle cliquée s'affiche désormais en vert en permanence pendant la
+  //                 saisie (pas juste brièvement après "Valider" comme avant) — repère visuel plus
+  //                 clair pour savoir quel coup est le plus récent, particulièrement utile avec la
+  //                 meilleure précision de marquage permise par le zoom (V02.000.028).
+  //   V02.001.000 — 🎉 Le Directeur de session confirme : le zoom au pincement (V02.000.028) apporte
+  //                 une bien meilleure précision de marquage des coups sur le terrain — étape jugée
+  //                 assez significative pour incrémenter le numéro intermédiaire de version.
+  const APP_VERSION = "SuarPark - V02.001.000";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6316,7 +6323,7 @@
           <div style="position:absolute; inset:0; background-image:url('${bgImg}'); background-size:contain; background-repeat:no-repeat; background-position:center;"></div>
           <div id="holeViewClickLayer" style="position:absolute; inset:0; cursor:${greenReached ? 'default' : 'crosshair'}; pointer-events:${greenReached ? 'none' : 'auto'};"></div>
           <div id="holeViewTrail" style="position:absolute; inset:0; pointer-events:none;">${trailLinesHTML(holeIdx, null)}</div>
-          <div id="holeViewMarkers" style="position:absolute; inset:0; pointer-events:none;">${holeViewShotMarkersHTML(null, false, holeIdx)}${teeMarkerHTML(holeIdx, null)}</div>
+          <div id="holeViewMarkers" style="position:absolute; inset:0; pointer-events:none;">${holeViewShotMarkersHTML(null, true, holeIdx)}${teeMarkerHTML(holeIdx, null)}</div>
           ${greenReached ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;"><div style="background:rgba(10,25,20,0.7); color:#fff; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold;">⛳ ${t('holeViewGreenReachedBadge')}</div></div>` : ''}
           ${holeViewTeeArmed ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; padding:20px;"><div style="background:rgba(10,25,20,0.55); color:#fff; padding:16px 22px; border-radius:18px; font-size:clamp(16px,4.2vw,22px); font-weight:900; text-align:center; text-shadow:0 2px 6px rgba(0,0,0,0.6); box-shadow:0 4px 16px rgba(0,0,0,0.4);">📍 ${t('holeViewBtnRecaptureTee')}</div></div>` : ''}
         </div>
@@ -6367,7 +6374,7 @@
 
   function holeViewUpdateShotsUI(holeIdx){
     const markers = document.getElementById('holeViewMarkers');
-    if (markers) markers.innerHTML = holeViewShotMarkersHTML(holeViewGetImageRect(holeIdx), false, holeIdx) + teeMarkerHTML(holeIdx, holeViewGetImageRect(holeIdx));
+    if (markers) markers.innerHTML = holeViewShotMarkersHTML(holeViewGetImageRect(holeIdx), true, holeIdx) + teeMarkerHTML(holeIdx, holeViewGetImageRect(holeIdx));
     const trail = document.getElementById('holeViewTrail');
     if (trail) trail.innerHTML = trailLinesHTML(holeIdx, holeViewGetImageRect(holeIdx));
     const countEl = document.getElementById('holeViewShotsCount');
