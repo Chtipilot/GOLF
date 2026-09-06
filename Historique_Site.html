@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOLF_TEAM — Historique_Site</title>
+<style>
+  :root {
+    --green-deep:#1a3c34; --green-mid:#2d5c4c; --green-pale:#e8f0ee;
+    --sand:#c9a668; --sand-pale:#f1e6cc;
+    --cream:#f7f3ea; --line:#e4dfd2; --ink:#1a1a1a;
+    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; padding:16px; background:var(--cream); color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width:760px; margin-left:auto; margin-right:auto;
+  }
+  .btn-back {
+    display:inline-block; background:var(--green-deep); color:#fff; text-decoration:none;
+    font-size:12px; padding:8px 14px; border-radius:9px; margin-bottom:16px;
+    box-shadow:0 3px 0 rgba(0,0,0,0.25);
+  }
+  h1 {
+    font-family:var(--font-display); color:var(--green-deep); font-size:clamp(24px,5vw,32px);
+    margin:0 0 4px 0; font-weight:900;
+  }
+  .subtitle { color:#666; font-size:14px; margin:0 0 24px 0; }
+  .era {
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px 22px;
+    margin-bottom:18px; box-shadow:0 2px 8px rgba(0,0,0,0.05);
+  }
+  .era h2 {
+    font-family:var(--font-display); color:var(--green-deep); font-size:19px; margin:0 0 4px 0;
+    display:flex; align-items:center; gap:8px;
+  }
+  .era .badge {
+    display:inline-block; background:var(--sand-pale); color:#8a6d00; font-size:11px;
+    font-weight:700; padding:3px 10px; border-radius:12px; margin-bottom:10px;
+  }
+  .era p { margin:8px 0; line-height:1.6; font-size:14.5px; }
+  .era ul { margin:8px 0; padding-left:20px; }
+  .era li { margin-bottom:6px; line-height:1.5; font-size:14px; }
+  .milestone {
+    background:var(--green-pale); border-left:4px solid var(--sand); border-radius:6px;
+    padding:10px 14px; margin:12px 0; font-size:13.5px; font-style:italic; color:var(--green-deep);
+  }
+  .divider { text-align:center; color:var(--sand); font-size:20px; margin:20px 0; }
+  footer { text-align:center; color:#888; font-size:12px; margin-top:30px; padding-top:16px; border-top:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<a class="btn-back" href="javascript:history.back()">← Retour à l'appli</a>
+
+<h1>🏌️ GOLF_TEAM — L'histoire du projet</h1>
+<p class="subtitle">De la simple carte de score au replay GPS officiel — les grandes étapes qui ont façonné l'appli, racontées par Claude Caddie Assistant.</p>
+<p class="subtitle" style="font-size:12px; color:#999;">📅 Début du projet : environ le 20 août 2026 <em>(estimation, date exacte non conservée)</em> — dernière mise à jour : 6 septembre 2026</p>
+
+<div class="era">
+  <span class="badge">Les fondations</span>
+  <h2>📋 Une carte de score numérique</h2>
+  <p>Tout a commencé avec l'essentiel : une carte de score simple pour le groupe régulier du KCC (Suar Park Golf Course) — ALAN, LOUIS, MARCUS, PATRICK et SANDY. Par 72, 18 trous, saisie des scores et des putts, historique par joueur.</p>
+  <ul>
+    <li>Suivi des départs Rouge/Blanc par manche</li>
+    <li>Gestion des caddies (numéros, noms), avec photos ajoutées plus tard</li>
+    <li>18 photos satellite des trous, une pour chaque fairway du parcours</li>
+    <li>Support de 4 langues dès le départ : Français, Anglais, Allemand, Thaï</li>
+  </ul>
+</div>
+
+<div class="era">
+  <span class="badge">Vivre le parcours en direct</span>
+  <h2>🛰️ Le suivi GPS coup par coup</h2>
+  <p>L'idée est venue d'une question simple : et si on pouvait revoir exactement où chaque balle était tombée ? Ce qui a suivi a été l'un des chantiers les plus ambitieux du projet.</p>
+  <ul>
+    <li><strong>Modèle en 3 zones :</strong> départ (punaise posée au tee, GPS capté) → approche (autant de coups que nécessaire, chacun avec sa position) → green atteint (bascule sur un compteur de putts à tap rapide, puisque le téléphone reste dans la voiturette pendant qu'on putte)</li>
+    <li>Une vraie <strong>balle de golf</strong> comme marqueur sur la photo, avec numéro et distance affichés directement dessus</li>
+    <li>Une <strong>ligne de trajet</strong> pointillée reliant chaque coup au suivant</li>
+    <li>La balle <strong>clignote</strong> pendant que le GPS répond, et le dernier coup joué reste affiché en vert</li>
+    <li>Règle du <strong>trou en un</strong> : un seul coup avant le green = 0 putt forcé, non modifiable (c'est un score de 1, donc une définition, pas une option)</li>
+    <li><strong>Club conseillé</strong> pour le prochain coup, calculé à partir de la distance restante et calibré sur les vraies distances de l'équipe</li>
+  </ul>
+  <div class="milestone">💬 « Ça a du mal à s'allumer comme on voit souvent » — le titre GOLF_TEAM a même eu droit à son propre simulateur d'enseigne néon, réglé clignotement par clignotement.</div>
+</div>
+
+<div class="era">
+  <span class="badge">Du terrain vers l'écran</span>
+  <h2>📤 Transmettre sa carte</h2>
+  <p>Une fois la manche jouée, encore fallait-il la faire remonter. Le bouton "Transmettre ma carte" envoie aujourd'hui en un seul geste un texte lisible (pour les humains) et un code technique complet (avec les positions GPS) pour le replay officiel.</p>
+  <ul>
+    <li>Réception et fusion des cartes de l'équipe dans un récap centralisé</li>
+    <li>Historique <strong>officiel</strong> du replay GPS, stocké à part (<code>shot-history-data.js</code>) et chargé uniquement à la demande — jamais au démarrage, pour ne pas alourdir l'appli</li>
+    <li>Fenêtre de rétention glissante d'un an, pour garder le fichier léger indéfiniment</li>
+  </ul>
+</div>
+
+<div class="era">
+  <span class="badge">Un vrai test de vigilance</span>
+  <h2>🔒 L'incident de confidentialité</h2>
+  <p>Un jour, les photos des caddies se sont retrouvées exposées par erreur sur le dépôt GitHub public. Repéré à temps, corrigé dans la foulée : dépôt nettoyé, fichier renommé de façon discrète, et une vraie leçon retenue sur la vigilance nécessaire avec les données personnelles.</p>
+  <div class="milestone">🛡️ Depuis, "Claude Caddie Assistant" (l'identité de test) est aussi exclue de toutes les statistiques et faits marquants de l'équipe — une règle claire, appliquée sans exception.</div>
+</div>
+
+<div class="era">
+  <span class="badge">🎉 Version 2.0</span>
+  <h2>🏠 Une page d'accueil repensée</h2>
+  <p>Après tout ce chemin parcouru, l'appli est passée en Version 2.0 — et avec elle, une vraie simplification de l'accueil : deux grandes options, "📜 Consulter l'historique" et "⛳ Jouer au golf", chacune ouvrant directement sur l'essentiel, avec le reste accessible en un clic.</p>
+  <ul>
+    <li>Les 18 trous réorientés uniformément — départ au sud, arrivée au nord — avec une flèche rouge de repère sur chaque photo</li>
+    <li>Zoom au pincement débloqué, pour une précision de marquage bien meilleure sur le terrain</li>
+    <li>Boutons "Afficher le plan" et "Afficher le trou" agrandis et repositionnés pour un accès plus rapide</li>
+  </ul>
+</div>
+
+<div class="divider">⛳ • 🏌️ • 🏆</div>
+
+<p style="text-align:center; font-style:italic; color:var(--green-deep); font-size:14.5px;">
+  Chaque évolution est née d'une question posée sur le terrain, un bug repéré à l'usage, ou simplement l'envie de rendre une partie de golf un peu plus vivante à revivre.
+</p>
+
+<footer>
+  GOLF_TEAM · Claude Caddie Assistant — Historique compilé pour le Directeur de session.<br>
+  Suar Park Golf Course (KCC), Nakhon Ratchasima.
+</footer>
+
+</body>
+</html>
