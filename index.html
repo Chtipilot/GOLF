@@ -1777,7 +1777,11 @@
   //   V02.001.011 — La carte "🏆🏅 Nouveau record éclectique d'ÉQUIPE" clignote maintenant (pulsation
   //                 du fond doré + ombre portée, sans rendre le texte illisible) tant qu'elle reste
   //                 affichée, pour bien attirer l'attention sur cet événement.
-  const APP_VERSION = "SuarPark - V02.001.011";
+  //   V02.001.012 — Ligne "🏅 ÉQUIPE" de l'éclectique : le nom du joueur détenteur du record est
+  //                 maintenant affiché directement sous le score de chaque trou, écrit en vertical
+  //                 (writing-mode) pour tenir dans la largeur étroite des colonnes — plus besoin de
+  //                 survoler la case pour savoir qui l'a fait.
+  const APP_VERSION = "SuarPark - V02.001.012";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4177,7 +4181,10 @@
       const {out, inn, tot} = computeOutInTot(teamBest);
       rows += `<tr style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border-top:2px solid var(--sand);">
         <td style="text-align:left; padding-left:4px; font-weight:900; color:#8a6d1f;">${t('eclecticTeamRow')}</td>
-        ${teamBest.map((s,h)=>{ const c=scoreColor(s,h); return `<td title="${teamBestBy[h]||''}" style="background:${c.bg}; color:${c.fg}; font-weight:900;">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
+        ${teamBest.map((s,h)=>{ const c=scoreColor(s,h); const who = teamBestBy[h]; return `<td style="background:${c.bg}; color:${c.fg}; font-weight:900; padding:3px 1px;">
+          <div>${scoreDisplayHTML(s,h)}</div>
+          ${who ? `<div style="writing-mode:vertical-rl; font-size:7.5px; font-weight:700; letter-spacing:0.5px; color:${colorFor(who)}; margin:2px auto 0; line-height:1; max-height:34px; overflow:hidden;">${who}</div>` : ''}
+        </td>`; }).join("")}
         <td style="font-weight:900; background:#f1e6cc;">${out}</td>
         <td style="font-weight:900; background:#f1e6cc;">${inn}</td>
         <td style="font-weight:900; background:#f1e6cc;">${tot}</td>
