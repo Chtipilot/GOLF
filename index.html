@@ -1737,7 +1737,21 @@
   //                 History" en anglais, etc.) — seul le nom du fichier reste "Historique_Site.html"
   //                 et le titre à l'intérieur de la page. Revenu sur le choix "nom propre non
   //                 traduit" de V02.001.002, à la demande du Directeur de session.
-  const APP_VERSION = "SuarPark - V02.001.005";
+  //   V02.001.006 — Nouveau fait marquant "Plus long coup" (en principe le drive), calculé
+  //                 automatiquement à partir des données GPS officielles (shot-history-data.js).
+  //                 Chargé à la demande uniquement (jamais au démarrage), donc ce fait marquant
+  //                 apparaît avec un léger différé une fois le fichier récupéré, dans "Faits
+  //                 marquants". "Claude Caddie Assistant" reste exclu, comme toutes les autres
+  //                 statistiques d'équipe. Pour l'instant, aucune donnée réelle de joueur n'existe
+  //                 encore (seul le test GPS du 05/09/2023 est présent) — n'affiche donc rien tant
+  //                 qu'une vraie carte avec GPS n'aura pas été transmise.
+  //   V02.001.007 — Le "🏆 nouveau record éclectique" du dernier parcours rejoint désormais
+  //                 l'encadré doré "Vainqueurs du jour" (au lieu d'apparaître séparément dans les
+  //                 records all-time), à la demande du Directeur de session — tout ce qui concerne
+  //                 la dernière manche jouée reste groupé au même endroit, en tête de "Faits
+  //                 marquants". S'il concerne une manche plus ancienne (cas rare), reste affiché
+  //                 séparément comme avant.
+  const APP_VERSION = "SuarPark - V02.001.007";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2137,6 +2151,8 @@
       insightMostRoundsDesc: (n, count) => `${n} — ${count} manches enregistrées`,
       insightTeamTotal: "⛳ Total cumulé de l'équipe",
       insightTeamTotalDesc: (count) => `${count} manches enregistrées, tous joueurs confondus`,
+      insightLongestShot: "🏌️ Plus long coup",
+      insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (trou ${hole}, ${date})`,
       costTotalTitle: "💰 Coût total (green fee + golfcar + caddie)",
       costTotalDesc: (team, lines) => `Équipe : ${team} ฿ — ${lines} — (1000 ฿/manche, 800 ฿ les lundis et mercredis)`,
       insightDayWinnerScore: "🥇 Vainqueur du jour (score)",
@@ -2416,6 +2432,8 @@
       insightMostRoundsDesc: (n, count) => `${n} — ${count} rounds recorded`,
       insightTeamTotal: "⛳ Team total rounds",
       insightTeamTotalDesc: (count) => `${count} rounds recorded, across all players`,
+      insightLongestShot: "🏌️ Longest shot",
+      insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (hole ${hole}, ${date})`,
       costTotalTitle: "💰 Total cost (green fee + golf cart + caddie)",
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/round, 800 ฿ on Mondays and Wednesdays)`,
       insightDayWinnerScore: "🥇 Winner of the day (score)",
@@ -2695,6 +2713,8 @@
       insightMostRoundsDesc: (n, count) => `${n} — ${count} erfasste Runden`,
       insightTeamTotal: "⛳ Gesamtzahl der Runden des Teams",
       insightTeamTotalDesc: (count) => `${count} erfasste Runden, alle Spieler zusammen`,
+      insightLongestShot: "🏌️ Weitester Schlag",
+      insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (Loch ${hole}, ${date})`,
       costTotalTitle: "💰 Gesamtkosten (Greenfee + Golfwagen + Caddie)",
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/Runde, 800 ฿ montags und mittwochs)`,
       insightDayWinnerScore: "🥇 Tagessieger (Ergebnis)",
@@ -2974,6 +2994,8 @@
       insightMostRoundsDesc: (n, count) => `${n} — บันทึกไว้ ${count} รอบ`,
       insightTeamTotal: "⛳ จำนวนรอบรวมของทีม",
       insightTeamTotalDesc: (count) => `บันทึกไว้ ${count} รอบ รวมผู้เล่นทุกคน`,
+      insightLongestShot: "🏌️ ช็อตที่ยาวที่สุด",
+      insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (หลุม ${hole}, ${date})`,
       costTotalTitle: "💰 ค่าใช้จ่ายรวม (กรีนฟี + รถกอล์ฟ + แคดดี้)",
       costTotalDesc: (team, lines) => `ทีม: ${team} ฿ — ${lines} — (1000 ฿/รอบ, 800 ฿ วันจันทร์และวันพุธ)`,
       insightDayWinnerScore: "🥇 ผู้ชนะประจำวัน (สกอร์)",
@@ -4510,7 +4532,7 @@
 
     // Carte "honneur" : vainqueurs du jour (score ET putts) encadrés ensemble, mis en valeur
     // au-dessus des autres faits marquants (fond doré, bordure dorée, mise en avant visuelle).
-    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate) => `
+    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate, eclecticInfo) => `
       <div style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border:2px solid var(--sand); border-radius:10px; padding:14px 16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(201,166,104,0.35);">
         <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:${isCustomDate ? '2px' : '10px'}; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
         ${isCustomDate ? `<div style="text-align:center; margin-bottom:8px;"><button type="button" id="btnInsightsResetDate" class="btn btn-secondary no-print" style="font-size:10px; padding:2px 10px; margin:0;">${t('insightBackToLatest')}</button></div>` : ''}
@@ -4526,6 +4548,10 @@
             <div style="font-size:13px; color:#555;">${puttsWinner.tot} putts</div>
           </div>` : ''}
         </div>
+        ${eclecticInfo ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
+          <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightBestEclecticEver')}</div>
+          <div style="font-size:13.5px; font-weight:700; color:${colorFor(eclecticInfo.name)};">${t('insightNewEclecticRecordDesc', eclecticInfo.name, eclecticInfo.hole+1, eclecticInfo.oldScore, eclecticInfo.newScore, eclecticInfo.date)}</div>
+        </div>` : ''}
       </div>`;
 
     let html = `<h3>${t('insightsTitle')}</h3><p class="sub" style="margin-top:2px;">${t('insightsIntro')}</p>`;
@@ -4553,11 +4579,11 @@
           if (puttsTot > 0 && (dayPuttsWinner === null || puttsTot < dayPuttsWinner.tot)) dayPuttsWinner = {name, tot: puttsTot};
         });
       });
-      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate);
+      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null);
     }
 
     // Faits marquants classés du plus positif au moins positif.
-    if (newEclecticRecord) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
+    if (newEclecticRecord && newEclecticRecord.date !== podiumDate) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
     if (best) html += card(t('insightBestRoundEver'), `${best.name} — ${best.tot} (${best.date})`, colorFor(best.name));
     if (bestPutts) html += card(t('insightBestPuttsEver'), `${bestPutts.name} — ${bestPutts.tot} putts (${bestPutts.date})`, colorFor(bestPutts.name));
     if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
@@ -4575,8 +4601,21 @@
     html += card(t('costTotalTitle'), t('costTotalDesc', teamCostTotal.toLocaleString('fr-FR'), costLines), '#B8860B');
 
     html += card(t('insightTeamTotal'), t('insightTeamTotalDesc', totalRounds), '#1a3c34');
+    html += `<div id="insightLongestShotBox"></div>`;
 
     container.innerHTML = html;
+    // Plus long coup (généralement le drive), calculé à partir des données GPS officielles —
+    // chargées à la demande seulement (jamais au démarrage), donc ce fait marquant apparaît avec
+    // un léger différé une fois le fichier récupéré. "Claude Caddie Assistant" (identité de test)
+    // reste exclu, comme toutes les autres statistiques d'équipe.
+    loadShotHistoryData().then(data => {
+      const box = document.getElementById('insightLongestShotBox');
+      if (!box) return; // la section a pu être refermée entre-temps
+      const rec = computeLongestShotRecord(data);
+      box.outerHTML = rec
+        ? card(t('insightLongestShot'), t('insightLongestShotDesc', rec.name, rec.yards, rec.hole+1, rec.date), '#B8860B')
+        : '<div id="insightLongestShotBox"></div>';
+    });
     const resetBtn = document.getElementById('btnInsightsResetDate');
     if (resetBtn) resetBtn.addEventListener('click', () => {
       insightsSelectedDate = null;
@@ -6229,6 +6268,35 @@
       }
       return {fromTeeYd, fromPrevYd};
     });
+  }
+
+  // Plus long coup jamais enregistré (généralement le drive), à partir des données GPS officielles
+  // (shot-history-data.js) — parcourt chaque manche, chaque trou, chaque coup, et retient la plus
+  // grande distance coup-à-coup trouvée (depuis le départ pour le 1er coup du trou, depuis le coup
+  // précédent ensuite — exactement la même distance que celle affichée sous chaque balle). "Claude
+  // Caddie Assistant" (identité de test) est exclu, comme toutes les autres statistiques d'équipe.
+  function computeLongestShotRecord(data){
+    let best = null;
+    Object.keys(data || {}).forEach(key => {
+      const sepIdx = key.lastIndexOf('|');
+      const name = key.slice(0, sepIdx);
+      const date = key.slice(sepIdx + 1);
+      if (name === 'Claude Caddie Assistant') return; // jamais dans les statistiques d'équipe
+      const entry = replayPointsFromEntry(data[key]);
+      if (!entry) return;
+      (entry.shotPoints || []).forEach((holePoints, holeIdx) => {
+        const teeGeo = (entry.teeGeoByHole || [])[holeIdx];
+        const distances = computeShotGeoDistances(holePoints, teeGeo);
+        distances.forEach(d => {
+          if (!d) return;
+          const yd = d.fromPrevYd;
+          if (yd !== null && yd !== undefined && (!best || yd > best.yards)){
+            best = {name, date, hole: holeIdx, yards: yd};
+          }
+        });
+      });
+    });
+    return best;
   }
 
   // Construit le petit récapitulatif texte affiché sous la carte du trou : position du départ (si
