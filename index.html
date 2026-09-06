@@ -1730,7 +1730,10 @@
   //   V02.001.003 — Retiré le filigrane diagonal "Site en test actuellement" (introduit en
   //                 V01.005.053-056, pendant la période de test) — la phase de test est désormais
   //                 dépassée, plus besoin de cet avertissement.
-  const APP_VERSION = "SuarPark - V02.001.003";
+  //   V02.001.004 — Historique_Site.html traduit dans les 4 langues (FR/EN/DE/TH), avec sélecteur de
+  //                 langue en haut de page et lecture du paramètre "?lang=" transmis depuis l'appli
+  //                 (comme briefing.html) — ne restait qu'en français jusqu'ici.
+  const APP_VERSION = "SuarPark - V02.001.004";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7126,7 +7129,7 @@
       window.location.href = 'briefing.html?lang=' + lang;
     });
     document.getElementById('btnEvolutions').addEventListener('click', () => {
-      window.location.href = 'Historique_Site.html';
+      window.location.href = 'Historique_Site.html?lang=' + lang;
     });
     document.getElementById('btnToggleDetails').addEventListener('click', () => {
       detailsVisible = !detailsVisible;
