@@ -1751,7 +1751,10 @@
   //                 la dernière manche jouée reste groupé au même endroit, en tête de "Faits
   //                 marquants". S'il concerne une manche plus ancienne (cas rare), reste affiché
   //                 séparément comme avant.
-  const APP_VERSION = "SuarPark - V02.001.007";
+  //   V02.001.008 — Nouveau clin d'œil dans l'encadré "Vainqueurs du jour" : "🍀 Malchanceux du jour"
+  //                 (le joueur avec le plus de pénalités ce jour-là), avec une petite pointe
+  //                 d'humour sur les balles perdues — proposé par le Directeur de session.
+  const APP_VERSION = "SuarPark - V02.001.008";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2133,6 +2136,8 @@
       insightBestRoundEver: "🏅 Meilleure manche all-time",
       insightBestPuttsEver: "🎯 Record de putts all-time",
       insightBestEclecticEver: "🏆 Nouveau record éclectique",
+      insightUnluckyOfDay: "🍀 Malchanceux du jour",
+      insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} pénalité${count>1?'s':''} 😅 (probablement autant de balles perdues... appel du joueur au don de balle !)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Trou ${hole} : premier score enregistré (${newS}) le ${date}`
         : `${name} — Trou ${hole} : ${oldS} → ${newS} le ${date}`,
@@ -2414,6 +2419,8 @@
       insightBestRoundEver: "🏅 Best round all-time",
       insightBestPuttsEver: "🎯 All-time putts record",
       insightBestEclecticEver: "🏆 New eclectic record",
+      insightUnluckyOfDay: "🍀 Unlucky of the day",
+      insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} penalt${count>1?'ies':'y'} 😅 (probably just as many lost balls... calling for ball donations!)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Hole ${hole}: first score recorded (${newS}) on ${date}`
         : `${name} — Hole ${hole}: ${oldS} → ${newS} on ${date}`,
@@ -2695,6 +2702,8 @@
       insightBestRoundEver: "🏅 Beste Runde aller Zeiten",
       insightBestPuttsEver: "🎯 Putt-Rekord aller Zeiten",
       insightBestEclecticEver: "🏆 Neuer Eklektik-Rekord",
+      insightUnluckyOfDay: "🍀 Pechvogel des Tages",
+      insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} Strafschlag${count>1?'e':''} 😅 (wahrscheinlich genauso viele verlorene Bälle... Ballspende dringend gesucht!)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Loch ${hole}: erster erfasster Score (${newS}) am ${date}`
         : `${name} — Loch ${hole}: ${oldS} → ${newS} am ${date}`,
@@ -2976,6 +2985,8 @@
       insightBestRoundEver: "🏅 รอบที่ดีที่สุดตลอดกาล",
       insightBestPuttsEver: "🎯 สถิติพัตต์ตลอดกาล",
       insightBestEclecticEver: "🏆 สถิติเอคเลกติกใหม่",
+      insightUnluckyOfDay: "🍀 ผู้โชคร้ายประจำวัน",
+      insightUnluckyOfDayDesc: (name, count) => `${name} — โดนโทษ ${count} ครั้ง 😅 (คงเสียลูกไปพอๆ กัน... ขอรับบริจาคลูกกอล์ฟด่วน!)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — หลุม ${hole}: บันทึกคะแนนแรก (${newS}) เมื่อ ${date}`
         : `${name} — หลุม ${hole}: ${oldS} → ${newS} เมื่อ ${date}`,
@@ -4532,7 +4543,7 @@
 
     // Carte "honneur" : vainqueurs du jour (score ET putts) encadrés ensemble, mis en valeur
     // au-dessus des autres faits marquants (fond doré, bordure dorée, mise en avant visuelle).
-    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate, eclecticInfo) => `
+    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate, eclecticInfo, penaltyLoser) => `
       <div style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border:2px solid var(--sand); border-radius:10px; padding:14px 16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(201,166,104,0.35);">
         <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:${isCustomDate ? '2px' : '10px'}; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
         ${isCustomDate ? `<div style="text-align:center; margin-bottom:8px;"><button type="button" id="btnInsightsResetDate" class="btn btn-secondary no-print" style="font-size:10px; padding:2px 10px; margin:0;">${t('insightBackToLatest')}</button></div>` : ''}
@@ -4552,6 +4563,10 @@
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightBestEclecticEver')}</div>
           <div style="font-size:13.5px; font-weight:700; color:${colorFor(eclecticInfo.name)};">${t('insightNewEclecticRecordDesc', eclecticInfo.name, eclecticInfo.hole+1, eclecticInfo.oldScore, eclecticInfo.newScore, eclecticInfo.date)}</div>
         </div>` : ''}
+        ${penaltyLoser ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
+          <div style="font-size:11px; color:#a23b3b; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightUnluckyOfDay')}</div>
+          <div style="font-size:13.5px; font-weight:700; color:${colorFor(penaltyLoser.name)};">${t('insightUnluckyOfDayDesc', penaltyLoser.name, penaltyLoser.tot)}</div>
+        </div>` : ''}
       </div>`;
 
     let html = `<h3>${t('insightsTitle')}</h3><p class="sub" style="margin-top:2px;">${t('insightsIntro')}</p>`;
@@ -4567,7 +4582,7 @@
     });
     const podiumDate = insightsSelectedDate || latestDate;
     if (podiumDate){
-      let dayScoreWinner = null, dayPuttsWinner = null;
+      let dayScoreWinner = null, dayPuttsWinner = null, dayPenaltyLoser = null;
       players.forEach(name => {
         insightsHistoryFor(name).forEach(round => {
           const [date, scores] = round;
@@ -4577,9 +4592,13 @@
           const puttsArr = roundPutts(round);
           const puttsTot = puttsArr.reduce((a,b)=>a+b,0);
           if (puttsTot > 0 && (dayPuttsWinner === null || puttsTot < dayPuttsWinner.tot)) dayPuttsWinner = {name, tot: puttsTot};
+          // "Malchanceux du jour" : le plus de pénalités sur cette manche — juste pour rire, ça ne
+          // remplace ni ne concurrence les vrais faits marquants sportifs.
+          const penaltiesTot = (round[2] || []).reduce((a,b)=>a+Number(b||0),0);
+          if (penaltiesTot > 0 && (dayPenaltyLoser === null || penaltiesTot > dayPenaltyLoser.tot)) dayPenaltyLoser = {name, tot: penaltiesTot};
         });
       });
-      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null);
+      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null, dayPenaltyLoser);
     }
 
     // Faits marquants classés du plus positif au moins positif.
