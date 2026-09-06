@@ -40,6 +40,14 @@
   /* Clignotement pendant l'attente du GPS (balle de coup ou punaise de départ) */
   @keyframes geoPendingBlink { 0%, 100% { opacity:1; } 50% { opacity:0.35; } }
   .geo-pending { animation: geoPendingBlink 0.9s ease-in-out infinite; }
+  /* Clignotement (pulsation) de la carte "nouveau record éclectique d'équipe" — attire l'attention
+     tant que ce record reste le plus récent, sans rendre le texte illisible (contrairement à un
+     clignotement d'opacité, on pulse le fond et l'ombre portée). */
+  @keyframes teamRecordPulse {
+    0%, 100% { background:#fff8e1; box-shadow:0 0 0 rgba(184,134,11,0.5); }
+    50% { background:#ffe9a8; box-shadow:0 0 14px rgba(184,134,11,0.65); }
+  }
+  .team-record-blink { animation: teamRecordPulse 1.4s ease-in-out infinite; }
   /* Titre "GOLF_TEAM" en néon : quelques clignotements façon enseigne qui s'allume, puis se
      stabilise en glow permanent + relief 3D (ombres dorées superposées). Joué une seule fois au
      chargement de la page (pas de "infinite"), la dernière étape du keyframe reste l'état final
@@ -1766,7 +1774,10 @@
   //                 marquant "🏆🏅 Nouveau record éclectique d'ÉQUIPE" dans "Faits marquants" : si la
   //                 dernière manche jouée fait baisser ce record d'équipe sur un trou, c'est signalé
   //                 séparément du record individuel classique.
-  const APP_VERSION = "SuarPark - V02.001.010";
+  //   V02.001.011 — La carte "🏆🏅 Nouveau record éclectique d'ÉQUIPE" clignote maintenant (pulsation
+  //                 du fond doré + ombre portée, sans rendre le texte illisible) tant qu'elle reste
+  //                 affichée, pour bien attirer l'attention sur cet événement.
+  const APP_VERSION = "SuarPark - V02.001.011";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4680,7 +4691,11 @@
       });
       if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null, dayPenaltyLoser);
     }
-    if (newTeamEclecticRecord) html += card(t('insightBestTeamEclecticEver'), t('insightNewTeamEclecticRecordDesc', newTeamEclecticRecord.name, newTeamEclecticRecord.hole+1, newTeamEclecticRecord.oldScore, newTeamEclecticRecord.newScore, newTeamEclecticRecord.date), '#B8860B');
+    if (newTeamEclecticRecord) html += `
+      <div class="team-record-blink" style="border-left:4px solid #B8860B; border-radius:6px; padding:10px 14px; margin-bottom:10px;">
+        <div style="font-weight:bold; color:#1a3c34; margin-bottom:3px;">${t('insightBestTeamEclecticEver')}</div>
+        <div style="margin:0; font-size:15px; font-weight:700; color:#111;">${t('insightNewTeamEclecticRecordDesc', newTeamEclecticRecord.name, newTeamEclecticRecord.hole+1, newTeamEclecticRecord.oldScore, newTeamEclecticRecord.newScore, newTeamEclecticRecord.date)}</div>
+      </div>`;
 
     // Faits marquants classés du plus positif au moins positif.
     if (newEclecticRecord && newEclecticRecord.date !== podiumDate) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
