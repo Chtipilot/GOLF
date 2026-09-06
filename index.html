@@ -1785,7 +1785,10 @@
   //                 joueurs sur le même score pour un trou, le crédit va désormais au joueur ayant
   //                 réalisé ce score EN PREMIER chronologiquement (date la plus ancienne), au lieu
   //                 d'être attribué arbitrairement selon l'ordre d'itération des joueurs.
-  const APP_VERSION = "SuarPark - V02.001.013";
+  //   V02.001.014 — Renommé "🏆 Nouveau record éclectique" → "🏆 Nouveau record éclectique PERSONNEL"
+  //                 dans l'encadré "Faits marquants", pour bien le distinguer du "🏆🏅 Nouveau record
+  //                 éclectique d'ÉQUIPE" (les 4 langues).
+  const APP_VERSION = "SuarPark - V02.001.014";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2167,7 +2170,7 @@
       insightsIntro: "Calculés automatiquement sur l'ensemble des manches enregistrées.",
       insightBestRoundEver: "🏅 Meilleure manche all-time",
       insightBestPuttsEver: "🎯 Record de putts all-time",
-      insightBestEclecticEver: "🏆 Nouveau record éclectique",
+      insightBestEclecticEver: "🏆 Nouveau record éclectique PERSONNEL",
       insightBestTeamEclecticEver: "🏆🏅 Nouveau record éclectique d'ÉQUIPE",
       insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} a amélioré le record de l'équipe au trou ${hole} : ${oldScore} → ${newScore} le ${date}`,
       insightUnluckyOfDay: "🍀 Malchanceux du jour",
@@ -2453,7 +2456,7 @@
       insightsIntro: "Automatically computed from all recorded rounds.",
       insightBestRoundEver: "🏅 Best round all-time",
       insightBestPuttsEver: "🎯 All-time putts record",
-      insightBestEclecticEver: "🏆 New eclectic record",
+      insightBestEclecticEver: "🏆 New PERSONAL eclectic record",
       insightBestTeamEclecticEver: "🏆🏅 New TEAM eclectic record",
       insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} improved the team record on hole ${hole}: ${oldScore} → ${newScore} on ${date}`,
       insightUnluckyOfDay: "🍀 Unlucky of the day",
@@ -2739,7 +2742,7 @@
       insightsIntro: "Automatisch aus allen erfassten Runden berechnet.",
       insightBestRoundEver: "🏅 Beste Runde aller Zeiten",
       insightBestPuttsEver: "🎯 Putt-Rekord aller Zeiten",
-      insightBestEclecticEver: "🏆 Neuer Eklektik-Rekord",
+      insightBestEclecticEver: "🏆 Neuer PERSÖNLICHER Eklektik-Rekord",
       insightBestTeamEclecticEver: "🏆🏅 Neuer TEAM-Eklektik-Rekord",
       insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} hat den Team-Rekord an Loch ${hole} verbessert: ${oldScore} → ${newScore} am ${date}`,
       insightUnluckyOfDay: "🍀 Pechvogel des Tages",
@@ -3025,7 +3028,7 @@
       insightsIntro: "คำนวณโดยอัตโนมัติจากรอบที่บันทึกไว้ทั้งหมด",
       insightBestRoundEver: "🏅 รอบที่ดีที่สุดตลอดกาล",
       insightBestPuttsEver: "🎯 สถิติพัตต์ตลอดกาล",
-      insightBestEclecticEver: "🏆 สถิติเอคเลกติกใหม่",
+      insightBestEclecticEver: "🏆 สถิติเอคเลกติกส่วนตัวใหม่",
       insightBestTeamEclecticEver: "🏆🏅 สถิติเอคเลกติกทีมใหม่",
       insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} ทำลายสถิติทีมที่หลุม ${hole}: ${oldScore} → ${newScore} เมื่อ ${date}`,
       insightUnluckyOfDay: "🍀 ผู้โชคร้ายประจำวัน",
