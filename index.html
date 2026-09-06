@@ -236,18 +236,32 @@
 <div style="background-image: linear-gradient(rgba(26,60,52,0.55), rgba(26,60,52,0.8)), url('golf-course.jpg'); background-size:cover; background-position:center 65%; border-radius:12px; padding:16px 18px; margin-bottom:6px;">
   <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
     <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;"><span id="neonTitle">GOLF_TEAM</span> <span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
-    <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
-    <button class="btn btn-secondary info-ref" id="btnToggleGuide" style="font-size:11px; padding:4px 8px;">🗺️ Guide rapide</button>
     <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
   </div>
 </div>
 <div class="page-subtitle-row" id="homeSubtitleRow"></div>
 <p class="sub" id="appSubtitle">Départs rouges · Par 72 · 18 trous</p>
 
+<!-- Écran d'accueil : 2 grandes options plein écran, à la demande du Directeur de session
+     (simplification de la page d'accueil — tout le reste devient accessible en sous-menu depuis
+     l'une des deux). -->
+<div id="homeScreen" style="display:flex; flex-direction:column; gap:16px; margin:18px 0;">
+  <button type="button" class="btn no-print" id="btnHomeHistory" style="margin:0; padding:38px 20px; font-size:clamp(20px,5vw,28px); font-weight:900; border-radius:16px; background:var(--green-deep); box-shadow:0 4px 0 rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.25);">📜 Consulter l'historique</button>
+  <button type="button" class="btn no-print" id="btnHomeGolf" style="margin:0; padding:38px 20px; font-size:clamp(20px,5vw,28px); font-weight:900; border-radius:16px; background:#2E7D32; box-shadow:0 4px 0 rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.25);">⛳ Jouer au golf</button>
+</div>
+
 <div id="noticeSection" style="display:none; margin:6px 0 12px 0; background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.6; color:#1a3c34;"></div>
 <div id="guideSection" style="display:none; margin:6px 0 12px 0; background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px;"></div>
 
-<hr class="header-separator">
+<hr class="header-separator" id="headerSeparator" style="display:none;">
+
+<div id="golfModeSection" style="display:none;">
+  <button type="button" class="btn btn-secondary no-print" id="btnBackHomeGolf" style="margin-bottom:8px;">← Retour à l'accueil</button>
+  <div class="toolbar" style="margin-bottom:8px;">
+    <button class="btn btn-secondary info-ref" id="btnNotice" style="font-size:11px; padding:4px 8px;">📖 Notice utilisateur</button>
+    <button class="btn btn-secondary info-ref" id="btnToggleGuide" style="font-size:11px; padding:4px 8px;">🗺️ Guide rapide</button>
+    <button class="btn btn-secondary" id="btnToggleRules" style="font-size:11px; padding:4px 8px;">📖 Règlement</button>
+  </div>
 
 <div class="toolbar" style="gap:14px;">
   <button class="tile-btn" id="btnToggleBlankCard">
@@ -278,6 +292,7 @@
   <span id="rotateHintText">Tourne ton téléphone en mode paysage pour un meilleur affichage du tableau.</span>
 </div>
 
+<p class="sub" style="margin:14px 0 4px; font-weight:bold;">📋 Table de saisie principale (toute l'équipe)</p>
 <div class="toolbar" id="dateNavToolbar" style="position:sticky; top:0; z-index:40; background:var(--cream); padding:6px 4px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.12);">
   <label style="font-size:12px; margin-right:2px;"><span id="lblSessionDate">Date de la manche :</span> <input type="date" id="sessionDate" disabled style="background:#f4f7f6;"></label>
   <span style="display:inline-flex; flex-direction:column; margin-right:6px; vertical-align:middle;">
@@ -354,27 +369,35 @@
 
 <div class="menu-frame">
   <div class="toolbar" style="margin:0;">
-    <button class="btn btn-secondary" id="btnToggleCaddies">🎽 Afficher les caddies</button>
     <button class="btn btn-secondary" id="btnToggleDetails">🎯 Putts</button>
-    <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
-    <button class="btn btn-secondary" id="btnToggleEclectic">🏆 Afficher l'éclectique</button>
-    <button class="btn btn-secondary" id="btnToggleStats">📊 Graphiques</button>
-    <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
-    <button class="btn btn-secondary" id="btnToggleTeeCompare">🔴⚪ Rouge vs Blanc</button>
-    <button class="btn btn-secondary" id="btnToggleRules">📖 Règlement</button>
   </div>
 </div>
 <div class="status" id="status"></div>
 
-<div id="caddiesSection" style="display:none; margin-top:10px;"></div>
-<div id="historySection" style="display:none; margin-top:10px;"></div>
-<div id="eclecticSection" style="display:none; margin-top:10px;"></div>
-<div id="statsSection" style="display:none; margin-top:10px;"></div>
-<div id="insightsSection" style="display:none; margin-top:10px;"></div>
-<div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
 <div id="rulesSection" style="display:none; margin-top:10px;"></div>
 <div id="blankCardSection"></div>
 <div id="teamRecapSection"></div>
+</div>
+
+<div id="historyModeSection" style="display:none;">
+  <button type="button" class="btn btn-secondary no-print" id="btnBackHomeHistory" style="margin-bottom:8px;">← Retour à l'accueil</button>
+  <div class="menu-frame">
+    <div class="toolbar" style="margin:0;">
+      <button class="btn btn-secondary" id="btnToggleHistory">📜 Afficher l'historique</button>
+      <button class="btn btn-secondary" id="btnToggleCaddies">🎽 Afficher les caddies</button>
+      <button class="btn btn-secondary" id="btnToggleEclectic">🏆 Afficher l'éclectique</button>
+      <button class="btn btn-secondary" id="btnToggleStats">📊 Graphiques</button>
+      <button class="btn btn-secondary" id="btnToggleInsights">📌 Faits marquants</button>
+      <button class="btn btn-secondary" id="btnToggleTeeCompare">🔴⚪ Rouge vs Blanc</button>
+    </div>
+  </div>
+  <div id="caddiesSection" style="display:none; margin-top:10px;"></div>
+  <div id="historySection" style="display:none; margin-top:10px;"></div>
+  <div id="eclecticSection" style="display:none; margin-top:10px;"></div>
+  <div id="statsSection" style="display:none; margin-top:10px;"></div>
+  <div id="insightsSection" style="display:none; margin-top:10px;"></div>
+  <div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
+</div>
 
 </div>
 
@@ -1628,7 +1651,36 @@
   //                 départs), à la demande explicite du Directeur de session — données
   //                 volontairement décousues (score/putts incohérents sur les trous 4 et 8),
   //                 intégrées telles quelles pour test, jamais à prendre comme référence.
-  const APP_VERSION = "SuarPark - V02.000.015";
+  //   V02.000.016 — Refonte majeure de la page d'accueil, à la demande du Directeur de session :
+  //                 seulement 2 grandes options plein écran au démarrage : "📜 Consulter
+  //                 l'historique" et "⛳ Jouer au golf". Tout le reste devient un sous-menu accessible
+  //                 depuis l'une des deux :
+  //                 - "⛳ Jouer au golf" ouvre directement "Afficher ma carte" et donne accès à :
+  //                 Guide rapide, Règlement, Notice utilisateur, Carte de score vierge, Récap
+  //                 équipe, et la table de saisie principale (tout le tableau équipe, désormais ici
+  //                 plutôt qu'en haut de page).
+  //                 - "📜 Consulter l'historique" ouvre directement l'historique et donne accès à :
+  //                 Éclectique, Graphiques, Faits marquants, Rouge vs Blanc, Caddies.
+  //                 Un bouton "← Retour à l'accueil" dans chaque mode. Changement structurel
+  //                 important : à tester attentivement sur le terrain.
+  //   V02.000.017 — Ajustement suite retour terrain : (1) Le bouton "📜 Afficher l'historique" est
+  //                 remis en toggle normal (afficher/masquer), retiré par erreur en V02.000.016.
+  //                 (2) La tuile "📜 Consulter l'historique" ouvre désormais "📌 Faits marquants" en
+  //                 premier par défaut (au lieu de l'historique brut), toujours avec son propre
+  //                 bouton afficher/masquer comme les autres.
+  //   V02.000.018 — Le bouton "Fermer" de la carte de score ("Afficher ma carte") ramène désormais
+  //                 directement à l'écran d'accueil (2 grandes tuiles), au lieu de rester sur la
+  //                 page "Jouer au golf". Corrigé au passage un risque de plantage : setAppMode()
+  //                 était défini uniquement dans la portée locale de init(), inaccessible depuis
+  //                 renderBlankCard() — remonté à la portée globale du module.
+  //   V02.000.019 — Correction : "📜 Consulter l'historique", "⛳ Jouer au golf" et "← Retour à
+  //                 l'accueil" étaient codés en dur en français dans le HTML, jamais traduits dans
+  //                 les 3 autres langues. Corrigé via applyStaticText() + nouvelles clés
+  //                 (btnHomeHistory, btnHomeGolf, btnBackHome) dans les 4 langues.
+  //   V02.000.020 — "🗺️ Afficher le plan" et "⛳ Afficher le trou" déplacés juste sous le titre
+  //                 "Carte de score" (au lieu du bas de la carte), et agrandis (15px, padding
+  //                 12px) pour plus de visibilité — gagne de la place en bas, accès plus rapide.
+  const APP_VERSION = "SuarPark - V02.000.020";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1788,6 +1840,9 @@
       subtitle: "Par 72 · 18 trous — 📖 Fichier de consultation (lecture seule)",
       sessionDateLabel: "Date de la manche :",
       btnShowHistory: "📜 Afficher l'historique",
+      btnHomeHistory: "📜 Consulter l'historique",
+      btnHomeGolf: "⛳ Jouer au golf",
+      btnBackHome: "← Retour à l'accueil",
       btnHideHistory: "📜 Masquer l'historique",
       btnShowEclectic: "🏆 Afficher l'éclectique",
       btnHideEclectic: "🏆 Masquer l'éclectique",
@@ -2061,6 +2116,9 @@
       subtitle: "Par 72 · 18 holes — 📖 View-only file",
       sessionDateLabel: "Round date:",
       btnShowHistory: "📜 Show history",
+      btnHomeHistory: "📜 View history",
+      btnHomeGolf: "⛳ Play golf",
+      btnBackHome: "← Back to home",
       btnHideHistory: "📜 Hide history",
       btnShowEclectic: "🏆 Show eclectic",
       btnHideEclectic: "🏆 Hide eclectic",
@@ -2334,6 +2392,9 @@
       subtitle: "Par 72 · 18 Löcher — 📖 Nur-Lese-Datei",
       sessionDateLabel: "Rundendatum:",
       btnShowHistory: "📜 Verlauf anzeigen",
+      btnHomeHistory: "📜 Verlauf ansehen",
+      btnHomeGolf: "⛳ Golf spielen",
+      btnBackHome: "← Zurück zur Startseite",
       btnHideHistory: "📜 Verlauf ausblenden",
       btnShowEclectic: "🏆 Eclectic anzeigen",
       btnHideEclectic: "🏆 Eclectic ausblenden",
@@ -2607,6 +2668,9 @@
       subtitle: "พาร์ 72 · 18 หลุม — 📖 ไฟล์สำหรับดูข้อมูลเท่านั้น",
       sessionDateLabel: "วันที่เล่น:",
       btnShowHistory: "📜 แสดงประวัติ",
+      btnHomeHistory: "📜 ดูประวัติ",
+      btnHomeGolf: "⛳ เล่นกอล์ฟ",
+      btnBackHome: "← กลับหน้าแรก",
       btnHideHistory: "📜 ซ่อนประวัติ",
       btnShowEclectic: "🏆 แสดง Eclectic",
       btnHideEclectic: "🏆 ซ่อน Eclectic",
@@ -2884,6 +2948,10 @@
   function applyStaticText(){
     document.getElementById('homeSubtitleRow').innerHTML = pageSubtitleRowHTML('langSelect');
     document.getElementById('appSubtitle').textContent = t('subtitle');
+    document.getElementById('btnHomeHistory').textContent = t('btnHomeHistory');
+    document.getElementById('btnHomeGolf').textContent = t('btnHomeGolf');
+    document.getElementById('btnBackHomeGolf').textContent = t('btnBackHome');
+    document.getElementById('btnBackHomeHistory').textContent = t('btnBackHome');
     document.getElementById('lblSessionDate').textContent = t('sessionDateLabel');
     document.getElementById('btnToggleCaddies').textContent = caddiesVisible ? t('btnHideCaddies') : t('btnShowCaddies');
     document.getElementById('btnToggleHistory').textContent = historyVisible ? t('btnHideHistory') : t('btnShowHistory');
@@ -6761,6 +6829,10 @@
       <div id="blankCardEclecticLine" style="text-align:center; font-size:13px; color:#555; margin:0 0 16px 0; padding-bottom:10px; border-bottom:2px solid var(--sand);"></div>
 
       <h3 style="margin:0 0 4px 0;">⛳ ${t('blankCardScorecardSectionTitle')}</h3>
+      <div class="no-print" style="display:flex; gap:8px; margin:0 0 10px 0;">
+        <button type="button" class="btn btn-secondary" id="btnBlankCardMap" style="flex:1; font-size:15px; padding:12px 8px; margin:0;">🗺️ ${t('blankCardBtnShowMap')}</button>
+        <button type="button" class="btn btn-secondary" id="btnBlankCardHoleView" style="flex:1; font-size:15px; padding:12px 8px; margin:0;">⛳ ${t('blankCardBtnShowHole')}</button>
+      </div>
 
       <div class="blankcard-header-row" style="align-items:flex-start;">
         <div class="blankcard-header-cell" style="flex-basis:100%; flex-direction:column; align-items:flex-start;">
@@ -6801,10 +6873,6 @@
         </table>
       </div>
 
-      <div class="no-print" style="margin-top:16px;">
-        <button type="button" class="btn btn-secondary" id="btnBlankCardMap">🗺️ ${t('blankCardBtnShowMap')}</button>
-        <button type="button" class="btn btn-secondary" id="btnBlankCardHoleView">⛳ ${t('blankCardBtnShowHole')}</button>
-      </div>
       <div id="blankCardMapWrap" style="display:none;">
         <p class="sub" style="margin-top:12px; font-weight:bold; color:#1a3c34;">🗺️ ${t('blankCardCourseLayout')}</p>
         <div style="text-align:center;">
@@ -6815,7 +6883,7 @@
 
     applyBlankCardDraftToDOM(draft);
 
-    document.getElementById('btnBlankCardClose').addEventListener('click', () => setBlankCardVisible(false));
+    document.getElementById('btnBlankCardClose').addEventListener('click', () => { setBlankCardVisible(false); setAppMode('home'); });
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
@@ -6877,6 +6945,22 @@
     }
   }
 
+  // Écran d'accueil à 2 options (📜 Consulter l'historique / ⛳ Jouer au golf) : bascule entre
+  // 3 états — 'home' (2 grandes tuiles), 'golf' (carte, récap équipe, table de saisie, guide,
+  // règlement, notice) et 'history' (historique + éclectique, graphiques, faits marquants,
+  // rouge/blanc, caddies). Un seul état visible à la fois. Portée globale du module (pas juste
+  // dans init()) car appelée aussi depuis renderBlankCard() (bouton "Fermer" de la carte).
+  function setAppMode(mode){
+    document.getElementById('homeScreen').style.display = mode === 'home' ? 'flex' : 'none';
+    document.getElementById('headerSeparator').style.display = mode === 'home' ? 'none' : 'block';
+    document.getElementById('golfModeSection').style.display = mode === 'golf' ? 'block' : 'none';
+    document.getElementById('historyModeSection').style.display = mode === 'history' ? 'block' : 'none';
+    if (mode !== 'golf'){
+      document.getElementById('noticeSection').style.display = 'none';
+      document.getElementById('guideSection').style.display = 'none';
+    }
+  }
+
   function init(){
     loadLang();
     applyStaticText();
@@ -6886,6 +6970,21 @@
     applyStaticText();
     wireLangSelectors();
     showLastSession();
+
+    document.getElementById('btnHomeGolf').addEventListener('click', () => {
+      setAppMode('golf');
+      setBlankCardVisible(true);
+      setToggleBtnOpen('btnToggleBlankCard', true);
+    });
+    document.getElementById('btnHomeHistory').addEventListener('click', () => {
+      setAppMode('history');
+      insightsVisible = true;
+      document.getElementById('insightsSection').style.display = 'block';
+      renderInsights();
+      setToggleBtnOpen('btnToggleInsights', true);
+    });
+    document.getElementById('btnBackHomeGolf').addEventListener('click', () => setAppMode('home'));
+    document.getElementById('btnBackHomeHistory').addEventListener('click', () => setAppMode('home'));
 
     document.getElementById('btnDateUp').addEventListener('click', () => goToDateIndex(dateNavIndex + 1));
     document.getElementById('btnDateDown').addEventListener('click', () => goToDateIndex(dateNavIndex - 1));
