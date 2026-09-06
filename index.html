@@ -1693,7 +1693,10 @@
   //                 communiquées par le Directeur de session), clubs plus courts extrapolés par
   //                 paliers d'environ 20 yards (seuils = point médian entre deux clubs). Ajout du
   //                 badge d'attribution "🤖 Claude Caddie Assistant" sur cette recommandation.
-  const APP_VERSION = "SuarPark - V02.000.023";
+  //   V02.000.024 — Le panneau d'infos (difficulté + clubs conseillés) s'affiche désormais OUVERT
+  //                 par défaut à l'arrivée sur un trou dans "Afficher le trou" (au lieu de fermé),
+  //                 tout en restant masquable via le bouton "Infos" comme avant.
+  const APP_VERSION = "SuarPark - V02.000.024";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5925,7 +5928,9 @@
   // on bascule sur un compteur de putts à tap rapide (0 à 5+), sans clavier.
   let blankCardGreenReachedByHole = Array(18).fill(false);
   let holeViewShotPoints = [];
-  let holeViewInfoExpanded = false;
+  // Panneau d'infos (difficulté + clubs conseillés) ouvert PAR DÉFAUT à l'arrivée sur un trou, à la
+  // demande du Directeur de session — reste masquable via le bouton "Infos".
+  let holeViewInfoExpanded = true;
   // Vrai juste après un appui sur "📍 Marquer le départ ici" : le PROCHAIN tap sur la photo pose
   // la punaise rouge de départ à cet endroit (au lieu d'un coup) ET capte le GPS au même moment.
   let holeViewTeeArmed = false;
@@ -6428,7 +6433,7 @@
     // modification).
     if (!Array.isArray(blankCardShotPointsByHole[holeIdx])) blankCardShotPointsByHole[holeIdx] = [];
     holeViewShotPoints = blankCardShotPointsByHole[holeIdx];
-    holeViewInfoExpanded = false;
+    holeViewInfoExpanded = true;
     // Départ pas encore marqué (que des coups existent déjà ou non) : arme automatiquement le mode
     // "pose du départ" — évite d'avoir à presser le petit bouton en plus, dès l'ouverture de la
     // vue. Se redéclenche aussi si le départ a été effacé entre-temps (pas seulement sur un trou
