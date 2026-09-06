@@ -1788,7 +1788,14 @@
   //   V02.001.014 — Renommé "🏆 Nouveau record éclectique" → "🏆 Nouveau record éclectique PERSONNEL"
   //                 dans l'encadré "Faits marquants", pour bien le distinguer du "🏆🏅 Nouveau record
   //                 éclectique d'ÉQUIPE" (les 4 langues).
-  const APP_VERSION = "SuarPark - V02.001.014";
+  //   V02.001.015 — Nouveau fait marquant "🔥 Série en cours" dans "Faits marquants" : détecte
+  //                 automatiquement quand un joueur a amélioré son éclectique personnel sur au moins
+  //                 2 manches consécutives, et signale la série la plus longue en cours (calcul
+  //                 vérifié sur l'historique réel de Marcus à la demande du Directeur de session :
+  //                 série passée de 8 manches en juin-août 2026, série actuelle de 1 seule pour le
+  //                 moment — n'affiche donc rien pour lui tant qu'une 2e manche consécutive
+  //                 n'améliore pas son éclectique).
+  const APP_VERSION = "SuarPark - V02.001.015";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2188,6 +2195,8 @@
       insightEasiestHole: "😌 Trou le plus facile de l'équipe",
       insightHoleDesc: (h, par, avg) => `Trou ${h} (par ${par}) — moyenne d'équipe : ${avg}`,
       insightHotStreak: "🔥 En forme du moment",
+      insightEclecticStreak: "🔥 Série en cours",
+      insightEclecticStreakDesc: (name, streak) => `${name} a amélioré son éclectique personnel ${streak} manches consécutives de suite !`,
       insightHotStreakDesc: (n, avg) => `${n} — moyenne de ${avg} pts sur ses 5 dernières manches`,
       insightMostRounds: "🗓️ Le plus assidu",
       insightMostRoundsDesc: (n, count) => `${n} — ${count} manches enregistrées`,
@@ -2474,6 +2483,8 @@
       insightEasiestHole: "😌 Team's easiest hole",
       insightHoleDesc: (h, par, avg) => `Hole ${h} (par ${par}) — team average: ${avg}`,
       insightHotStreak: "🔥 In current form",
+      insightEclecticStreak: "🔥 Current streak",
+      insightEclecticStreakDesc: (name, streak) => `${name} has improved their personal eclectic for ${streak} rounds in a row!`,
       insightHotStreakDesc: (n, avg) => `${n} — averaging ${avg} pts over their last 5 rounds`,
       insightMostRounds: "🗓️ Most dedicated",
       insightMostRoundsDesc: (n, count) => `${n} — ${count} rounds recorded`,
@@ -2760,6 +2771,8 @@
       insightEasiestHole: "😌 Einfachstes Loch des Teams",
       insightHoleDesc: (h, par, avg) => `Loch ${h} (Par ${par}) — Team-Durchschnitt: ${avg}`,
       insightHotStreak: "🔥 Aktuell in Form",
+      insightEclecticStreak: "🔥 Aktuelle Serie",
+      insightEclecticStreakDesc: (name, streak) => `${name} hat sein persönliches Eklektik-Ergebnis ${streak} Runden in Folge verbessert!`,
       insightHotStreakDesc: (n, avg) => `${n} — Durchschnitt von ${avg} Punkten in den letzten 5 Runden`,
       insightMostRounds: "🗓️ Am fleißigsten",
       insightMostRoundsDesc: (n, count) => `${n} — ${count} erfasste Runden`,
@@ -3046,6 +3059,8 @@
       insightEasiestHole: "😌 หลุมที่ง่ายที่สุดของทีม",
       insightHoleDesc: (h, par, avg) => `หลุม ${h} (พาร์ ${par}) — ค่าเฉลี่ยของทีม: ${avg}`,
       insightHotStreak: "🔥 ฟอร์มกำลังดี",
+      insightEclecticStreak: "🔥 สตรีคต่อเนื่อง",
+      insightEclecticStreakDesc: (name, streak) => `${name} ทำสถิติเอคเลกติกส่วนตัวดีขึ้นต่อเนื่อง ${streak} รอบติดต่อกัน!`,
       insightHotStreakDesc: (n, avg) => `${n} — เฉลี่ย ${avg} แต้ม จาก 5 รอบล่าสุด`,
       insightMostRounds: "🗓️ ขยันที่สุด",
       insightMostRoundsDesc: (n, count) => `${n} — บันทึกไว้ ${count} รอบ`,
@@ -4560,6 +4575,45 @@
       }
     });
 
+    // Série en cours : nombre de manches CONSÉCUTIVES (en partant de la plus récente et en
+    // remontant) où le joueur a amélioré son éclectique personnel sur au moins un trou. S'arrête
+    // dès qu'une manche n'améliore rien. Seules les séries de 2 ou plus méritent d'être signalées
+    // (à la demande du Directeur de session). En cas d'égalité entre plusieurs joueurs, on retient
+    // la série la plus longue ; à longueur égale, celle dont la dernière manche est la plus récente.
+    let eclecticStreak = null;
+    players.forEach(name => {
+      const rounds = (insightsHistoryFor(name) || []).slice().sort((a,b) => new Date(frToIso(a[0])) - new Date(frToIso(b[0])));
+      if (rounds.length < 2) return;
+      const before = Array(18).fill(null);
+      const improved = [];
+      rounds.forEach(([date, scores], idx) => {
+        let didImprove = false;
+        if (idx > 0){
+          scores.forEach((s, h) => {
+            const n = Number(s);
+            if (s !== "" && s !== null && s !== undefined && !isNaN(n) && before[h] !== null && n < before[h]) didImprove = true;
+          });
+        }
+        improved.push({date, didImprove});
+        scores.forEach((s, h) => {
+          const n = Number(s);
+          if (s !== "" && s !== null && s !== undefined && !isNaN(n) && (before[h] === null || n < before[h])) before[h] = n;
+        });
+      });
+      let streak = 0;
+      for (let i = improved.length - 1; i >= 1; i--){
+        if (improved[i].didImprove) streak++;
+        else break;
+      }
+      if (streak >= 2){
+        const lastDate = rounds[rounds.length - 1][0];
+        if (eclecticStreak === null || streak > eclecticStreak.streak ||
+            (streak === eclecticStreak.streak && new Date(frToIso(lastDate)) > new Date(frToIso(eclecticStreak.date)))){
+          eclecticStreak = {name, streak, date: lastDate};
+        }
+      }
+    });
+
     // Most consistent (lowest stddev of totals), min 3 rounds
     let mostConsistent = null;
     players.forEach(name => {
@@ -4731,6 +4785,7 @@
     if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
     if (biggestImprovement && biggestImprovement.improvement > 0) html += card(t('insightBiggestImprovement'), t('insightImprovementDesc', biggestImprovement.name, biggestImprovement.from, biggestImprovement.to), colorFor(biggestImprovement.name));
     if (hotStreak) html += card(t('insightHotStreak'), t('insightHotStreakDesc', hotStreak.name, hotStreak.avg), colorFor(hotStreak.name));
+    if (eclecticStreak) html += card(t('insightEclecticStreak'), t('insightEclecticStreakDesc', eclecticStreak.name, eclecticStreak.streak), colorFor(eclecticStreak.name));
     if (mostRounds) html += card(t('insightMostRounds'), t('insightMostRoundsDesc', mostRounds.name, mostRounds.count), colorFor(mostRounds.name));
     if (holeCounts[easiestHole] > 0) html += card(t('insightEasiestHole'), t('insightHoleDesc', easiestHole+1, PAR[easiestHole], holeAvgs[easiestHole].toFixed(1)), '#28a745');
     if (holeCounts[hardestHole] > 0) html += card(t('insightHardestHole'), t('insightHoleDesc', hardestHole+1, PAR[hardestHole], holeAvgs[hardestHole].toFixed(1)), '#DC3545');
