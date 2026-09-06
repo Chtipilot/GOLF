@@ -1680,7 +1680,8 @@
   //   V02.000.020 — "🗺️ Afficher le plan" et "⛳ Afficher le trou" déplacés juste sous le titre
   //                 "Carte de score" (au lieu du bas de la carte), et agrandis (15px, padding
   //                 12px) pour plus de visibilité — gagne de la place en bas, accès plus rapide.
-  const APP_VERSION = "SuarPark - V02.000.020";
+  //   V02.000.021 — Ordre inversé : "⛳ Afficher le trou" à gauche, "🗺️ Afficher le plan" à droite.
+  const APP_VERSION = "SuarPark - V02.000.021";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6830,8 +6831,8 @@
 
       <h3 style="margin:0 0 4px 0;">⛳ ${t('blankCardScorecardSectionTitle')}</h3>
       <div class="no-print" style="display:flex; gap:8px; margin:0 0 10px 0;">
-        <button type="button" class="btn btn-secondary" id="btnBlankCardMap" style="flex:1; font-size:15px; padding:12px 8px; margin:0;">🗺️ ${t('blankCardBtnShowMap')}</button>
         <button type="button" class="btn btn-secondary" id="btnBlankCardHoleView" style="flex:1; font-size:15px; padding:12px 8px; margin:0;">⛳ ${t('blankCardBtnShowHole')}</button>
+        <button type="button" class="btn btn-secondary" id="btnBlankCardMap" style="flex:1; font-size:15px; padding:12px 8px; margin:0;">🗺️ ${t('blankCardBtnShowMap')}</button>
       </div>
 
       <div class="blankcard-header-row" style="align-items:flex-start;">
