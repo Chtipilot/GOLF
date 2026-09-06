@@ -48,22 +48,14 @@
      chargement de la page (pas de "infinite"), la dernière étape du keyframe reste l'état final
      affiché indéfiniment. */
   @keyframes neonSignOn {
-    0%       { opacity:.19; text-shadow:0 0 .6px #fff, 0 0 1.4px #ffd766, 0 0 2.4px #ffb300; }
-    1.2069%  { opacity:.08; text-shadow:none; }
-    7.7586%  { opacity:.325; text-shadow:0 0 1.5px #fff, 0 0 3.5px #ffd766, 0 0 6px #ffb300; }
-    9.3103%  { opacity:.08; text-shadow:none; }
-    17.931%  { opacity:.325; text-shadow:0 0 1.5px #fff, 0 0 3.5px #ffd766, 0 0 6px #ffb300; }
-    19.4828% { opacity:.08; text-shadow:none; }
-    28.1034% { opacity:.55; text-shadow:0 0 3px #fff, 0 0 7px #ffd766, 0 0 12px #ffb300; }
-    30.1724% { opacity:.08; text-shadow:none; }
-    42.2414% { opacity:.775; text-shadow:0 0 4.5px #fff, 0 0 10.5px #ffd766, 0 0 18px #ffb300; }
-    44.8276% { opacity:.08; text-shadow:none; }
-    55.1724% { opacity:.775; text-shadow:0 0 4.5px #fff, 0 0 10.5px #ffd766, 0 0 18px #ffb300; }
-    57.7586% { opacity:.08; text-shadow:none; }
-    68.1034% { opacity:.46; text-shadow:0 0 2.4px #fff, 0 0 5.6px #ffd766, 0 0 9.6px #ffb300; }
-    71.5517% { opacity:.08; text-shadow:none; }
-    85.3448% { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
-    92.2414% { opacity:.08; text-shadow:none; }
+    0%       { opacity:0.28; text-shadow:0 0 1.2px #fff, 0 0 2.8px #ffd766, 0 0 4.8px #ffb300; }
+    2%       { opacity:.08; text-shadow:none; }
+    19.5%    { opacity:0.505; text-shadow:0 0 2.7px #fff, 0 0 6.3px #ffd766, 0 0 10.8px #ffb300; }
+    22%      { opacity:.08; text-shadow:none; }
+    43.25%   { opacity:0.73; text-shadow:0 0 4.2px #fff, 0 0 9.8px #ffd766, 0 0 16.8px #ffb300; }
+    46.5%    { opacity:.08; text-shadow:none; }
+    70.25%   { opacity:1; text-shadow:0 0 6px #fff, 0 0 14px #ffd766, 0 0 24px #ffb300; }
+    75.25%   { opacity:.08; text-shadow:none; }
     100% {
       opacity:1;
       text-shadow:
@@ -71,7 +63,7 @@
         1px 1px 0 #b8860b, 2px 2px 0 #b8860b, 3px 3px 0 #8a6d1f, 4px 4px 6px rgba(0,0,0,0.55);
     }
   }
-  #neonTitle { display:inline-block; animation: neonSignOn 5.8s steps(1) 1 both; }
+  #neonTitle { display:inline-block; animation: neonSignOn 4s steps(1) 1 both; }
   #app .btn { background:var(--green-deep); color:#fff; border:none; border-radius:9px; padding:8px 14px; font-size:12px; cursor:pointer; margin:3px 4px 3px 0; box-shadow:0 3px 0 rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.2); transition:background 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease; min-height:38px; }
   #app .btn:hover { background:var(--green-mid); }
   #app .btn:active { transform:translateY(3px); box-shadow:0 0 0 rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15); }
@@ -1622,7 +1614,16 @@
   //                 texte apparaissait noir sur fond vert foncé, illisible — probablement un
   //                 comportement par défaut du navigateur sur l'état désactivé). (2) Bouton renommé
   //                 "👉 Clique, le trou est fini" (les 4 langues), plus explicite que "✓ Valider".
-  const APP_VERSION = "SuarPark - V02.000.012";
+  //   V02.000.013 — Règle "trou en un" : si un seul coup a été cliqué avant "⛳ Green atteint", c'est
+  //                 un score de 1 sur le trou — par définition un trou en un (aucune combinaison de
+  //                 putts n'aurait de sens). Dans ce cas : 0 putt forcé automatiquement dans le
+  //                 champ, et le compteur de putts n'affiche même plus les autres choix (0-5), juste
+  //                 un message "🎉 Trou en un !" — modification impossible tant que 1 seul coup est
+  //                 enregistré. Dès qu'un 2e coup est ajouté (après annulation du "Green atteint"),
+  //                 le compteur normal revient.
+  //   V02.000.014 — Effet néon simplifié à la demande du Directeur de session : 4 flashs (au lieu de
+  //                 12), toujours calés sur exactement 4 secondes, puissance croissante 20%→100%.
+  const APP_VERSION = "SuarPark - V02.000.014";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1938,6 +1939,8 @@
       holeViewBtnGreenUndo: "Annuler « Green atteint »",
       holeViewGreenReachedBadge: "Green atteint — comptage des putts",
       holeViewPuttCounterTitle: "Nombre de putts sur ce trou :",
+      holeViewAceLabel: "Trou en un !",
+      holeViewAceHint: "0 putt (score = 1 coup) — non modifiable.",
       holeViewGeoOkTitle: "✅ GPS ok, départ marqué",
       holeViewGeoRecaptured: "Position du départ mise à jour.",
       shotReplayHint: "Revoir les coups (lecture seule) — enregistré sur cet appareil au moment du jeu.",
@@ -2209,6 +2212,8 @@
       holeViewBtnGreenUndo: "Undo \"Green reached\"",
       holeViewGreenReachedBadge: "Green reached — counting putts",
       holeViewPuttCounterTitle: "Number of putts on this hole:",
+      holeViewAceLabel: "Hole in one!",
+      holeViewAceHint: "0 putts (score = 1 stroke) — cannot be changed.",
       holeViewGeoOkTitle: "✅ GPS ok, tee marked",
       holeViewGeoRecaptured: "Tee position updated.",
       shotReplayHint: "Replay of shots (read-only) — recorded on this device while playing.",
@@ -2480,6 +2485,8 @@
       holeViewBtnGreenUndo: "«Green erreicht» rückgängig machen",
       holeViewGreenReachedBadge: "Green erreicht — Putts werden gezählt",
       holeViewPuttCounterTitle: "Anzahl Putts an diesem Loch:",
+      holeViewAceLabel: "Hole in One!",
+      holeViewAceHint: "0 Putts (Score = 1 Schlag) — nicht änderbar.",
       holeViewGeoOkTitle: "✅ GPS ok, Abschlag markiert",
       holeViewGeoRecaptured: "Abschlagposition aktualisiert.",
       shotReplayHint: "Schläge ansehen (nur Lesen) — auf diesem Gerät beim Spielen erfasst.",
@@ -2751,6 +2758,8 @@
       holeViewBtnGreenUndo: "ยกเลิก \"ถึงกรีนแล้ว\"",
       holeViewGreenReachedBadge: "ถึงกรีนแล้ว — กำลังนับพัตต์",
       holeViewPuttCounterTitle: "จำนวนพัตต์ในหลุมนี้:",
+      holeViewAceLabel: "โฮลอินวัน!",
+      holeViewAceHint: "0 พัตต์ (สกอร์ = 1 สโตรก) — เปลี่ยนแปลงไม่ได้",
       holeViewGeoOkTitle: "✅ GPS พร้อม บันทึกจุดทีออฟแล้ว",
       holeViewGeoRecaptured: "อัปเดตตำแหน่งจุดทีออฟแล้ว",
       shotReplayHint: "ดูช็อตย้อนหลัง (อ่านอย่างเดียว) — บันทึกไว้บนอุปกรณ์นี้ขณะเล่น",
@@ -4758,7 +4767,18 @@
 
   // Compteur de putts à tap rapide (0 à 5+), affiché une fois "⛳ Green atteint" pressé — pas de
   // clavier à faire apparaître, adapté à une utilisation sur le terrain d'une seule main.
+  // Un seul coup avant "Green atteint" = score de 1 sur le trou = trou en un PAR DÉFINITION
+  // (aucune combinaison de putts n'aurait de sens sinon) — 0 putt forcé, non modifiable, à la
+  // demande du Directeur de session.
   function holeViewPuttCounterHTML(holeIdx, currentPutts){
+    const isAce = (holeViewShotPoints || []).length === 1;
+    if (isAce){
+      return `
+        <div style="margin-top:2px; text-align:center;">
+          <div style="font-size:13px; font-weight:900; color:#ffd700;">🎉 ${t('holeViewAceLabel')}</div>
+          <div style="font-size:11px; opacity:.85; margin-top:2px;">${t('holeViewAceHint')}</div>
+        </div>`;
+    }
     const current = currentPutts === '' ? null : Number(currentPutts);
     const options = [0,1,2,3,4,5];
     const buttons = options.map(n => `<button type="button" class="btn btn-secondary no-print holeview-putt-btn" data-putt="${n}" style="flex:1; margin:0; padding:8px 4px; font-size:14px; font-weight:900; ${current===n ? 'background:#2E7D32; color:#fff;' : ''}">${n===5 ? '5+' : n}</button>`).join('');
@@ -5983,6 +6003,12 @@
       const lastIdx = holeViewShotPoints.length - 1;
       const last = holeViewShotPoints[lastIdx];
       if (!hasGeo(last) && !last.geoPending) captureGeo(() => holeViewShotPoints[lastIdx], holeIdx);
+      // Trou en un (1 seul coup) : force 0 putt directement dans le champ, non modifiable (voir
+      // holeViewPuttCounterHTML qui n'affiche même plus les autres choix dans ce cas).
+      if (holeViewShotPoints.length === 1){
+        const puttInp = document.getElementById(`bcPutt-${holeIdx}`);
+        if (puttInp){ puttInp.value = '0'; blankCardComputeTotals(); blankCardOnHoleInput(holeIdx); }
+      }
     }
     persistBlankCardDraft();
     renderHoleView(holeIdx);
