@@ -1760,7 +1760,13 @@
   //                 vraies données (plutôt que la simulation manuelle faite juste avant). Historique
   //                 et shot-history-data.js mis à jour en conséquence — reste exclu de "Faits
   //                 marquants" comme toujours (identité de test).
-  const APP_VERSION = "SuarPark - V02.001.009";
+  //   V02.001.010 — Éclectique d'équipe : nouvelle ligne "🏅 ÉQUIPE" dans "🏆 Afficher l'éclectique",
+  //                 montrant le meilleur score jamais réalisé sur CHAQUE trou par n'importe quel
+  //                 joueur (survol d'une case pour voir qui détient le record). Nouveau fait
+  //                 marquant "🏆🏅 Nouveau record éclectique d'ÉQUIPE" dans "Faits marquants" : si la
+  //                 dernière manche jouée fait baisser ce record d'équipe sur un trou, c'est signalé
+  //                 séparément du record individuel classique.
+  const APP_VERSION = "SuarPark - V02.001.010";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -1987,6 +1993,7 @@
       noRoundsRecorded: "Aucune manche enregistrée.",
       eclecticTitle: "🏆 Scores éclectiques",
       eclecticSubtitle: "Meilleur score par trou, toutes manches confondues",
+      eclecticTeamRow: "🏅 ÉQUIPE",
       statsTitle: "📊 Statistiques des joueurs",
       progressionSubtitle: "Évolution du score total par manche",
       holesSubtitle: "Score moyen par trou (barres) vs distance (ligne)",
@@ -2142,6 +2149,8 @@
       insightBestRoundEver: "🏅 Meilleure manche all-time",
       insightBestPuttsEver: "🎯 Record de putts all-time",
       insightBestEclecticEver: "🏆 Nouveau record éclectique",
+      insightBestTeamEclecticEver: "🏆🏅 Nouveau record éclectique d'ÉQUIPE",
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} a amélioré le record de l'équipe au trou ${hole} : ${oldScore} → ${newScore} le ${date}`,
       insightUnluckyOfDay: "🍀 Malchanceux du jour",
       insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} pénalité${count>1?'s':''} 😅 (probablement autant de balles perdues... appel du joueur au don de balle !)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
@@ -2270,6 +2279,7 @@
       noRoundsRecorded: "No rounds recorded.",
       eclecticTitle: "🏆 Eclectic scores",
       eclecticSubtitle: "Best score per hole, across all rounds",
+      eclecticTeamRow: "🏅 TEAM",
       statsTitle: "📊 Player statistics",
       progressionSubtitle: "Total score progression per round",
       holesSubtitle: "Average score per hole (bars) vs distance (line)",
@@ -2425,6 +2435,8 @@
       insightBestRoundEver: "🏅 Best round all-time",
       insightBestPuttsEver: "🎯 All-time putts record",
       insightBestEclecticEver: "🏆 New eclectic record",
+      insightBestTeamEclecticEver: "🏆🏅 New TEAM eclectic record",
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} improved the team record on hole ${hole}: ${oldScore} → ${newScore} on ${date}`,
       insightUnluckyOfDay: "🍀 Unlucky of the day",
       insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} penalt${count>1?'ies':'y'} 😅 (probably just as many lost balls... calling for ball donations!)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
@@ -2553,6 +2565,7 @@
       noRoundsRecorded: "Keine Runden erfasst.",
       eclecticTitle: "🏆 Eclectic-Ergebnisse",
       eclecticSubtitle: "Bestes Ergebnis pro Loch, über alle Runden",
+      eclecticTeamRow: "🏅 TEAM",
       statsTitle: "📊 Spielerstatistiken",
       progressionSubtitle: "Entwicklung des Gesamtergebnisses pro Runde",
       holesSubtitle: "Durchschnittliches Ergebnis pro Loch (Balken) vs. Distanz (Linie)",
@@ -2708,6 +2721,8 @@
       insightBestRoundEver: "🏅 Beste Runde aller Zeiten",
       insightBestPuttsEver: "🎯 Putt-Rekord aller Zeiten",
       insightBestEclecticEver: "🏆 Neuer Eklektik-Rekord",
+      insightBestTeamEclecticEver: "🏆🏅 Neuer TEAM-Eklektik-Rekord",
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} hat den Team-Rekord an Loch ${hole} verbessert: ${oldScore} → ${newScore} am ${date}`,
       insightUnluckyOfDay: "🍀 Pechvogel des Tages",
       insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} Strafschlag${count>1?'e':''} 😅 (wahrscheinlich genauso viele verlorene Bälle... Ballspende dringend gesucht!)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
@@ -2836,6 +2851,7 @@
       noRoundsRecorded: "ยังไม่มีการบันทึกรอบ",
       eclecticTitle: "🏆 สกอร์ Eclectic",
       eclecticSubtitle: "สกอร์ที่ดีที่สุดต่อหลุม จากทุกรอบที่เล่น",
+      eclecticTeamRow: "🏅 ทีม",
       statsTitle: "📊 สถิติผู้เล่น",
       progressionSubtitle: "พัฒนาการของสกอร์รวมในแต่ละรอบ",
       holesSubtitle: "สกอร์เฉลี่ยต่อหลุม (แท่ง) เทียบกับระยะทาง (เส้น)",
@@ -2991,6 +3007,8 @@
       insightBestRoundEver: "🏅 รอบที่ดีที่สุดตลอดกาล",
       insightBestPuttsEver: "🎯 สถิติพัตต์ตลอดกาล",
       insightBestEclecticEver: "🏆 สถิติเอคเลกติกใหม่",
+      insightBestTeamEclecticEver: "🏆🏅 สถิติเอคเลกติกทีมใหม่",
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} ทำลายสถิติทีมที่หลุม ${hole}: ${oldScore} → ${newScore} เมื่อ ${date}`,
       insightUnluckyOfDay: "🍀 ผู้โชคร้ายประจำวัน",
       insightUnluckyOfDayDesc: (name, count) => `${name} — โดนโทษ ${count} ครั้ง 😅 (คงเสียลูกไปพอๆ กัน... ขอรับบริจาคลูกกอล์ฟด่วน!)`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
@@ -4108,6 +4126,8 @@
   function renderEclectic(){
     const container = document.getElementById('eclecticSection');
     let rows = "";
+    const teamBest = Array(18).fill(null);
+    const teamBestBy = Array(18).fill(null); // qui détient ce record, pour l'info-bulle
     STATS_PLAYERS.forEach((name, i) => {
       const rounds = state.history[name] || [];
       let best = Array(18).fill(null);
@@ -4115,6 +4135,11 @@
         scores.forEach((s, h) => {
           if (best[h] === null || s < best[h]) best[h] = s;
         });
+      });
+      best.forEach((s, h) => {
+        if (s !== null && (teamBest[h] === null || s < teamBest[h])){
+          teamBest[h] = s; teamBestBy[h] = name;
+        }
       });
       if (rounds.length === 0){
         rows += `<tr style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
@@ -4133,6 +4158,20 @@
         <td style="font-weight:bold; background:#e8f0ee;">${tot}</td>
       </tr>`;
     });
+    // Ligne "Équipe" : le meilleur score jamais réalisé sur CHAQUE trou, tous joueurs confondus —
+    // le "trou de rêve" de l'équipe entière, pas juste d'un joueur. Info-bulle indiquant qui détient
+    // le record sur chaque trou.
+    const hasAnyTeamBest = teamBest.some(s => s !== null);
+    if (hasAnyTeamBest){
+      const {out, inn, tot} = computeOutInTot(teamBest);
+      rows += `<tr style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border-top:2px solid var(--sand);">
+        <td style="text-align:left; padding-left:4px; font-weight:900; color:#8a6d1f;">${t('eclecticTeamRow')}</td>
+        ${teamBest.map((s,h)=>{ const c=scoreColor(s,h); return `<td title="${teamBestBy[h]||''}" style="background:${c.bg}; color:${c.fg}; font-weight:900;">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
+        <td style="font-weight:900; background:#f1e6cc;">${out}</td>
+        <td style="font-weight:900; background:#f1e6cc;">${inn}</td>
+        <td style="font-weight:900; background:#f1e6cc;">${tot}</td>
+      </tr>`;
+    }
     container.innerHTML = `<h3>${t('eclecticTitle')}</h3><p class="sub">${t('eclecticSubtitle')}</p>` +
       scorecardTableHTML("eclectic", rows, parHeaderRowDark(), "Hole");
   }
@@ -4588,6 +4627,40 @@
       });
     });
     const podiumDate = insightsSelectedDate || latestDate;
+    // Nouveau record éclectique D'ÉQUIPE : compare la dernière manche jouée (podiumDate, tous
+    // joueurs confondus ce jour-là) à l'éclectique d'ÉQUIPE calculé SANS cette date — si elle fait
+    // baisser le meilleur score jamais réalisé sur un trou par N'IMPORTE QUEL joueur, c'est un
+    // nouveau record d'équipe, pas juste un record personnel.
+    let newTeamEclecticRecord = null;
+    if (podiumDate){
+      const beforeTeam = Array(18).fill(null);
+      players.forEach(name => {
+        insightsHistoryFor(name).forEach(([date, scores]) => {
+          if (date === podiumDate) return;
+          scores.forEach((s, h) => {
+            const n = Number(s);
+            if (s !== "" && s !== null && s !== undefined && !isNaN(n) && (beforeTeam[h] === null || n < beforeTeam[h])) beforeTeam[h] = n;
+          });
+        });
+      });
+      let bestTeamGain = null;
+      players.forEach(name => {
+        insightsHistoryFor(name).forEach(([date, scores]) => {
+          if (date !== podiumDate) return;
+          scores.forEach((s, h) => {
+            const n = Number(s);
+            if (s === "" || s === null || s === undefined || isNaN(n)) return;
+            if (beforeTeam[h] === null || n < beforeTeam[h]){
+              const gain = beforeTeam[h] === null ? null : beforeTeam[h] - n;
+              if (bestTeamGain === null || (gain !== null && (bestTeamGain.gain === null || gain > bestTeamGain.gain))){
+                bestTeamGain = {hole: h, oldScore: beforeTeam[h], newScore: n, gain, name};
+              }
+            }
+          });
+        });
+      });
+      if (bestTeamGain) newTeamEclecticRecord = {name: bestTeamGain.name, date: podiumDate, hole: bestTeamGain.hole, oldScore: bestTeamGain.oldScore, newScore: bestTeamGain.newScore};
+    }
     if (podiumDate){
       let dayScoreWinner = null, dayPuttsWinner = null, dayPenaltyLoser = null;
       players.forEach(name => {
@@ -4607,6 +4680,7 @@
       });
       if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null, dayPenaltyLoser);
     }
+    if (newTeamEclecticRecord) html += card(t('insightBestTeamEclecticEver'), t('insightNewTeamEclecticRecordDesc', newTeamEclecticRecord.name, newTeamEclecticRecord.hole+1, newTeamEclecticRecord.oldScore, newTeamEclecticRecord.newScore, newTeamEclecticRecord.date), '#B8860B');
 
     // Faits marquants classés du plus positif au moins positif.
     if (newEclecticRecord && newEclecticRecord.date !== podiumDate) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
