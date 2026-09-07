@@ -1815,7 +1815,19 @@
   //   V02.001.021 — Titre de l'encadré renommé "🏆 Vainqueurs du jour" → "🏆 Faits du jour" (les 4
   //                 langues) — plus juste maintenant que l'encadré contient bien plus que les
   //                 vainqueurs (éclectique, malchanceux, plus long coup).
-  const APP_VERSION = "SuarPark - V02.001.021";
+  //   V02.001.022 — 4 nouveaux faits ajoutés dans l'encadré "Faits du jour", à la demande du
+  //                 Directeur de session : 🎉 Trou en un du jour, 🏆 Meilleur score PERSONNEL jamais
+  //                 réalisé (record de manche complète, distinct de l'éclectique par trou), 🎯 Trou
+  //                 du jour (celui où l'équipe s'en sort le mieux par rapport au par, en moyenne),
+  //                 👥 Nombre de joueurs ce jour-là (affiché en sous-titre de l'encadré).
+  //   V02.001.023 — La carte "🏆🏅 Nouveau record éclectique d'ÉQUIPE" affiche désormais aussi le
+  //                 score total de l'éclectique d'équipe APRÈS cette amélioration (somme des 18
+  //                 meilleurs scores par trou, tous joueurs confondus), pas juste le gain sur le
+  //                 trou concerné.
+  //   V02.001.024 — Fusionné en une seule phrase (au lieu de deux lignes séparées) : "PATRICK a
+  //                 amélioré le record de l'équipe au trou X : A → B le DATE, score éclectique de
+  //                 l'équipe désormais : XX" — les 4 langues.
+  const APP_VERSION = "SuarPark - V02.001.024";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2199,9 +2211,17 @@
       insightBestPuttsEver: "🎯 Record de putts all-time",
       insightBestEclecticEver: "🏆 Nouveau record éclectique PERSONNEL",
       insightBestTeamEclecticEver: "🏆🏅 Nouveau record éclectique d'ÉQUIPE",
-      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} a amélioré le record de l'équipe au trou ${hole} : ${oldScore} → ${newScore} le ${date}`,
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date, teamTotal) => `${name} a amélioré le record de l'équipe au trou ${hole} : ${oldScore} → ${newScore} le ${date}${teamTotal !== null && teamTotal !== undefined ? `, score éclectique de l'équipe désormais : ${teamTotal}` : ''}`,
+      insightTeamEclecticTotalNow: (total) => `🏅 Score éclectique de l'ÉQUIPE désormais : ${total}`,
       insightUnluckyOfDay: "🍀 Malchanceux du jour",
       insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} pénalité${count>1?'s':''} 😅 (probablement autant de balles perdues... appel du joueur au don de balle !)`,
+      insightDayPlayerCount: (count) => `${count} joueur${count>1?'s':''} sur le parcours ce jour-là`,
+      insightAceOfDay: "🎉 TROU EN UN DU JOUR",
+      insightAceOfDayDesc: (name, hole) => `${name} — trou ${hole} !`,
+      insightPersonalBestOfDay: "🏆 Meilleur score personnel jamais réalisé",
+      insightPersonalBestOfDayDesc: (name, oldTot, newTot) => `${name} — ${oldTot} → ${newTot}`,
+      insightHoleOfDay: "🎯 Trou du jour",
+      insightHoleOfDayDesc: (hole) => `Trou ${hole} : le trou où l'équipe s'en est le mieux sortie par rapport au par`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Trou ${hole} : premier score enregistré (${newS}) le ${date}`
         : `${name} — Trou ${hole} : ${oldS} → ${newS} le ${date}`,
@@ -2488,9 +2508,17 @@
       insightBestPuttsEver: "🎯 All-time putts record",
       insightBestEclecticEver: "🏆 New PERSONAL eclectic record",
       insightBestTeamEclecticEver: "🏆🏅 New TEAM eclectic record",
-      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} improved the team record on hole ${hole}: ${oldScore} → ${newScore} on ${date}`,
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date, teamTotal) => `${name} improved the team record on hole ${hole}: ${oldScore} → ${newScore} on ${date}${teamTotal !== null && teamTotal !== undefined ? `, team eclectic score now: ${teamTotal}` : ''}`,
+      insightTeamEclecticTotalNow: (total) => `🏅 TEAM eclectic score now: ${total}`,
       insightUnluckyOfDay: "🍀 Unlucky of the day",
       insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} penalt${count>1?'ies':'y'} 😅 (probably just as many lost balls... calling for ball donations!)`,
+      insightDayPlayerCount: (count) => `${count} player${count>1?'s':''} on the course that day`,
+      insightAceOfDay: "🎉 HOLE-IN-ONE OF THE DAY",
+      insightAceOfDayDesc: (name, hole) => `${name} — hole ${hole}!`,
+      insightPersonalBestOfDay: "🏆 New personal best round ever",
+      insightPersonalBestOfDayDesc: (name, oldTot, newTot) => `${name} — ${oldTot} → ${newTot}`,
+      insightHoleOfDay: "🎯 Hole of the day",
+      insightHoleOfDayDesc: (hole) => `Hole ${hole}: the hole where the team fared best relative to par`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Hole ${hole}: first score recorded (${newS}) on ${date}`
         : `${name} — Hole ${hole}: ${oldS} → ${newS} on ${date}`,
@@ -2777,9 +2805,17 @@
       insightBestPuttsEver: "🎯 Putt-Rekord aller Zeiten",
       insightBestEclecticEver: "🏆 Neuer PERSÖNLICHER Eklektik-Rekord",
       insightBestTeamEclecticEver: "🏆🏅 Neuer TEAM-Eklektik-Rekord",
-      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} hat den Team-Rekord an Loch ${hole} verbessert: ${oldScore} → ${newScore} am ${date}`,
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date, teamTotal) => `${name} hat den Team-Rekord an Loch ${hole} verbessert: ${oldScore} → ${newScore} am ${date}${teamTotal !== null && teamTotal !== undefined ? `, Team-Eklektik-Score jetzt: ${teamTotal}` : ''}`,
+      insightTeamEclecticTotalNow: (total) => `🏅 TEAM-Eklektik-Score jetzt: ${total}`,
       insightUnluckyOfDay: "🍀 Pechvogel des Tages",
       insightUnluckyOfDayDesc: (name, count) => `${name} — ${count} Strafschlag${count>1?'e':''} 😅 (wahrscheinlich genauso viele verlorene Bälle... Ballspende dringend gesucht!)`,
+      insightDayPlayerCount: (count) => `${count} Spieler${count>1?'':''} an diesem Tag auf dem Platz`,
+      insightAceOfDay: "🎉 HOLE-IN-ONE DES TAGES",
+      insightAceOfDayDesc: (name, hole) => `${name} — Loch ${hole}!`,
+      insightPersonalBestOfDay: "🏆 Neue persönliche Bestrunde",
+      insightPersonalBestOfDayDesc: (name, oldTot, newTot) => `${name} — ${oldTot} → ${newTot}`,
+      insightHoleOfDay: "🎯 Loch des Tages",
+      insightHoleOfDayDesc: (hole) => `Loch ${hole}: das Loch, an dem das Team im Verhältnis zum Par am besten abgeschnitten hat`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Loch ${hole}: erster erfasster Score (${newS}) am ${date}`
         : `${name} — Loch ${hole}: ${oldS} → ${newS} am ${date}`,
@@ -3066,9 +3102,17 @@
       insightBestPuttsEver: "🎯 สถิติพัตต์ตลอดกาล",
       insightBestEclecticEver: "🏆 สถิติเอคเลกติกส่วนตัวใหม่",
       insightBestTeamEclecticEver: "🏆🏅 สถิติเอคเลกติกทีมใหม่",
-      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date) => `${name} ทำลายสถิติทีมที่หลุม ${hole}: ${oldScore} → ${newScore} เมื่อ ${date}`,
+      insightNewTeamEclecticRecordDesc: (name, hole, oldScore, newScore, date, teamTotal) => `${name} ทำลายสถิติทีมที่หลุม ${hole}: ${oldScore} → ${newScore} เมื่อ ${date}${teamTotal !== null && teamTotal !== undefined ? `, คะแนนเอคเลกติกของทีมตอนนี้: ${teamTotal}` : ''}`,
+      insightTeamEclecticTotalNow: (total) => `🏅 คะแนนเอคเลกติกของทีมตอนนี้: ${total}`,
       insightUnluckyOfDay: "🍀 ผู้โชคร้ายประจำวัน",
       insightUnluckyOfDayDesc: (name, count) => `${name} — โดนโทษ ${count} ครั้ง 😅 (คงเสียลูกไปพอๆ กัน... ขอรับบริจาคลูกกอล์ฟด่วน!)`,
+      insightDayPlayerCount: (count) => `${count} ผู้เล่นลงสนามวันนั้น`,
+      insightAceOfDay: "🎉 โฮลอินวันประจำวัน",
+      insightAceOfDayDesc: (name, hole) => `${name} — หลุม ${hole}!`,
+      insightPersonalBestOfDay: "🏆 สถิติรอบส่วนตัวใหม่",
+      insightPersonalBestOfDayDesc: (name, oldTot, newTot) => `${name} — ${oldTot} → ${newTot}`,
+      insightHoleOfDay: "🎯 หลุมแห่งวัน",
+      insightHoleOfDayDesc: (hole) => `หลุม ${hole}: หลุมที่ทีมทำผลงานเทียบกับพาร์ได้ดีที่สุด`,
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — หลุม ${hole}: บันทึกคะแนนแรก (${newS}) เมื่อ ${date}`
         : `${name} — หลุม ${hole}: ${oldS} → ${newS} เมื่อ ${date}`,
@@ -4715,10 +4759,15 @@
 
     // Carte "honneur" : vainqueurs du jour (score ET putts) encadrés ensemble, mis en valeur
     // au-dessus des autres faits marquants (fond doré, bordure dorée, mise en avant visuelle).
-    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate, eclecticInfo, penaltyLoser) => `
+    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate, eclecticInfo, penaltyLoser, ace, personalBest, bestHole, playerCount) => `
       <div style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border:2px solid var(--sand); border-radius:10px; padding:14px 16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(201,166,104,0.35);">
-        <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:${isCustomDate ? '2px' : '10px'}; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
+        <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:2px; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
+        ${playerCount ? `<div style="font-size:11px; color:#a68a3d; text-align:center; margin-bottom:${isCustomDate ? '2px' : '8px'};">${t('insightDayPlayerCount', playerCount)}</div>` : ''}
         ${isCustomDate ? `<div style="text-align:center; margin-bottom:8px;"><button type="button" id="btnInsightsResetDate" class="btn btn-secondary no-print" style="font-size:10px; padding:2px 10px; margin:0;">${t('insightBackToLatest')}</button></div>` : ''}
+        ${ace ? `<div style="text-align:center; margin-bottom:10px; background:#fff3c4; border:1px solid #d4af37; border-radius:8px; padding:6px 10px;">
+          <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightAceOfDay')}</div>
+          <div style="font-size:14px; font-weight:900; color:${colorFor(ace.name)};">${t('insightAceOfDayDesc', ace.name, ace.hole+1)}</div>
+        </div>` : ''}
         <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
           ${scoreWinner ? `<div style="text-align:center; min-width:130px;">
             <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightDayWinnerScore')}</div>
@@ -4735,6 +4784,14 @@
         ${eclecticInfo ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightBestEclecticEver')}</div>
           <div style="font-size:13.5px; font-weight:700; color:${colorFor(eclecticInfo.name)};">${t('insightNewEclecticRecordDesc', eclecticInfo.name, eclecticInfo.hole+1, eclecticInfo.oldScore, eclecticInfo.newScore, eclecticInfo.date)}</div>
+        </div>` : ''}
+        ${personalBest ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
+          <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightPersonalBestOfDay')}</div>
+          <div style="font-size:13.5px; font-weight:700; color:${colorFor(personalBest.name)};">${t('insightPersonalBestOfDayDesc', personalBest.name, personalBest.oldTot, personalBest.tot)}</div>
+        </div>` : ''}
+        ${bestHole ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
+          <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightHoleOfDay')}</div>
+          <div style="font-size:13.5px; font-weight:700; color:#1a3c34;">${t('insightHoleOfDayDesc', bestHole.hole+1)}</div>
         </div>` : ''}
         ${penaltyLoser ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
           <div style="font-size:11px; color:#a23b3b; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightUnluckyOfDay')}</div>
@@ -4786,14 +4843,34 @@
           });
         });
       });
-      if (bestTeamGain) newTeamEclecticRecord = {name: bestTeamGain.name, date: podiumDate, hole: bestTeamGain.hole, oldScore: bestTeamGain.oldScore, newScore: bestTeamGain.newScore};
+      if (bestTeamGain){
+        // Total de l'éclectique d'équipe APRÈS cette amélioration : on reprend "beforeTeam" et on
+        // applique toutes les améliorations de podiumDate (pas juste le meilleur gain isolé, au cas
+        // où plusieurs trous auraient été améliorés le même jour).
+        const afterTeam = beforeTeam.slice();
+        players.forEach(name => {
+          insightsHistoryFor(name).forEach(([date, scores]) => {
+            if (date !== podiumDate) return;
+            scores.forEach((s, h) => {
+              const n = Number(s);
+              if (s !== "" && s !== null && s !== undefined && !isNaN(n) && (afterTeam[h] === null || n < afterTeam[h])) afterTeam[h] = n;
+            });
+          });
+        });
+        const teamTotal = afterTeam.some(v => v === null) ? null : afterTeam.reduce((a,b)=>a+b,0);
+        newTeamEclecticRecord = {name: bestTeamGain.name, date: podiumDate, hole: bestTeamGain.hole, oldScore: bestTeamGain.oldScore, newScore: bestTeamGain.newScore, teamTotal};
+      }
     }
     if (podiumDate){
       let dayScoreWinner = null, dayPuttsWinner = null, dayPenaltyLoser = null;
+      let dayAce = null, dayPersonalBest = null, dayPlayerCount = 0;
+      const holeDiffSums = Array(18).fill(0), holeDiffCounts = Array(18).fill(0);
       players.forEach(name => {
+        let playedToday = false;
         insightsHistoryFor(name).forEach(round => {
           const [date, scores] = round;
           if (date !== podiumDate) return;
+          playedToday = true;
           const tot = scores.reduce((a,b)=>a+b,0);
           if (dayScoreWinner === null || tot < dayScoreWinner.tot) dayScoreWinner = {name, tot};
           const puttsArr = roundPutts(round);
@@ -4803,14 +4880,44 @@
           // remplace ni ne concurrence les vrais faits marquants sportifs.
           const penaltiesTot = (round[2] || []).reduce((a,b)=>a+Number(b||0),0);
           if (penaltiesTot > 0 && (dayPenaltyLoser === null || penaltiesTot > dayPenaltyLoser.tot)) dayPenaltyLoser = {name, tot: penaltiesTot};
+          // "Trou en un du jour" : un score de 1 sur n'importe quel trou, ce jour-là.
+          scores.forEach((s, h) => { if (Number(s) === 1 && dayAce === null) dayAce = {name, hole: h}; });
+          // Cumul pour "Trou du jour" : moyenne (score - par) par trou, tous joueurs du jour confondus.
+          scores.forEach((s, h) => {
+            const n = Number(s);
+            if (s !== "" && s !== null && s !== undefined && !isNaN(n)){
+              holeDiffSums[h] += (n - PAR[h]); holeDiffCounts[h]++;
+            }
+          });
+          // "Meilleur score personnel jamais réalisé" : ce total bat-il tous les autres totaux DE
+          // CE JOUEUR (hors ce jour précis) ?
+          let priorBest = null;
+          insightsHistoryFor(name).forEach(([d2, s2]) => {
+            if (d2 === podiumDate) return;
+            const t2 = s2.reduce((a,b)=>a+b,0);
+            if (priorBest === null || t2 < priorBest) priorBest = t2;
+          });
+          if (priorBest !== null && tot < priorBest &&
+              (dayPersonalBest === null || (priorBest - tot) > (dayPersonalBest.oldTot - dayPersonalBest.tot))){
+            dayPersonalBest = {name, tot, oldTot: priorBest};
+          }
         });
+        if (playedToday) dayPlayerCount++;
       });
-      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null, dayPenaltyLoser);
+      // "Trou du jour" : la plus petite moyenne (score-par) parmi les trous joués par au moins un
+      // joueur ce jour-là — celui où l'équipe s'en est collectivement le mieux sortie.
+      let dayBestHole = null;
+      holeDiffCounts.forEach((count, h) => {
+        if (count === 0) return;
+        const avgDiff = holeDiffSums[h] / count;
+        if (dayBestHole === null || avgDiff < dayBestHole.avgDiff) dayBestHole = {hole: h, avgDiff};
+      });
+      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null, dayPenaltyLoser, dayAce, dayPersonalBest, dayBestHole, dayPlayerCount);
     }
     if (newTeamEclecticRecord) html += `
       <div class="team-record-blink" style="border-left:4px solid #B8860B; border-radius:6px; padding:10px 14px; margin-bottom:10px;">
         <div style="font-weight:bold; color:#1a3c34; margin-bottom:3px;">${t('insightBestTeamEclecticEver')}</div>
-        <div style="margin:0; font-size:15px; font-weight:700; color:#111;">${t('insightNewTeamEclecticRecordDesc', newTeamEclecticRecord.name, newTeamEclecticRecord.hole+1, newTeamEclecticRecord.oldScore, newTeamEclecticRecord.newScore, newTeamEclecticRecord.date)}</div>
+        <div style="margin:0; font-size:15px; font-weight:700; color:#111;">${t('insightNewTeamEclecticRecordDesc', newTeamEclecticRecord.name, newTeamEclecticRecord.hole+1, newTeamEclecticRecord.oldScore, newTeamEclecticRecord.newScore, newTeamEclecticRecord.date, newTeamEclecticRecord.teamTotal)}</div>
       </div>`;
 
     // Faits marquants classés du plus positif au moins positif.
