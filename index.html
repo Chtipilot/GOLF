@@ -1839,7 +1839,11 @@
   //   V02.001.027 — "Fin de test" : filigrane retiré (convention de V02.001.026), et manche de test
   //                 du 07/09/2026 (LOUIS, vrai nom) supprimée de l'historique, du replay officiel et
   //                 de shot-history-data.js, à la demande du Directeur de session.
-  const APP_VERSION = "SuarPark - V02.001.027";
+  //   V02.001.028 — Fusion des deux blocs "Club conseillé" (standard + prochain coup) en un seul,
+  //                 qui bascule automatiquement : club standard avant le 1er coup (ou green atteint),
+  //                 club pour le prochain coup ensuite — à la demande du Directeur de session, qui
+  //                 trouvait les deux blocs affichés ensemble source de confusion.
+  const APP_VERSION = "SuarPark - V02.001.028";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6723,22 +6727,33 @@
   // Club conseillé pour le PROCHAIN coup, une fois qu'au moins un coup a déjà été joué sur ce trou
   // (avant ça, la recommandation du coup de départ suffit). Distance restante estimée = distance
   // totale du trou − distance déjà parcourue depuis le départ (GPS du dernier coup cliqué).
-  function holeViewNextShotClubHTML(holeIdx, totalDist){
-    if (!holeViewShotPoints || holeViewShotPoints.length === 0) return `<div id="holeViewNextClubBox"></div>`;
-    if (blankCardGreenReachedByHole[holeIdx]) return `<div id="holeViewNextClubBox"></div>`;
-    const last = holeViewShotPoints[holeViewShotPoints.length - 1];
+  // Un seul bloc "Club conseillé", qui bascule automatiquement selon l'avancement sur le trou — à
+  // la demande du Directeur de session (les 2 blocs précédents, "standard" + "prochain coup",
+  // prêtaient à confusion affichés ensemble) :
+  // - Avant le 1er coup (ou green déjà atteint) : club standard, basé sur la distance totale du trou.
+  // - Après le 1er coup, tant que le green n'est pas atteint : club pour le PROCHAIN coup, basé sur
+  //   la distance restante (GPS).
+  function holeViewClubBoxHTML(holeIdx, totalDist, standardClub){
+    const hasShots = holeViewShotPoints && holeViewShotPoints.length > 0;
+    const greenReached = blankCardGreenReachedByHole[holeIdx];
+    if (!hasShots || greenReached){
+      return `<div id="holeViewClubBox" style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:12px; padding:8px 12px;">
+        <span style="font-family:var(--font-display); font-weight:700; font-size:12.5px; opacity:.9;">${t('holeViewClubTitle')}</span>
+        <span style="font-size:17px; font-weight:900;">${standardClub}</span>
+      </div>`;
+    }
     const teeGeo = (blankCardTeeGeoByHole || [])[holeIdx];
     const distances = computeShotGeoDistances(holeViewShotPoints, teeGeo);
     const fromTee = distances[distances.length - 1] ? distances[distances.length - 1].fromTeeYd : null;
     if (fromTee === null || fromTee === undefined){
-      return `<div id="holeViewNextClubBox" style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px; background:rgba(255,255,255,0.08); border:1px dashed rgba(255,255,255,0.3); border-radius:12px; padding:8px 12px;">
+      return `<div id="holeViewClubBox" style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; background:rgba(255,255,255,0.08); border:1px dashed rgba(255,255,255,0.3); border-radius:12px; padding:8px 12px;">
         <span style="font-family:var(--font-display); font-weight:700; font-size:11.5px; opacity:.8;">${t('holeViewNextClubTitle')}</span>
         <span style="font-size:12px; opacity:.75;">${t('holeViewGeoUnavailable')}</span>
       </div>`;
     }
     const remaining = Math.max(0, Math.round(totalDist - fromTee));
     const nextClub = clubLabelForDistance(remaining);
-    return `<div id="holeViewNextClubBox" style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:12px; padding:8px 12px;">
+    return `<div id="holeViewClubBox" style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:12px; padding:8px 12px;">
       <span style="font-family:var(--font-display); font-weight:700; font-size:12.5px; opacity:.9;">${t('holeViewNextClubTitle')} <span style="opacity:.7; font-weight:400;">(≈${remaining} yd)</span> <span style="font-size:10px; opacity:.75; background:rgba(255,255,255,0.15); border-radius:8px; padding:1px 7px;">${t('holeViewClaudeLabel')}</span></span>
       <span style="font-size:17px; font-weight:900;">${nextClub}</span>
     </div>`;
@@ -6792,11 +6807,7 @@
                 <span style="font-size:10px; opacity:.75; background:rgba(255,255,255,0.15); border-radius:8px; padding:1px 7px;">${t('holeViewClaudeLabel')}</span>
               </div>
               <div style="font-size:13.5px; line-height:1.45;">${difficulty}</div>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:12px; padding:8px 12px;">
-                <span style="font-family:var(--font-display); font-weight:700; font-size:12.5px; opacity:.9;">${t('holeViewClubTitle')}</span>
-                <span style="font-size:17px; font-weight:900;">${club}</span>
-              </div>
-              ${holeViewNextShotClubHTML(holeIdx, dist)}
+              ${holeViewClubBoxHTML(holeIdx, dist, club)}
               <p style="font-size:10px; opacity:.75; margin:8px 0 0;">${t('holeViewNote')}</p>
             </div>
 
@@ -6857,11 +6868,12 @@
       hint.style.display = holeViewShotPoints.length === 0 ? 'block' : 'none';
       hint.textContent = t('holeViewNoShots');
     }
-    const nextClubBox = document.getElementById('holeViewNextClubBox');
-    if (nextClubBox){
+    const clubBox = document.getElementById('holeViewClubBox');
+    if (clubBox){
       const tee2 = blankCardGetTee() || 'red';
       const dist2 = tee2 === 'white' ? DIST_WHITE[holeIdx] : DIST[holeIdx];
-      nextClubBox.outerHTML = holeViewNextShotClubHTML(holeIdx, dist2) || `<div id="holeViewNextClubBox"></div>`;
+      const standardClub2 = clubLabelForHole(holeIdx, tee2);
+      clubBox.outerHTML = holeViewClubBoxHTML(holeIdx, dist2, standardClub2);
     }
     const shotsList = document.getElementById('holeViewShotsListBox');
     if (shotsList) shotsList.outerHTML = holeViewShotsListHTML(holeIdx) || `<div id="holeViewShotsListBox"></div>`;
