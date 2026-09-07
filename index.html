@@ -1806,7 +1806,16 @@
   //                 distinct du "🏌️ Plus long coup" all-time déjà existant, celui-ci se limite à la
   //                 dernière manche jouée (podiumDate). Chargé à la demande via shot-history-data.js,
   //                 comme la version all-time. "Claude Caddie Assistant" reste exclu.
-  const APP_VERSION = "SuarPark - V02.001.018";
+  //   V02.001.019 — "🏌️ Plus long coup DU JOUR" déplacé DANS l'encadré doré "Vainqueurs du jour" (au
+  //                 lieu d'une carte séparée en dessous), à la demande du Directeur de session —
+  //                 tout ce qui concerne la dernière manche reste groupé au même endroit. Reste
+  //                 chargé à la demande (léger différé une fois shot-history-data.js récupéré).
+  //   V02.001.020 — "🏌️ Plus long coup DU JOUR" repositionné juste sous le podium (score/putts),
+  //                 avant l'éclectique personnel et le malchanceux du jour, dans l'encadré.
+  //   V02.001.021 — Titre de l'encadré renommé "🏆 Vainqueurs du jour" → "🏆 Faits du jour" (les 4
+  //                 langues) — plus juste maintenant que l'encadré contient bien plus que les
+  //                 vainqueurs (éclectique, malchanceux, plus long coup).
+  const APP_VERSION = "SuarPark - V02.001.021";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2220,7 +2229,7 @@
       costTotalDesc: (team, lines) => `Équipe : ${team} ฿ — ${lines} — (1000 ฿/manche, 800 ฿ les lundis et mercredis)`,
       insightDayWinnerScore: "🥇 Vainqueur du jour (score)",
       insightDayWinnerPutts: "🎯 Vainqueur du jour (putts)",
-      insightDayWinnersHonorTitle: (date) => `🏆 Vainqueurs du jour — ${date}`,
+      insightDayWinnersHonorTitle: (date) => `🏆 Faits du jour — ${date}`,
       insightBackToLatest: "↩ Revenir à la date la plus récente",
       totalPuttsLabel: "Total putts : ",
       noDataForInsights: "Pas assez de données pour calculer des statistiques.",
@@ -2509,7 +2518,7 @@
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/round, 800 ฿ on Mondays and Wednesdays)`,
       insightDayWinnerScore: "🥇 Winner of the day (score)",
       insightDayWinnerPutts: "🎯 Winner of the day (putts)",
-      insightDayWinnersHonorTitle: (date) => `🏆 Winners of the day — ${date}`,
+      insightDayWinnersHonorTitle: (date) => `🏆 Facts of the day — ${date}`,
       insightBackToLatest: "↩ Back to latest date",
       totalPuttsLabel: "Total putts: ",
       noDataForInsights: "Not enough data to compute statistics.",
@@ -2798,7 +2807,7 @@
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/Runde, 800 ฿ montags und mittwochs)`,
       insightDayWinnerScore: "🥇 Tagessieger (Ergebnis)",
       insightDayWinnerPutts: "🎯 Tagessieger (Putts)",
-      insightDayWinnersHonorTitle: (date) => `🏆 Tagessieger — ${date}`,
+      insightDayWinnersHonorTitle: (date) => `🏆 Tagesfakten — ${date}`,
       insightBackToLatest: "↩ Zum neuesten Datum zurückkehren",
       totalPuttsLabel: "Putts gesamt: ",
       noDataForInsights: "Nicht genügend Daten für Statistiken.",
@@ -3087,7 +3096,7 @@
       costTotalDesc: (team, lines) => `ทีม: ${team} ฿ — ${lines} — (1000 ฿/รอบ, 800 ฿ วันจันทร์และวันพุธ)`,
       insightDayWinnerScore: "🥇 ผู้ชนะประจำวัน (สกอร์)",
       insightDayWinnerPutts: "🎯 ผู้ชนะประจำวัน (พัตต์)",
-      insightDayWinnersHonorTitle: (date) => `🏆 ผู้ชนะประจำวัน — ${date}`,
+      insightDayWinnersHonorTitle: (date) => `🏆 เรื่องเด่นประจำวัน — ${date}`,
       insightBackToLatest: "↩ กลับไปยังวันที่ล่าสุด",
       totalPuttsLabel: "รวมพัตต์: ",
       noDataForInsights: "ข้อมูลไม่เพียงพอสำหรับคำนวณสถิติ",
@@ -4722,6 +4731,7 @@
             <div style="font-size:13px; color:#555;">${puttsWinner.tot} putts</div>
           </div>` : ''}
         </div>
+        <div id="insightLongestShotDayBox"></div>
         ${eclecticInfo ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightBestEclecticEver')}</div>
           <div style="font-size:13.5px; font-weight:700; color:${colorFor(eclecticInfo.name)};">${t('insightNewEclecticRecordDesc', eclecticInfo.name, eclecticInfo.hole+1, eclecticInfo.oldScore, eclecticInfo.newScore, eclecticInfo.date)}</div>
@@ -4824,7 +4834,6 @@
 
     html += card(t('insightTeamTotal'), t('insightTeamTotalDesc', totalRounds), '#1a3c34');
     html += `<div id="insightLongestShotBox"></div>`;
-    html += `<div id="insightLongestShotDayBox"></div>`;
 
     container.innerHTML = html;
     // Plus long coup (généralement le drive), calculé à partir des données GPS officielles —
@@ -4839,12 +4848,16 @@
           ? card(t('insightLongestShot'), t('insightLongestShotDesc', rec.name, rec.yards, rec.hole+1, rec.date), '#B8860B')
           : '<div id="insightLongestShotBox"></div>';
       }
-      // Même chose mais limité à la dernière manche jouée (podiumDate) — "du jour", pas all-time.
+      // Même chose mais limité à la dernière manche jouée (podiumDate) — "du jour", pas all-time —
+      // affiché DANS l'encadré doré, pas en dehors (voir placeholder posé dans honorCard).
       const boxDay = document.getElementById('insightLongestShotDayBox');
-      if (boxDay){
-        const recDay = podiumDate ? computeLongestShotRecord(data, podiumDate) : null;
+      if (boxDay && podiumDate){
+        const recDay = computeLongestShotRecord(data, podiumDate);
         boxDay.outerHTML = recDay
-          ? card(t('insightLongestShotDay'), t('insightLongestShotDesc', recDay.name, recDay.yards, recDay.hole+1, recDay.date), '#2E7D32')
+          ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
+              <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightLongestShotDay')}</div>
+              <div style="font-size:13.5px; font-weight:700; color:${colorFor(recDay.name)};">${t('insightLongestShotDesc', recDay.name, recDay.yards, recDay.hole+1, recDay.date)}</div>
+            </div>`
           : '<div id="insightLongestShotDayBox"></div>';
       }
     });
