@@ -1799,7 +1799,14 @@
   //                 sous la ligne "Par" — nouvelle fonction parHeaderRowDarkWithHcp() dédiée à ce
   //                 tableau uniquement (la table "Afficher ma carte" garde sa propre ligne HCP déjà
   //                 existante, pour éviter tout doublon).
-  const APP_VERSION = "SuarPark - V02.001.016";
+  //   V02.001.017 — Ligne "🏅 ÉQUIPE" de l'éclectique : le contenu de chaque cellule est aligné en
+  //                 haut (au lieu de centré verticalement), et le nom du joueur en vertical est
+  //                 agrandi (7,5px→10px) avec plus de hauteur disponible pour s'étendre vers le bas.
+  //   V02.001.018 — Nouveau fait marquant "🏌️ Plus long coup DU JOUR" dans "Faits marquants" —
+  //                 distinct du "🏌️ Plus long coup" all-time déjà existant, celui-ci se limite à la
+  //                 dernière manche jouée (podiumDate). Chargé à la demande via shot-history-data.js,
+  //                 comme la version all-time. "Claude Caddie Assistant" reste exclu.
+  const APP_VERSION = "SuarPark - V02.001.018";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2207,6 +2214,7 @@
       insightTeamTotal: "⛳ Total cumulé de l'équipe",
       insightTeamTotalDesc: (count) => `${count} manches enregistrées, tous joueurs confondus`,
       insightLongestShot: "🏌️ Plus long coup",
+      insightLongestShotDay: "🏌️ Plus long coup DU JOUR",
       insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (trou ${hole}, ${date})`,
       costTotalTitle: "💰 Coût total (green fee + golfcar + caddie)",
       costTotalDesc: (team, lines) => `Équipe : ${team} ฿ — ${lines} — (1000 ฿/manche, 800 ฿ les lundis et mercredis)`,
@@ -2495,6 +2503,7 @@
       insightTeamTotal: "⛳ Team total rounds",
       insightTeamTotalDesc: (count) => `${count} rounds recorded, across all players`,
       insightLongestShot: "🏌️ Longest shot",
+      insightLongestShotDay: "🏌️ Longest shot OF THE DAY",
       insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (hole ${hole}, ${date})`,
       costTotalTitle: "💰 Total cost (green fee + golf cart + caddie)",
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/round, 800 ฿ on Mondays and Wednesdays)`,
@@ -2783,6 +2792,7 @@
       insightTeamTotal: "⛳ Gesamtzahl der Runden des Teams",
       insightTeamTotalDesc: (count) => `${count} erfasste Runden, alle Spieler zusammen`,
       insightLongestShot: "🏌️ Weitester Schlag",
+      insightLongestShotDay: "🏌️ Weitester Schlag DES TAGES",
       insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (Loch ${hole}, ${date})`,
       costTotalTitle: "💰 Gesamtkosten (Greenfee + Golfwagen + Caddie)",
       costTotalDesc: (team, lines) => `Team: ${team} ฿ — ${lines} — (1000 ฿/Runde, 800 ฿ montags und mittwochs)`,
@@ -3071,6 +3081,7 @@
       insightTeamTotal: "⛳ จำนวนรอบรวมของทีม",
       insightTeamTotalDesc: (count) => `บันทึกไว้ ${count} รอบ รวมผู้เล่นทุกคน`,
       insightLongestShot: "🏌️ ช็อตที่ยาวที่สุด",
+      insightLongestShotDay: "🏌️ ช็อตที่ยาวที่สุดของวัน",
       insightLongestShotDesc: (name, yards, hole, date) => `${name} — ${yards} yd (หลุม ${hole}, ${date})`,
       costTotalTitle: "💰 ค่าใช้จ่ายรวม (กรีนฟี + รถกอล์ฟ + แคดดี้)",
       costTotalDesc: (team, lines) => `ทีม: ${team} ฿ — ${lines} — (1000 ฿/รอบ, 800 ฿ วันจันทร์และวันพุธ)`,
@@ -4230,9 +4241,9 @@
       const {out, inn, tot} = computeOutInTot(teamBest);
       rows += `<tr style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border-top:2px solid var(--sand);">
         <td style="text-align:left; padding-left:4px; font-weight:900; color:#8a6d1f;">${t('eclecticTeamRow')}</td>
-        ${teamBest.map((s,h)=>{ const c=scoreColor(s,h); const who = teamBestBy[h]; return `<td style="background:${c.bg}; color:${c.fg}; font-weight:900; padding:3px 1px;">
+        ${teamBest.map((s,h)=>{ const c=scoreColor(s,h); const who = teamBestBy[h]; return `<td style="background:${c.bg}; color:${c.fg}; font-weight:900; padding:3px 1px; vertical-align:top;">
           <div>${scoreDisplayHTML(s,h)}</div>
-          ${who ? `<div style="writing-mode:vertical-rl; font-size:7.5px; font-weight:700; letter-spacing:0.5px; color:${colorFor(who)}; margin:2px auto 0; line-height:1; max-height:34px; overflow:hidden;">${who}</div>` : ''}
+          ${who ? `<div style="writing-mode:vertical-rl; font-size:10px; font-weight:700; letter-spacing:0.5px; color:${colorFor(who)}; margin:3px auto 0; line-height:1.05; max-height:70px; overflow:hidden;">${who}</div>` : ''}
         </td>`; }).join("")}
         <td style="font-weight:900; background:#f1e6cc;">${out}</td>
         <td style="font-weight:900; background:#f1e6cc;">${inn}</td>
@@ -4813,6 +4824,7 @@
 
     html += card(t('insightTeamTotal'), t('insightTeamTotalDesc', totalRounds), '#1a3c34');
     html += `<div id="insightLongestShotBox"></div>`;
+    html += `<div id="insightLongestShotDayBox"></div>`;
 
     container.innerHTML = html;
     // Plus long coup (généralement le drive), calculé à partir des données GPS officielles —
@@ -4821,11 +4833,20 @@
     // reste exclu, comme toutes les autres statistiques d'équipe.
     loadShotHistoryData().then(data => {
       const box = document.getElementById('insightLongestShotBox');
-      if (!box) return; // la section a pu être refermée entre-temps
-      const rec = computeLongestShotRecord(data);
-      box.outerHTML = rec
-        ? card(t('insightLongestShot'), t('insightLongestShotDesc', rec.name, rec.yards, rec.hole+1, rec.date), '#B8860B')
-        : '<div id="insightLongestShotBox"></div>';
+      if (box){
+        const rec = computeLongestShotRecord(data);
+        box.outerHTML = rec
+          ? card(t('insightLongestShot'), t('insightLongestShotDesc', rec.name, rec.yards, rec.hole+1, rec.date), '#B8860B')
+          : '<div id="insightLongestShotBox"></div>';
+      }
+      // Même chose mais limité à la dernière manche jouée (podiumDate) — "du jour", pas all-time.
+      const boxDay = document.getElementById('insightLongestShotDayBox');
+      if (boxDay){
+        const recDay = podiumDate ? computeLongestShotRecord(data, podiumDate) : null;
+        boxDay.outerHTML = recDay
+          ? card(t('insightLongestShotDay'), t('insightLongestShotDesc', recDay.name, recDay.yards, recDay.hole+1, recDay.date), '#2E7D32')
+          : '<div id="insightLongestShotDayBox"></div>';
+      }
     });
     const resetBtn = document.getElementById('btnInsightsResetDate');
     if (resetBtn) resetBtn.addEventListener('click', () => {
@@ -6486,13 +6507,16 @@
   // grande distance coup-à-coup trouvée (depuis le départ pour le 1er coup du trou, depuis le coup
   // précédent ensuite — exactement la même distance que celle affichée sous chaque balle). "Claude
   // Caddie Assistant" (identité de test) est exclu, comme toutes les autres statistiques d'équipe.
-  function computeLongestShotRecord(data){
+  // `onlyDate` (optionnel) : si fourni, ne retient que les manches de cette date précise — utilisé
+  // pour "Plus long coup DU JOUR" en plus du record all-time (sans ce paramètre).
+  function computeLongestShotRecord(data, onlyDate){
     let best = null;
     Object.keys(data || {}).forEach(key => {
       const sepIdx = key.lastIndexOf('|');
       const name = key.slice(0, sepIdx);
       const date = key.slice(sepIdx + 1);
       if (name === 'Claude Caddie Assistant') return; // jamais dans les statistiques d'équipe
+      if (onlyDate && date !== onlyDate) return;
       const entry = replayPointsFromEntry(data[key]);
       if (!entry) return;
       (entry.shotPoints || []).forEach((holePoints, holeIdx) => {
