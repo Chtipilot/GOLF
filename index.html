@@ -1847,7 +1847,12 @@
   //                 demande du Directeur de session : garde l'écran allumé pendant l'utilisation de
   //                 l'appli, redemandé automatiquement à chaque retour au premier plan. Dégrade
   //                 silencieusement sur les navigateurs qui ne supportent pas cette API.
-  const APP_VERSION = "SuarPark - V02.001.029";
+  //   V02.001.030 — Corrigé : "blankCardPlayerName" ("Player's Name :") et "blankCardDate" restaient
+  //                 en anglais dans les 4 langues au lieu d'être traduits — désormais "Nom du joueur"
+  //                 (FR), "Name des Spielers"/"Datum" (DE), "ชื่อผู้เล่น"/"วันที่" (TH). Vérifié qu'il
+  //                 ne reste plus aucune autre clé identique dans les 4 langues (hors noms propres et
+  //                 unités).
+  const APP_VERSION = "SuarPark - V02.001.030";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2156,7 +2161,7 @@
       blankCardImportError: "Ce code n'est pas valide. Vérifie qu'il a été copié en entier.",
       blankCardImportOverwriteConfirm: (player, holes) => `Ta carte actuelle (${player || 'sans nom'}, ${holes} trou${holes > 1 ? 's' : ''} rempli${holes > 1 ? 's' : ''}) va être remplacée par les données reçues. Si tu veux la garder, annule et copie-la d'abord (bouton « Copier en texte lisible »). Continuer et remplacer ?`,
       blankCardClearConfirm: "Effacer définitivement le brouillon de cette carte de score (en-tête, noms et scores) ? Cette action est irréversible.",
-      blankCardPlayerName: "Player's Name :",
+      blankCardPlayerName: "Nom du joueur :",
       blankCardNameWarningText: "Sélectionne ton nom avant de continuer à saisir des scores — sinon ta carte sera exportée avec « ? » à la place de ton nom.",
       blankCardDate: "Date :",
       blankCardCourseLayout: "Plan du parcours",
@@ -2750,9 +2755,9 @@
       blankCardImportError: "Dieser Code ist ungültig. Prüfe, ob er vollständig kopiert wurde.",
       blankCardImportOverwriteConfirm: (player, holes) => `Deine aktuelle Karte (${player || 'ohne Namen'}, ${holes} Loch/Löcher ausgefüllt) wird durch die empfangenen Daten ersetzt. Um sie zu behalten, abbrechen und zuerst kopieren („Als lesbaren Text kopieren"). Fortfahren und ersetzen?`,
       blankCardClearConfirm: "Diesen Kartenentwurf endgültig löschen (Kopfzeile, Namen und Scores)? Dies kann nicht rückgängig gemacht werden.",
-      blankCardPlayerName: "Player's Name :",
+      blankCardPlayerName: "Name des Spielers:",
       blankCardNameWarningText: "Wähle deinen Namen aus, bevor du weitere Ergebnisse einträgst — sonst wird deine Karte mit «?» statt deinem Namen exportiert.",
-      blankCardDate: "Date :",
+      blankCardDate: "Datum:",
       blankCardCourseLayout: "Platzplan",
       blankCardBtnShowMap: "Plan anzeigen",
       blankCardBtnHideMap: "Plan ausblenden",
@@ -3047,9 +3052,9 @@
       blankCardImportError: "โค้ดนี้ไม่ถูกต้อง ตรวจสอบว่าคัดลอกครบถ้วน",
       blankCardImportOverwriteConfirm: (player, holes) => `การ์ดปัจจุบันของคุณ (${player || 'ไม่มีชื่อ'}, กรอกแล้ว ${holes} หลุม) จะถูกแทนที่ด้วยข้อมูลที่ได้รับ หากต้องการเก็บไว้ ให้ยกเลิกแล้วคัดลอกก่อน (ปุ่ม "คัดลอกเป็นข้อความอ่านได้") ดำเนินการต่อและแทนที่หรือไม่?`,
       blankCardClearConfirm: "ล้างร่างการ์ดคะแนนนี้อย่างถาวร (หัวข้อ ชื่อ และคะแนน) ใช่หรือไม่ ไม่สามารถย้อนกลับได้",
-      blankCardPlayerName: "Player's Name :",
+      blankCardPlayerName: "ชื่อผู้เล่น:",
       blankCardNameWarningText: "เลือกชื่อของคุณก่อนกรอกคะแนนต่อ ไม่เช่นนั้นการ์ดของคุณจะถูกส่งออกโดยมี \"?\" แทนชื่อของคุณ",
-      blankCardDate: "Date :",
+      blankCardDate: "วันที่:",
       blankCardCourseLayout: "แผนผังสนาม",
       blankCardBtnShowMap: "แสดงแผนผัง",
       blankCardBtnHideMap: "ซ่อนแผนผัง",
