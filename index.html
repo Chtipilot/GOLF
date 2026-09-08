@@ -1843,7 +1843,11 @@
   //                 qui bascule automatiquement : club standard avant le 1er coup (ou green atteint),
   //                 club pour le prochain coup ensuite — à la demande du Directeur de session, qui
   //                 trouvait les deux blocs affichés ensemble source de confusion.
-  const APP_VERSION = "SuarPark - V02.001.028";
+  //   V02.001.029 — Blocage de la mise en veille de l'écran (API Wake Lock du navigateur), à la
+  //                 demande du Directeur de session : garde l'écran allumé pendant l'utilisation de
+  //                 l'appli, redemandé automatiquement à chaque retour au premier plan. Dégrade
+  //                 silencieusement sur les navigateurs qui ne supportent pas cette API.
+  const APP_VERSION = "SuarPark - V02.001.029";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7538,6 +7542,26 @@
     }
   }
 
+  // Empêche la mise en veille de l'écran pendant qu'on utilise l'appli (utile sur le parcours,
+  // pour garder l'appli visible sans devoir déverrouiller le téléphone entre chaque coup) — API
+  // "Wake Lock" du navigateur, disponible sur la plupart des téléphones/tablettes récents. Se
+  // relâche automatiquement quand l'onglet passe en arrière-plan ; on le redemande donc à chaque
+  // retour au premier plan (visibilitychange). Dégrade silencieusement si non supporté (pas
+  // d'erreur visible, l'appli fonctionne normalement, juste sans ce confort).
+  let wakeLockSentinel = null;
+  async function requestWakeLock(){
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLockSentinel = await navigator.wakeLock.request('screen');
+      wakeLockSentinel.addEventListener('release', () => { wakeLockSentinel = null; });
+    } catch (e) {
+      // Refusé (batterie faible, permission, etc.) — silencieux, pas bloquant.
+    }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') requestWakeLock();
+  });
+
   function init(){
     loadLang();
     applyStaticText();
@@ -7547,6 +7571,7 @@
     applyStaticText();
     wireLangSelectors();
     showLastSession();
+    requestWakeLock();
 
     document.getElementById('btnHomeGolf').addEventListener('click', () => {
       setAppMode('golf');
