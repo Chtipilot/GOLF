@@ -1890,7 +1890,11 @@
   //                 Transmettre ma carte" et "📎 Envoyer le GPS" fusionnés en un seul bouton — envoi
   //                 combiné texte lisible + fichier GPS en 6 blocs en un seul geste (partage natif
   //                 texte+fichier quand disponible, sinon copie du texte + téléchargement du fichier).
-  const APP_VERSION = "SuarPark - V02.001.038";
+  //   V02.001.039 — GPS complet enfin reçu et intégré pour MARCUS et SANDY du 09/09/2026 (18/18 trous
+  //                 chacun, via le nouveau système en 6 blocs, contournant la limite de transmission
+  //                 qui avait bloqué ces deux manches). Replay officiel désormais disponible pour les
+  //                 3 joueurs du 09/09/2026 (LOUIS, MARCUS, SANDY).
+  const APP_VERSION = "SuarPark - V02.001.039";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5211,6 +5215,8 @@
   const SHOT_HISTORY_KEYS = [
     "Claude Caddie Assistant|05/09/2023", // Test mécanique GPS (10 trous, 6 pénalités), données décousues
     "LOUIS|09/09/2026", // Manche réelle, 18 trous complets avec GPS
+    "MARCUS|09/09/2026", // Manche réelle, 18 trous complets avec GPS (reçu en 6 blocs)
+    "SANDY|09/09/2026", // Manche réelle, 18 trous complets avec GPS (reçu en 6 blocs)
   ];
 
   let shotHistoryLoadPromise = null;
