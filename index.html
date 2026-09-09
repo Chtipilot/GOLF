@@ -1878,7 +1878,14 @@
   //                 SANDY en plein milieu). Navigation "Précédent/Suivant" avec copie individuelle de
   //                 chaque bloc — chaque bloc est autonome (numéro/total + identité du joueur
   //                 inclus), reconstituable même reçu dans le désordre.
-  const APP_VERSION = "SuarPark - V02.001.036";
+  //   V02.001.037 — Correction : le téléchargement en 1 fichier (codé en V02.001.036 mais jamais
+  //                 relié à un bouton) est maintenant accessible via "📎 Envoyer le GPS (1 clic)" —
+  //                 solution "soft" pour l'équipe, à la demande du Directeur de session. Utilise le
+  //                 partage natif du téléphone (Web Share API) quand disponible : un seul tap ouvre
+  //                 directement Messenger/mail/etc. avec le fichier déjà en pièce jointe, sinon
+  //                 simple téléchargement. Le pas-à-pas bloc par bloc reste disponible en option
+  //                 secondaire, renommé pour plus de clarté.
+  const APP_VERSION = "SuarPark - V02.001.037";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2160,7 +2167,10 @@
       blankCardBtnClose: "Retour",
       blankCardBtnExport: "🛰️ Code technique (avec GPS)",
       blankCardBtnExportText: "📝 Transmettre ma carte",
-      blankCardBtnExportChunked: "GPS en 6 blocs",
+      blankCardBtnExportChunked: "GPS en 6 blocs (pas-à-pas)",
+      blankCardBtnShareGPS: "Envoyer le GPS (1 clic)",
+      blankCardChunkFileIntro: "Fichier avec le GPS complet en 6 blocs indépendants — envoie-le en pièce jointe (Messenger, mail, etc.).",
+      blankCardChunkHolesLabel: "trous",
       blankCardChunkTitle: (part, total, holes) => `🧩 Bloc ${part}/${total} — trous ${holes}`,
       blankCardChunkHint: "Envoie-moi ce bloc, puis passe au suivant avec « Suivant › ». L'ordre d'arrivée n'a pas d'importance, je les reconstitue ensuite.",
       blankCardChunkPrev: "Précédent",
@@ -2465,7 +2475,10 @@
       blankCardBtnClose: "Back",
       blankCardBtnExport: "🛰️ Technical code (with GPS)",
       blankCardBtnExportText: "📝 Send my card",
-      blankCardBtnExportChunked: "GPS in 6 chunks",
+      blankCardBtnExportChunked: "GPS in 6 chunks (step by step)",
+      blankCardBtnShareGPS: "Send GPS (1 tap)",
+      blankCardChunkFileIntro: "File with the full GPS data in 6 independent chunks — send it as an attachment (Messenger, email, etc.).",
+      blankCardChunkHolesLabel: "holes",
       blankCardChunkTitle: (part, total, holes) => `🧩 Chunk ${part}/${total} — holes ${holes}`,
       blankCardChunkHint: "Send me this chunk, then move to the next with \"Next ›\". Order doesn't matter, I'll reassemble them afterwards.",
       blankCardChunkPrev: "Previous",
@@ -2770,7 +2783,10 @@
       blankCardBtnClose: "Zurück",
       blankCardBtnExport: "🛰️ Technischer Code (mit GPS)",
       blankCardBtnExportText: "📝 Meine Karte übermitteln",
-      blankCardBtnExportChunked: "GPS in 6 Blöcken",
+      blankCardBtnExportChunked: "GPS in 6 Blöcken (Schritt für Schritt)",
+      blankCardBtnShareGPS: "GPS senden (1 Tipp)",
+      blankCardChunkFileIntro: "Datei mit den vollständigen GPS-Daten in 6 unabhängigen Blöcken — als Anhang senden (Messenger, E-Mail usw.).",
+      blankCardChunkHolesLabel: "Löcher",
       blankCardChunkTitle: (part, total, holes) => `🧩 Block ${part}/${total} — Löcher ${holes}`,
       blankCardChunkHint: "Sende mir diesen Block, dann weiter mit „Weiter ›“. Die Reihenfolge spielt keine Rolle, ich setze sie danach zusammen.",
       blankCardChunkPrev: "Zurück",
@@ -3075,7 +3091,10 @@
       blankCardBtnClose: "กลับ",
       blankCardBtnExport: "🛰️ โค้ดเทคนิค (พร้อม GPS)",
       blankCardBtnExportText: "📝 ส่งการ์ดของฉัน",
-      blankCardBtnExportChunked: "GPS แบบ 6 ส่วน",
+      blankCardBtnExportChunked: "GPS แบบ 6 ส่วน (ทีละขั้น)",
+      blankCardBtnShareGPS: "ส่ง GPS (แตะเดียว)",
+      blankCardChunkFileIntro: "ไฟล์ข้อมูล GPS ครบถ้วนแบ่งเป็น 6 ส่วนอิสระ — ส่งเป็นไฟล์แนบ (Messenger, อีเมล ฯลฯ)",
+      blankCardChunkHolesLabel: "หลุม",
       blankCardChunkTitle: (part, total, holes) => `🧩 ส่วนที่ ${part}/${total} — หลุม ${holes}`,
       blankCardChunkHint: "ส่งส่วนนี้ให้ฉัน แล้วไปส่วนถัดไปด้วย \"ถัดไป ›\" ลำดับไม่สำคัญ ฉันจะรวมให้ภายหลัง",
       blankCardChunkPrev: "ก่อนหน้า",
@@ -5553,6 +5572,53 @@
   }
 
   let blankCardChunkIndex = 0;
+  // Télécharge (ou partage nativement, en un seul geste) les 6 blocs GPS regroupés dans UN SEUL
+  // fichier texte, chacun clairement séparé et numéroté — solution "soft" pour l'équipe, à la
+  // demande du Directeur de session (le pas-à-pas bloc par bloc reste disponible pour ceux qui
+  // préfèrent, mais ce bouton est LE moyen simple en un clic). Envoyer ce fichier en PIÈCE JOINTE
+  // (Messenger, mail, etc.) contourne complètement la limite de caractères d'un message.
+  function blankCardBuildChunksFile(){
+    const chunks = blankCardBuildChunks();
+    const draft = collectBlankCardDraftFromDOM();
+    const name = draft.header.playerName || draft.header.playerNameOther || '?';
+    const date = draft.header.date || '';
+    let text = `SuarPark — ${name} — ${date}\n${t('blankCardChunkFileIntro')}\n\n`;
+    chunks.forEach(chunk => {
+      const code = btoa(unescape(encodeURIComponent(JSON.stringify(chunk))));
+      const holesLabel = `${chunk.chunkHoles[0]+1}-${chunk.chunkHoles[2]+1}`;
+      text += `==================== BLOC ${chunk.chunkPart}/${chunk.chunkTotal} — ${t('blankCardChunkHolesLabel')} ${holesLabel} ====================\n${code}\n\n`;
+    });
+    const filename = `SuarPark_GPS_${name.replace(/[^a-zA-Z0-9]/g,'')}_${date.replace(/\//g,'-')}.txt`;
+    return {text, filename, name, date};
+  }
+  async function blankCardShareChunksFile(){
+    const {text, filename, name, date} = blankCardBuildChunksFile();
+    // Web Share API avec fichier : sur mobile, ouvre directement le sélecteur natif (Messenger,
+    // mail, WhatsApp...) avec le fichier déjà en pièce jointe — le geste le plus "soft" possible,
+    // un seul tap. Repli silencieux sur le simple téléchargement si non supporté (navigateur de
+    // bureau, ancien navigateur, etc.).
+    try {
+      const file = new File([text], filename, {type: 'text/plain'});
+      if (navigator.canShare && navigator.canShare({files: [file]})){
+        await navigator.share({files: [file], title: `SuarPark GPS — ${name} — ${date}`});
+        return;
+      }
+    } catch (e) { /* annulé par l'utilisateur ou non supporté — on tente le téléchargement */ }
+    blankCardDownloadChunksFile();
+  }
+  function blankCardDownloadChunksFile(){
+    const {text, filename} = blankCardBuildChunksFile();
+    const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
   function blankCardShowChunkedExport(){
     blankCardChunkIndex = 0;
     renderBlankCardChunkPanel();
@@ -7521,7 +7587,8 @@
         <div class="toolbar" style="margin:0;">
           <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
-          <button class="btn btn-transfer" id="btnBlankCardExportChunked" style="background:#0d47a1;">🧩 ${t('blankCardBtnExportChunked')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardShareGPS" style="background:#2E7D32;">📎 ${t('blankCardBtnShareGPS')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardExportChunked" style="background:#0d47a1; font-size:10px;">${t('blankCardBtnExportChunked')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
         </div>
       </fieldset>
@@ -7643,6 +7710,7 @@
     document.getElementById('btnBlankCardClose').addEventListener('click', () => { setBlankCardVisible(false); setAppMode('home'); });
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
+    document.getElementById('btnBlankCardShareGPS').addEventListener('click', blankCardShareChunksFile);
     document.getElementById('btnBlankCardExportChunked').addEventListener('click', blankCardShowChunkedExport);
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
