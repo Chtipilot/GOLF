@@ -1894,7 +1894,12 @@
   //                 chacun, via le nouveau système en 6 blocs, contournant la limite de transmission
   //                 qui avait bloqué ces deux manches). Replay officiel désormais disponible pour les
   //                 3 joueurs du 09/09/2026 (LOUIS, MARCUS, SANDY).
-  const APP_VERSION = "SuarPark - V02.001.039";
+  //   V02.001.040 — Correction : "↩ Annuler" ne fonctionnait que pour les coups (positions de balle),
+  //                 pas pour la punaise de départ. Désormais, si aucun coup n'a encore été cliqué
+  //                 mais qu'un départ est posé, "↩ Annuler" efface la punaise de départ ET réarme
+  //                 automatiquement le mode pose (pour permettre de la repositionner). Le bouton
+  //                 reste actif tant qu'un départ est posé, même sans coup.
+  const APP_VERSION = "SuarPark - V02.001.040";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6610,8 +6615,7 @@
   // dans la voiturette pendant que le joueur va putter, donc plus aucun clic GPS n'est fiable) et
   // on bascule sur un compteur de putts à tap rapide (0 à 5+), sans clavier.
   let blankCardGreenReachedByHole = Array(18).fill(false);
-  let holeViewShotPoints = [];
-  // Panneau d'infos (difficulté + clubs conseillés) ouvert PAR DÉFAUT à l'arrivée sur un trou, à la
+  let holeViewShotPoints = [];  // Panneau d'infos (difficulté + clubs conseillés) ouvert PAR DÉFAUT à l'arrivée sur un trou, à la
   // demande du Directeur de session — reste masquable via le bouton "Infos".
   let holeViewInfoExpanded = true;
   // Vrai juste après un appui sur "📍 Marquer le départ ici" : le PROCHAIN tap sur la photo pose
@@ -6773,8 +6777,7 @@
     if (!t0) return;
     if (!navigator.geolocation){ t0.geoFailed = true; holeViewUpdateShotsUI(holeIdx); return; }
     t0.geoPending = true;
-    holeViewUpdateShotsUI(holeIdx); // affiche tout de suite le clignotement "en attente" (sinon
-                                     // il ne serait jamais rendu avant la résolution du GPS)
+    holeViewUpdateShotsUI(holeIdx);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const target = getTarget() || t0;
@@ -7048,7 +7051,7 @@
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" id="btnHoleViewPenalty" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap; ${holeViewShotPoints.length && holeViewShotPoints[holeViewShotPoints.length-1].penaltyAfter ? 'background:#dc3545; color:#fff;' : ''}" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnPenalty')}</button>
-                <button type="button" id="btnHoleViewUndo" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;" ${holeViewShotPoints.length===0?'disabled':''}>${t('holeViewBtnUndo')}</button>
+                <button type="button" id="btnHoleViewUndo" class="btn btn-secondary no-print" style="flex:1; margin:0; font-size:12px; padding:6px 10px; white-space:nowrap;" ${holeViewShotPoints.length===0 && !teeIsSet?'disabled':''}>${t('holeViewBtnUndo')}</button>
               </div>
               <button type="button" id="btnHoleViewGreenReached" class="btn ${greenReached ? '' : 'btn-secondary'} no-print" style="margin:0; font-size:12px; padding:7px 10px; white-space:nowrap; ${greenReached ? 'background:#2E7D32; color:#fff;' : ''}" ${holeViewShotPoints.length===0?'disabled':''}>⛳ ${t(greenReached ? 'holeViewBtnGreenUndo' : 'holeViewBtnGreenReached')}</button>
               ${holeViewShotsListHTML(holeIdx)}
@@ -7227,7 +7230,17 @@
 
     const undoBtn = document.getElementById('btnHoleViewUndo');
     if (undoBtn) undoBtn.addEventListener('click', () => {
-      holeViewShotPoints.pop();
+      if (holeViewShotPoints.length > 0){
+        // Cas normal : retire le dernier coup cliqué
+        holeViewShotPoints.pop();
+      } else {
+        // Aucun coup — on peut quand même annuler la punaise de départ si elle est posée, et
+        // réarmer le mode "pose du départ" pour permettre de la repositionner.
+        if (blankCardTeeGeoByHole && blankCardTeeGeoByHole[holeIdx]){
+          blankCardTeeGeoByHole[holeIdx] = null;
+          holeViewTeeArmed = true;
+        }
+      }
       persistBlankCardDraft();
       holeViewUpdateShotsUI(holeIdx);
     });
