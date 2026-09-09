@@ -1866,7 +1866,12 @@
   //   V02.001.034 — Le podium à 3 places est désormais un VRAI podium dessiné en SVG (3 marches à
   //                 hauteur variable, or/argent/bronze), au lieu du texte avec émojis médaille —
   //                 aperçu validé avec le Directeur de session avant intégration.
-  const APP_VERSION = "SuarPark - V02.001.034";
+  //   V02.001.035 — Éclectique par année : nouveaux onglets "Toutes années / 2024 / 2025 / 2026 /
+  //                 2027" en haut de "🏆 Afficher l'éclectique", à la demande du Directeur de
+  //                 session. Chaque onglet recalcule l'éclectique individuel ET la ligne "🏅 ÉQUIPE"
+  //                 en filtrant sur cette seule année. 2027 est préparé à l'avance (aucune manche
+  //                 pour l'instant, message clair au lieu d'un tableau vide).
+  const APP_VERSION = "SuarPark - V02.001.035";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2094,6 +2099,8 @@
       eclecticTitle: "🏆 Scores éclectiques",
       eclecticSubtitle: "Meilleur score par trou, toutes manches confondues",
       eclecticTeamRow: "🏅 ÉQUIPE",
+      eclecticAllTime: "Toutes années",
+      eclecticNoDataYear: (year) => `Aucune manche enregistrée en ${year}.`,
       statsTitle: "📊 Statistiques des joueurs",
       progressionSubtitle: "Évolution du score total par manche",
       holesSubtitle: "Score moyen par trou (barres) vs distance (ligne)",
@@ -2391,6 +2398,8 @@
       eclecticTitle: "🏆 Eclectic scores",
       eclecticSubtitle: "Best score per hole, across all rounds",
       eclecticTeamRow: "🏅 TEAM",
+      eclecticAllTime: "All time",
+      eclecticNoDataYear: (year) => `No rounds recorded in ${year}.`,
       statsTitle: "📊 Player statistics",
       progressionSubtitle: "Total score progression per round",
       holesSubtitle: "Average score per hole (bars) vs distance (line)",
@@ -2688,6 +2697,8 @@
       eclecticTitle: "🏆 Eclectic-Ergebnisse",
       eclecticSubtitle: "Bestes Ergebnis pro Loch, über alle Runden",
       eclecticTeamRow: "🏅 TEAM",
+      eclecticAllTime: "Alle Jahre",
+      eclecticNoDataYear: (year) => `Keine Runden im Jahr ${year} erfasst.`,
       statsTitle: "📊 Spielerstatistiken",
       progressionSubtitle: "Entwicklung des Gesamtergebnisses pro Runde",
       holesSubtitle: "Durchschnittliches Ergebnis pro Loch (Balken) vs. Distanz (Linie)",
@@ -2985,6 +2996,8 @@
       eclecticTitle: "🏆 สกอร์ Eclectic",
       eclecticSubtitle: "สกอร์ที่ดีที่สุดต่อหลุม จากทุกรอบที่เล่น",
       eclecticTeamRow: "🏅 ทีม",
+      eclecticAllTime: "ทุกปี",
+      eclecticNoDataYear: (year) => `ไม่มีรอบที่บันทึกไว้ในปี ${year}`,
       statsTitle: "📊 สถิติผู้เล่น",
       progressionSubtitle: "พัฒนาการของสกอร์รวมในแต่ละรอบ",
       holesSubtitle: "สกอร์เฉลี่ยต่อหลุม (แท่ง) เทียบกับระยะทาง (เส้น)",
@@ -4280,31 +4293,35 @@
     if (trail) trail.innerHTML = trailLinesFromData(teeGeo, points, rect);
   }
 
-  function renderEclectic(){
-    const container = document.getElementById('eclecticSection');
+  // Année actuellement sélectionnée pour l'éclectique : null = toutes années confondues (all-time),
+  // sinon un nombre (2024, 2025, 2026, 2027...) — à la demande du Directeur de session, qui veut un
+  // éclectique par année en plus de l'historique complet, individuel ET équipe.
+  let eclecticSelectedYear = null;
+
+  // Construit les lignes du tableau éclectique (joueurs + ligne équipe), en filtrant éventuellement
+  // sur une année précise. Factorisé pour être réutilisé identique quel que soit l'onglet actif.
+  function buildEclecticRows(yearFilter){
     let rows = "";
     const teamBest = Array(18).fill(null);
-    const teamBestBy = Array(18).fill(null); // qui détient ce record, pour l'info-bulle
-    const teamBestDate = Array(18).fill(null); // date de ce record, pour départager les égalités
+    const teamBestBy = Array(18).fill(null);
+    const teamBestDate = Array(18).fill(null);
     STATS_PLAYERS.forEach((name, i) => {
-      const rounds = state.history[name] || [];
+      const allRounds = state.history[name] || [];
+      const rounds = yearFilter ? allRounds.filter(([date]) => date.slice(-4) === String(yearFilter)) : allRounds;
       let best = Array(18).fill(null);
-      let bestDate = Array(18).fill(null); // date de la manche où CE joueur a d'abord atteint son propre meilleur score sur ce trou — nécessaire pour départager les égalités au niveau équipe
+      let bestDate = Array(18).fill(null);
       rounds.forEach(([date, scores]) => {
         scores.forEach((s, h) => {
           if (best[h] === null || s < best[h]){
             best[h] = s; bestDate[h] = date;
           } else if (s === best[h] && bestDate[h] && new Date(frToIso(date)) < new Date(frToIso(bestDate[h]))){
-            bestDate[h] = date; // même score déjà réalisé plus tôt par CE joueur (rare, mais on garde la date la plus ancienne)
+            bestDate[h] = date;
           }
         });
       });
       best.forEach((s, h) => {
         if (s === null) return;
         const isNewBest = teamBest[h] === null || s < teamBest[h];
-        // Égalité au niveau équipe : le joueur ayant réalisé ce score en premier (date la plus
-        // ancienne) garde le crédit, à la demande du Directeur de session — pas juste le premier
-        // rencontré dans l'ordre d'itération des joueurs.
         const isEarlierTie = !isNewBest && s === teamBest[h] && bestDate[h] && teamBestDate[h] &&
           new Date(frToIso(bestDate[h])) < new Date(frToIso(teamBestDate[h]));
         if (isNewBest || isEarlierTie){
@@ -4328,9 +4345,6 @@
         <td style="font-weight:bold; background:#e8f0ee;">${tot}</td>
       </tr>`;
     });
-    // Ligne "Équipe" : le meilleur score jamais réalisé sur CHAQUE trou, tous joueurs confondus —
-    // le "trou de rêve" de l'équipe entière, pas juste d'un joueur. Info-bulle indiquant qui détient
-    // le record sur chaque trou.
     const hasAnyTeamBest = teamBest.some(s => s !== null);
     if (hasAnyTeamBest){
       const {out, inn, tot} = computeOutInTot(teamBest);
@@ -4344,9 +4358,30 @@
         <td style="font-weight:900; background:#f1e6cc;">${inn}</td>
         <td style="font-weight:900; background:#f1e6cc;">${tot}</td>
       </tr>`;
+    } else if (rows === '' || !hasAnyTeamBest){
+      // Année sans aucune manche (ex. 2027 pas encore commencée) : message clair au lieu d'un
+      // tableau vide déroutant.
     }
+    return {rows, hasAnyTeamBest};
+  }
+
+  function renderEclectic(){
+    const container = document.getElementById('eclecticSection');
+    const years = [null, 2024, 2025, 2026, 2027]; // null = all-time ; 2027 préparé à l'avance, vide pour l'instant
+    const tabsHTML = `<div class="no-print" style="display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 12px;">
+      ${years.map(y => `<button type="button" class="btn ${eclecticSelectedYear===y ? '' : 'btn-secondary'} eclectic-year-tab" data-year="${y===null?'all':y}" style="font-size:11.5px; padding:5px 12px; margin:0;">${y===null ? t('eclecticAllTime') : y}</button>`).join('')}
+    </div>`;
+    const {rows, hasAnyTeamBest} = buildEclecticRows(eclecticSelectedYear);
+    const emptyNote = (!hasAnyTeamBest && eclecticSelectedYear) ? `<p class="sub" style="margin:8px 0;">${t('eclecticNoDataYear', eclecticSelectedYear)}</p>` : '';
     container.innerHTML = `<h3>${t('eclecticTitle')}</h3><p class="sub">${t('eclecticSubtitle')}</p>` +
+      tabsHTML + emptyNote +
       scorecardTableHTML("eclectic", rows, parHeaderRowDarkWithHcp(), "Hole");
+    container.querySelectorAll('.eclectic-year-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        eclecticSelectedYear = btn.dataset.year === 'all' ? null : Number(btn.dataset.year);
+        renderEclectic();
+      });
+    });
   }
 
   let chartProgression = null, chartHoles = null, chartAvg = null, chartTemp = null;
