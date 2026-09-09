@@ -1885,7 +1885,12 @@
   //                 directement Messenger/mail/etc. avec le fichier déjà en pièce jointe, sinon
   //                 simple téléchargement. Le pas-à-pas bloc par bloc reste disponible en option
   //                 secondaire, renommé pour plus de clarté.
-  const APP_VERSION = "SuarPark - V02.001.037";
+  //   V02.001.038 — À la demande du Directeur de session : bouton "GPS en 6 blocs (pas-à-pas)"
+  //                 retiré (devenu inutile depuis le fichier en 1 clic, validé par test). "📝
+  //                 Transmettre ma carte" et "📎 Envoyer le GPS" fusionnés en un seul bouton — envoi
+  //                 combiné texte lisible + fichier GPS en 6 blocs en un seul geste (partage natif
+  //                 texte+fichier quand disponible, sinon copie du texte + téléchargement du fichier).
+  const APP_VERSION = "SuarPark - V02.001.038";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5571,12 +5576,10 @@
     return chunks;
   }
 
-  let blankCardChunkIndex = 0;
-  // Télécharge (ou partage nativement, en un seul geste) les 6 blocs GPS regroupés dans UN SEUL
-  // fichier texte, chacun clairement séparé et numéroté — solution "soft" pour l'équipe, à la
-  // demande du Directeur de session (le pas-à-pas bloc par bloc reste disponible pour ceux qui
-  // préfèrent, mais ce bouton est LE moyen simple en un clic). Envoyer ce fichier en PIÈCE JOINTE
-  // (Messenger, mail, etc.) contourne complètement la limite de caractères d'un message.
+  // Construit (sans télécharger) le fichier texte regroupant les 6 blocs GPS, chacun clairement
+  // séparé et numéroté — réutilisé par l'envoi combiné "Transmettre ma carte" (texte + GPS en un
+  // seul geste). Envoyer ce fichier en PIÈCE JOINTE (Messenger, mail, etc.) contourne complètement
+  // la limite de caractères d'un message.
   function blankCardBuildChunksFile(){
     const chunks = blankCardBuildChunks();
     const draft = collectBlankCardDraftFromDOM();
@@ -5591,21 +5594,6 @@
     const filename = `SuarPark_GPS_${name.replace(/[^a-zA-Z0-9]/g,'')}_${date.replace(/\//g,'-')}.txt`;
     return {text, filename, name, date};
   }
-  async function blankCardShareChunksFile(){
-    const {text, filename, name, date} = blankCardBuildChunksFile();
-    // Web Share API avec fichier : sur mobile, ouvre directement le sélecteur natif (Messenger,
-    // mail, WhatsApp...) avec le fichier déjà en pièce jointe — le geste le plus "soft" possible,
-    // un seul tap. Repli silencieux sur le simple téléchargement si non supporté (navigateur de
-    // bureau, ancien navigateur, etc.).
-    try {
-      const file = new File([text], filename, {type: 'text/plain'});
-      if (navigator.canShare && navigator.canShare({files: [file]})){
-        await navigator.share({files: [file], title: `SuarPark GPS — ${name} — ${date}`});
-        return;
-      }
-    } catch (e) { /* annulé par l'utilisateur ou non supporté — on tente le téléchargement */ }
-    blankCardDownloadChunksFile();
-  }
   function blankCardDownloadChunksFile(){
     const {text, filename} = blankCardBuildChunksFile();
     const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
@@ -5617,45 +5605,6 @@
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
-
-  function blankCardShowChunkedExport(){
-    blankCardChunkIndex = 0;
-    renderBlankCardChunkPanel();
-  }
-  function renderBlankCardChunkPanel(){
-    const chunks = blankCardBuildChunks();
-    const chunk = chunks[blankCardChunkIndex];
-    const code = btoa(unescape(encodeURIComponent(JSON.stringify(chunk))));
-    const panel = document.getElementById('scanReadyPanel');
-    panel.style.display = 'block';
-    const holesLabel = `${chunk.chunkHoles[0]+1}-${chunk.chunkHoles[2]+1}`;
-    panel.innerHTML = `
-      <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
-        <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
-        <h3 style="margin:12px 0 4px;">${t('blankCardChunkTitle', chunk.chunkPart, chunk.chunkTotal, holesLabel)}</h3>
-        <p class="sub" style="font-size:11px; margin:4px 0 12px;">${t('blankCardChunkHint')}</p>
-        <div style="display:flex; gap:8px; margin-bottom:10px;">
-          <button type="button" class="btn btn-secondary no-print" id="btnChunkPrev" style="flex:1; margin:0;" ${blankCardChunkIndex===0?'disabled':''}>‹ ${t('blankCardChunkPrev')}</button>
-          <button type="button" class="btn no-print" id="btnChunkCopy" style="flex:1; margin:0; background:#2E7D32;">📋 ${t('blankCardChunkCopy')}</button>
-          <button type="button" class="btn btn-secondary no-print" id="btnChunkNext" style="flex:1; margin:0;" ${blankCardChunkIndex===5?'disabled':''}>${t('blankCardChunkNext')} ›</button>
-        </div>
-        <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(12px, 3.2vw, 15px); line-height:1.4; color:#000; background:#f7f3ea; border:2px solid #c9a668; border-radius:8px; padding:14px; margin:0;">${code}</pre>
-      </div>`;
-    document.getElementById('btnScanReadyClose').addEventListener('click', () => {
-      panel.style.display = 'none';
-      panel.innerHTML = '';
-    });
-    document.getElementById('btnChunkCopy').addEventListener('click', () => {
-      const finish = () => window.alert(t('blankCardExportTextCopied'));
-      if (navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText(code).then(finish).catch(() => window.prompt(t('blankCardExportFallbackTitle'), code));
-      } else {
-        window.prompt(t('blankCardExportFallbackTitle'), code);
-      }
-    });
-    document.getElementById('btnChunkPrev').addEventListener('click', () => { if (blankCardChunkIndex>0){ blankCardChunkIndex--; renderBlankCardChunkPanel(); } });
-    document.getElementById('btnChunkNext').addEventListener('click', () => { if (blankCardChunkIndex<5){ blankCardChunkIndex++; renderBlankCardChunkPanel(); } });
   }
 
   function blankCardExport(){
@@ -5834,6 +5783,32 @@
   // demande du Directeur de session, pour n'avoir qu'un seul bouton de transmission au lieu de
   // deux (le texte reste lisible pour les humains, le code technique en dessous permet au
   // Directeur de session de récupérer le replay officiel sans étape supplémentaire).
+  // Envoi combiné : texte lisible (score/putts/pénalités) + fichier GPS en 6 blocs, en UN SEUL geste
+  // — fusion de "Transmettre ma carte" et "Envoyer le GPS", à la demande du Directeur de session.
+  // Web Share API texte+fichier ensemble quand disponible (un seul tap ouvre Messenger/mail avec les
+  // deux déjà prêts) ; sinon, copie le texte dans le presse-papier ET télécharge le fichier GPS,
+  // avec un message clair expliquant les deux actions.
+  async function blankCardExportCombined(){
+    const readable = buildBlankCardReadableText();
+    const {text: gpsText, filename} = blankCardBuildChunksFile();
+    try {
+      const file = new File([gpsText], filename, {type: 'text/plain'});
+      if (navigator.canShare && navigator.canShare({files: [file]})){
+        await navigator.share({files: [file], text: readable, title: 'SuarPark'});
+        return;
+      }
+    } catch (e) { /* annulé par l'utilisateur ou non supporté — on tente le repli */ }
+    const showPreview = () => {
+      blankCardDownloadChunksFile();
+      blankCardShowCopiedPreview(readable);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(readable).then(showPreview).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), readable));
+    } else {
+      window.prompt(t('blankCardExportTextFallbackTitle'), readable);
+    }
+  }
+
   function blankCardExportText(){
     const readable = buildBlankCardReadableText();
     const draft = collectBlankCardDraftFromDOM();
@@ -7586,9 +7561,7 @@
         <legend style="font-size:12px; font-weight:bold; color:#0d47a1; padding:0 6px;">📡 ${t('blankCardTransferLabel')}</legend>
         <div class="toolbar" style="margin:0;">
           <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
-          <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
-          <button class="btn btn-transfer" id="btnBlankCardShareGPS" style="background:#2E7D32;">📎 ${t('blankCardBtnShareGPS')}</button>
-          <button class="btn btn-transfer" id="btnBlankCardExportChunked" style="background:#0d47a1; font-size:10px;">${t('blankCardBtnExportChunked')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardExportText" style="background:#2E7D32;">${t('blankCardBtnExportText')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
         </div>
       </fieldset>
@@ -7710,9 +7683,7 @@
     document.getElementById('btnBlankCardClose').addEventListener('click', () => { setBlankCardVisible(false); setAppMode('home'); });
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
-    document.getElementById('btnBlankCardShareGPS').addEventListener('click', blankCardShareChunksFile);
-    document.getElementById('btnBlankCardExportChunked').addEventListener('click', blankCardShowChunkedExport);
-    document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
+    document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportCombined);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
     document.getElementById('btnToggleTeamRecapFromCard').addEventListener('click', () => {
       teamRecapSetVisible(!teamRecapVisible);
