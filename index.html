@@ -1906,7 +1906,10 @@
   //                 punaise de départ, à la demande du Directeur de session. Ajout d'un drapeau à
   //                 damier 🏁 sur la dernière balle quand le green est atteint — repère visuel clair
   //                 de la position d'arrivée sur la photo du trou.
-  const APP_VERSION = "SuarPark - V02.001.042";
+  //   V02.001.043 — Sur la photo du trou, les coups en pénalité affichent maintenant ⚠️ au-dessus
+  //                 de la balle (au lieu des triangles CSS jugés peu lisibles) — à la demande du
+  //                 Directeur de session.
+  const APP_VERSION = "SuarPark - V02.001.043";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6672,18 +6675,17 @@
       // bleu foncé = coup normal — plus d'anneau ni de badge séparé, juste le numéro et la
       // distance, rien d'autre.
       const numColor = isLast ? '#2E7D32' : (p.penaltyAfter ? '#dc3545' : '#0d3b66');
-      const size = p.penaltyAfter ? 15 : 13; // taille divisée par 2 par rapport à l'ancien rendu
+      const size = p.penaltyAfter ? 15 : 13;
       const d = distances ? distances[idx] : null;
       const distYd = d ? (idx > 0 ? d.fromPrevYd : d.fromTeeYd) : null;
       const distLabel = (distYd !== null && distYd !== undefined) ? `<div style="position:absolute; top:100%; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:10px; font-weight:800; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.9); margin-top:1px;">${distYd} yd</div>` : '';
-      // Clignote tant que le GPS de ce coup n'a pas encore répondu — retour visuel clair sur le
-      // terrain plutôt qu'un simple texte "en attente" facile à manquer.
       const pendingClass = p.geoPending ? 'geo-pending' : '';
-      // Drapeau à damier sur la dernière balle si le green est atteint — repère visuel clair de
-      // la position d'arrivée, à la demande du Directeur de session.
       const checkerFlag = isLast ? `<div style="position:absolute; bottom:100%; left:50%; transform:translateX(-50%); font-size:18px; line-height:1; margin-bottom:1px; text-shadow:0 1px 3px rgba(0,0,0,0.7);">🏁</div>` : '';
+      // ⚠️ au-dessus de la balle pour les coups en pénalité — à la demande du Directeur de session,
+      // en remplacement des triangles CSS jugés peu lisibles sur la photo du trou.
+      const penaltyBadge = p.penaltyAfter ? `<div style="position:absolute; bottom:100%; left:50%; transform:translateX(-50%); font-size:14px; line-height:1; margin-bottom:1px;">⚠️</div>` : '';
       return `<div style="position:absolute; left:${leftCss}; top:${topCss}; transform:translate(-50%,-50%); width:${size}px; height:${size}px;" class="${pendingClass}">
-        ${checkerFlag}
+        ${checkerFlag}${penaltyBadge}
         <img src="${GOLF_BALL_MARKER_IMG}" style="width:100%; height:100%; border-radius:50%; display:block; box-shadow:0 1px 4px rgba(0,0,0,0.6);">
         <span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; color:${numColor}; text-shadow:0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;">${myNum}</span>
         ${distLabel}
