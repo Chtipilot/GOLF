@@ -1871,7 +1871,14 @@
   //                 session. Chaque onglet recalcule l'éclectique individuel ET la ligne "🏅 ÉQUIPE"
   //                 en filtrant sur cette seule année. 2027 est préparé à l'avance (aucune manche
   //                 pour l'instant, message clair au lieu d'un tableau vide).
-  const APP_VERSION = "SuarPark - V02.001.035";
+  //   V02.001.036 — Nouveau bouton "🧩 GPS en 6 blocs" dans "Afficher ma carte" : découpe le code
+  //                 technique en 6 blocs de 3 trous chacun (~2 730 caractères/bloc, calcul fait avec
+  //                 le Directeur de session), pour contourner une limite de transmission rencontrée
+  //                 sur certains canaux (~4500 caractères, avait coupé les codes GPS de MARCUS et
+  //                 SANDY en plein milieu). Navigation "Précédent/Suivant" avec copie individuelle de
+  //                 chaque bloc — chaque bloc est autonome (numéro/total + identité du joueur
+  //                 inclus), reconstituable même reçu dans le désordre.
+  const APP_VERSION = "SuarPark - V02.001.036";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2153,6 +2160,12 @@
       blankCardBtnClose: "Retour",
       blankCardBtnExport: "🛰️ Code technique (avec GPS)",
       blankCardBtnExportText: "📝 Transmettre ma carte",
+      blankCardBtnExportChunked: "GPS en 6 blocs",
+      blankCardChunkTitle: (part, total, holes) => `🧩 Bloc ${part}/${total} — trous ${holes}`,
+      blankCardChunkHint: "Envoie-moi ce bloc, puis passe au suivant avec « Suivant › ». L'ordre d'arrivée n'a pas d'importance, je les reconstitue ensuite.",
+      blankCardChunkPrev: "Précédent",
+      blankCardChunkNext: "Suivant",
+      blankCardChunkCopy: "Copier ce bloc",
       blankCardBtnClear: "🗑️ Effacer",
       blankCardAutosaveNote: "Brouillon sauvegardé automatiquement sur cet appareil.",
       blankCardExportImportNote: "« Copier en texte lisible » place un résumé clair dans le presse-papier, à coller (SMS, LINE...) pour l'envoyer. « Coller » lit automatiquement ce texte reçu d'un autre joueur, préalablement copié dans le presse-papier de cet appareil. Si le navigateur l'autorise, « Coller » lit même directement ce presse-papier sans étape supplémentaire.",
@@ -2452,6 +2465,12 @@
       blankCardBtnClose: "Back",
       blankCardBtnExport: "🛰️ Technical code (with GPS)",
       blankCardBtnExportText: "📝 Send my card",
+      blankCardBtnExportChunked: "GPS in 6 chunks",
+      blankCardChunkTitle: (part, total, holes) => `🧩 Chunk ${part}/${total} — holes ${holes}`,
+      blankCardChunkHint: "Send me this chunk, then move to the next with \"Next ›\". Order doesn't matter, I'll reassemble them afterwards.",
+      blankCardChunkPrev: "Previous",
+      blankCardChunkNext: "Next",
+      blankCardChunkCopy: "Copy this chunk",
       blankCardBtnClear: "🗑️ Clear",
       blankCardAutosaveNote: "Draft automatically saved on this device.",
       blankCardExportImportNote: "\"Copy as readable text\" puts a clear summary on the clipboard, to paste (SMS, LINE...) and send it. \"Paste\" automatically reads this text received from another player, first copied to this device's clipboard. If the browser allows it, \"Paste\" even reads that clipboard directly, with no extra step.",
@@ -2751,6 +2770,12 @@
       blankCardBtnClose: "Zurück",
       blankCardBtnExport: "🛰️ Technischer Code (mit GPS)",
       blankCardBtnExportText: "📝 Meine Karte übermitteln",
+      blankCardBtnExportChunked: "GPS in 6 Blöcken",
+      blankCardChunkTitle: (part, total, holes) => `🧩 Block ${part}/${total} — Löcher ${holes}`,
+      blankCardChunkHint: "Sende mir diesen Block, dann weiter mit „Weiter ›“. Die Reihenfolge spielt keine Rolle, ich setze sie danach zusammen.",
+      blankCardChunkPrev: "Zurück",
+      blankCardChunkNext: "Weiter",
+      blankCardChunkCopy: "Diesen Block kopieren",
       blankCardBtnClear: "🗑️ Löschen",
       blankCardAutosaveNote: "Entwurf wird automatisch auf diesem Gerät gespeichert.",
       blankCardExportImportNote: "«Als lesbaren Text kopieren» legt eine klare Zusammenfassung in die Zwischenablage, zum Einfügen (SMS, LINE...) und Versenden. «Einfügen» liest diesen Text automatisch, der von einem anderen Spieler zuvor in die Zwischenablage dieses Geräts kopiert wurde. Falls der Browser es erlaubt, liest «Einfügen» die Zwischenablage sogar direkt, ganz ohne zusätzlichen Schritt.",
@@ -3050,6 +3075,12 @@
       blankCardBtnClose: "กลับ",
       blankCardBtnExport: "🛰️ โค้ดเทคนิค (พร้อม GPS)",
       blankCardBtnExportText: "📝 ส่งการ์ดของฉัน",
+      blankCardBtnExportChunked: "GPS แบบ 6 ส่วน",
+      blankCardChunkTitle: (part, total, holes) => `🧩 ส่วนที่ ${part}/${total} — หลุม ${holes}`,
+      blankCardChunkHint: "ส่งส่วนนี้ให้ฉัน แล้วไปส่วนถัดไปด้วย \"ถัดไป ›\" ลำดับไม่สำคัญ ฉันจะรวมให้ภายหลัง",
+      blankCardChunkPrev: "ก่อนหน้า",
+      blankCardChunkNext: "ถัดไป",
+      blankCardChunkCopy: "คัดลอกส่วนนี้",
       blankCardBtnClear: "🗑️ ล้างข้อมูล",
       blankCardAutosaveNote: "บันทึกร่างอัตโนมัติบนอุปกรณ์นี้",
       blankCardExportImportNote: "«คัดลอกเป็นข้อความอ่านได้» จะวางข้อความสรุปที่อ่านง่ายไว้ในคลิปบอร์ด เพื่อวาง (SMS, LINE...) และส่งต่อ «วาง» จะอ่านข้อความนี้ที่ได้รับจากผู้เล่นอีกคนโดยอัตโนมัติ ซึ่งถูกคัดลอกไว้ในคลิปบอร์ดของอุปกรณ์นี้ก่อนแล้ว หากเบราว์เซอร์อนุญาต «วาง» จะอ่านคลิปบอร์ดนั้นให้อัตโนมัติโดยไม่ต้องทำขั้นตอนเพิ่มเติม",
@@ -5496,6 +5527,71 @@
     otherWrap.style.display = select.value === BLANKCARD_OTHER_VALUE ? 'flex' : 'none';
   }
 
+  // Découpage du code technique en 6 blocs de 3 trous — pour contourner une limite de longueur
+  // rencontrée sur certains canaux de transmission (~4500 caractères), qui coupait le code GPS en
+  // plein milieu sur des manches complètes. 3 trous restent confortablement sous cette limite même
+  // pour un trou riche en coups/pénalités (calcul fait avec le Directeur de session : ~909
+  // caractères/trou en moyenne, donc ~2 730 caractères pour 3 trous). Chaque bloc est autonome
+  // (identité du joueur/date + numéro de bloc inclus), donc reconstituable même reçu dans le
+  // désordre.
+  function blankCardBuildChunks(){
+    const draft = collectBlankCardDraftFromDOM();
+    const chunks = [];
+    for (let part = 0; part < 6; part++){
+      const startHole = part * 3;
+      const holeIdxs = [startHole, startHole+1, startHole+2];
+      const chunk = {
+        chunkPart: part + 1, chunkTotal: 6, chunkHoles: holeIdxs,
+        playerName: draft.header.playerName, playerNameOther: draft.header.playerNameOther,
+        date: draft.header.date,
+        shotPoints: holeIdxs.map(h => (draft.shotPoints || [])[h] || []),
+        teeGeoByHole: holeIdxs.map(h => (draft.teeGeoByHole || [])[h] || null)
+      };
+      chunks.push(chunk);
+    }
+    return chunks;
+  }
+
+  let blankCardChunkIndex = 0;
+  function blankCardShowChunkedExport(){
+    blankCardChunkIndex = 0;
+    renderBlankCardChunkPanel();
+  }
+  function renderBlankCardChunkPanel(){
+    const chunks = blankCardBuildChunks();
+    const chunk = chunks[blankCardChunkIndex];
+    const code = btoa(unescape(encodeURIComponent(JSON.stringify(chunk))));
+    const panel = document.getElementById('scanReadyPanel');
+    panel.style.display = 'block';
+    const holesLabel = `${chunk.chunkHoles[0]+1}-${chunk.chunkHoles[2]+1}`;
+    panel.innerHTML = `
+      <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:#fff; z-index:10000; overflow:auto; padding:16px;">
+        <button class="btn btn-secondary" id="btnScanReadyClose">${t('scanReadyClose')}</button>
+        <h3 style="margin:12px 0 4px;">${t('blankCardChunkTitle', chunk.chunkPart, chunk.chunkTotal, holesLabel)}</h3>
+        <p class="sub" style="font-size:11px; margin:4px 0 12px;">${t('blankCardChunkHint')}</p>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <button type="button" class="btn btn-secondary no-print" id="btnChunkPrev" style="flex:1; margin:0;" ${blankCardChunkIndex===0?'disabled':''}>‹ ${t('blankCardChunkPrev')}</button>
+          <button type="button" class="btn no-print" id="btnChunkCopy" style="flex:1; margin:0; background:#2E7D32;">📋 ${t('blankCardChunkCopy')}</button>
+          <button type="button" class="btn btn-secondary no-print" id="btnChunkNext" style="flex:1; margin:0;" ${blankCardChunkIndex===5?'disabled':''}>${t('blankCardChunkNext')} ›</button>
+        </div>
+        <pre style="white-space:pre-wrap; word-break:break-word; font-family:'Courier New', monospace; font-size:clamp(12px, 3.2vw, 15px); line-height:1.4; color:#000; background:#f7f3ea; border:2px solid #c9a668; border-radius:8px; padding:14px; margin:0;">${code}</pre>
+      </div>`;
+    document.getElementById('btnScanReadyClose').addEventListener('click', () => {
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+    });
+    document.getElementById('btnChunkCopy').addEventListener('click', () => {
+      const finish = () => window.alert(t('blankCardExportTextCopied'));
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(code).then(finish).catch(() => window.prompt(t('blankCardExportFallbackTitle'), code));
+      } else {
+        window.prompt(t('blankCardExportFallbackTitle'), code);
+      }
+    });
+    document.getElementById('btnChunkPrev').addEventListener('click', () => { if (blankCardChunkIndex>0){ blankCardChunkIndex--; renderBlankCardChunkPanel(); } });
+    document.getElementById('btnChunkNext').addEventListener('click', () => { if (blankCardChunkIndex<5){ blankCardChunkIndex++; renderBlankCardChunkPanel(); } });
+  }
+
   function blankCardExport(){
     const draft = collectBlankCardDraftFromDOM();
     const code = btoa(unescape(encodeURIComponent(JSON.stringify(draft))));
@@ -7425,6 +7521,7 @@
         <div class="toolbar" style="margin:0;">
           <button class="btn btn-transfer" id="btnBlankCardExport" style="display:none;">${t('blankCardBtnExport')}</button>
           <button class="btn btn-transfer" id="btnBlankCardExportText">${t('blankCardBtnExportText')}</button>
+          <button class="btn btn-transfer" id="btnBlankCardExportChunked" style="background:#0d47a1;">🧩 ${t('blankCardBtnExportChunked')}</button>
           <button class="btn btn-transfer" id="btnBlankCardReceiveTeam">${t('blankCardBtnReceiveTeam')}</button>
         </div>
       </fieldset>
@@ -7546,6 +7643,7 @@
     document.getElementById('btnBlankCardClose').addEventListener('click', () => { setBlankCardVisible(false); setAppMode('home'); });
     document.getElementById('btnBlankCardPrint').addEventListener('click', () => window.print());
     document.getElementById('btnBlankCardExport').addEventListener('click', blankCardExport);
+    document.getElementById('btnBlankCardExportChunked').addEventListener('click', blankCardShowChunkedExport);
     document.getElementById('btnBlankCardExportText').addEventListener('click', blankCardExportText);
     document.getElementById('btnBlankCardReceiveTeam').addEventListener('click', blankCardReceiveTeamCard);
     document.getElementById('btnToggleTeamRecapFromCard').addEventListener('click', () => {
