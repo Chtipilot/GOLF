@@ -1863,7 +1863,10 @@
   //   V02.001.033 — L'encadré "Faits du jour" affiche désormais un vrai PODIUM à 3 places (🥇🥈🥉)
   //                 pour le score ET les putts, au lieu du seul vainqueur — à la demande du
   //                 Directeur de session.
-  const APP_VERSION = "SuarPark - V02.001.033";
+  //   V02.001.034 — Le podium à 3 places est désormais un VRAI podium dessiné en SVG (3 marches à
+  //                 hauteur variable, or/argent/bronze), au lieu du texte avec émojis médaille —
+  //                 aperçu validé avec le Directeur de session avant intégration.
+  const APP_VERSION = "SuarPark - V02.001.034";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4798,11 +4801,30 @@
 
     // Carte "honneur" : vainqueurs du jour (score ET putts) encadrés ensemble, mis en valeur
     // au-dessus des autres faits marquants (fond doré, bordure dorée, mise en avant visuelle).
-    const podiumMedal = (rank) => ['🥇','🥈','🥉'][rank] || '';
-    const podiumColumnHTML = (title, list, unit) => list.length ? `<div style="text-align:center; min-width:130px;">
-      <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px;">${title}</div>
-      ${list.map((p,i) => `<div style="font-size:${i===0?'15px':'12.5px'}; font-weight:${i===0?'900':'700'}; color:${colorFor(p.name)}; margin-bottom:1px;">${podiumMedal(i)} ${p.name} <span style="color:#555; font-weight:400;">— ${p.tot}${unit}</span></div>`).join('')}
-    </div>` : '';
+    // Vrai podium dessiné en SVG (3 marches à hauteur variable, or/argent/bronze) — validé avec le
+    // Directeur de session via un aperçu avant intégration.
+    const PODIUM_COLORS = ['#d4af37', '#a8a8a8', '#c67a3d']; // or, argent, bronze
+    const PODIUM_HEIGHTS = [100, 70, 50];
+    const podiumSVGHTML = (title, list, unit) => {
+      if (!list.length) return '';
+      const slotX = [110, 10, 210]; // 1er au centre, 2e à gauche, 3e à droite
+      const baseY = 170, blockW = 90;
+      let svg = '';
+      list.forEach((p, i) => {
+        if (i > 2) return;
+        const h = PODIUM_HEIGHTS[i];
+        const topY = baseY - h;
+        const x = slotX[i];
+        svg += `<rect x="${x}" y="${topY}" width="${blockW}" height="${h}" rx="4" fill="${PODIUM_COLORS[i]}" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>
+          <text x="${x+blockW/2}" y="${topY+h/2}" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="900" fill="rgba(0,0,0,0.55)">${i+1}</text>
+          <text x="${x+blockW/2}" y="${topY-22}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="900" fill="${colorFor(p.name)}">${p.name}</text>
+          <text x="${x+blockW/2}" y="${topY-6}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#555">${p.tot}${unit}</text>`;
+      });
+      return `<div style="text-align:center;">
+        <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:2px;">${title}</div>
+        <svg viewBox="0 0 310 172" style="width:100%; max-width:280px; height:auto;"><line x1="5" y1="170" x2="305" y2="170" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>${svg}</svg>
+      </div>`;
+    };
     const honorCard = (scorePodium, puttsPodium, date, isCustomDate, eclecticInfo, penaltyLoser, ace, personalBest, bestHole, playerCount) => `
       <div style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border:2px solid var(--sand); border-radius:10px; padding:14px 16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(201,166,104,0.35);">
         <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:2px; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
@@ -4812,10 +4834,8 @@
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightAceOfDay')}</div>
           <div style="font-size:14px; font-weight:900; color:${colorFor(ace.name)};">${t('insightAceOfDayDesc', ace.name, ace.hole+1)}</div>
         </div>` : ''}
-        <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
-          ${podiumColumnHTML(t('insightDayWinnerScore'), scorePodium, '')}
-          ${podiumColumnHTML(t('insightDayWinnerPutts'), puttsPodium, ' putts')}
-        </div>
+        ${podiumSVGHTML(t('insightDayWinnerScore'), scorePodium, '')}
+        ${podiumSVGHTML(t('insightDayWinnerPutts'), puttsPodium, ' putts')}
         <div id="insightLongestShotDayBox"></div>
         ${eclecticInfo ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightBestEclecticEver')}</div>
