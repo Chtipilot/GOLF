@@ -1860,7 +1860,10 @@
   //                 SANDY (115, 31 putts, 3 pénalités), texte lisible uniquement — le code technique
   //                 GPS n'a pas pu être transmis (dépassement d'une limite de copie côté téléphone,
   //                 confirmé après plusieurs tentatives), pas de replay officiel pour ces 2 manches.
-  const APP_VERSION = "SuarPark - V02.001.032";
+  //   V02.001.033 — L'encadré "Faits du jour" affiche désormais un vrai PODIUM à 3 places (🥇🥈🥉)
+  //                 pour le score ET les putts, au lieu du seul vainqueur — à la demande du
+  //                 Directeur de session.
+  const APP_VERSION = "SuarPark - V02.001.033";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4795,7 +4798,12 @@
 
     // Carte "honneur" : vainqueurs du jour (score ET putts) encadrés ensemble, mis en valeur
     // au-dessus des autres faits marquants (fond doré, bordure dorée, mise en avant visuelle).
-    const honorCard = (scoreWinner, puttsWinner, date, isCustomDate, eclecticInfo, penaltyLoser, ace, personalBest, bestHole, playerCount) => `
+    const podiumMedal = (rank) => ['🥇','🥈','🥉'][rank] || '';
+    const podiumColumnHTML = (title, list, unit) => list.length ? `<div style="text-align:center; min-width:130px;">
+      <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px;">${title}</div>
+      ${list.map((p,i) => `<div style="font-size:${i===0?'15px':'12.5px'}; font-weight:${i===0?'900':'700'}; color:${colorFor(p.name)}; margin-bottom:1px;">${podiumMedal(i)} ${p.name} <span style="color:#555; font-weight:400;">— ${p.tot}${unit}</span></div>`).join('')}
+    </div>` : '';
+    const honorCard = (scorePodium, puttsPodium, date, isCustomDate, eclecticInfo, penaltyLoser, ace, personalBest, bestHole, playerCount) => `
       <div style="background:linear-gradient(135deg, #fff8e1, #fdf2cf); border:2px solid var(--sand); border-radius:10px; padding:14px 16px; margin-bottom:14px; box-shadow:0 2px 6px rgba(201,166,104,0.35);">
         <div style="font-family:var(--font-display); font-weight:700; font-size:15px; color:#8a6d1f; margin-bottom:2px; text-align:center;">${t('insightDayWinnersHonorTitle', date)}</div>
         ${playerCount ? `<div style="font-size:11px; color:#a68a3d; text-align:center; margin-bottom:${isCustomDate ? '2px' : '8px'};">${t('insightDayPlayerCount', playerCount)}</div>` : ''}
@@ -4805,16 +4813,8 @@
           <div style="font-size:14px; font-weight:900; color:${colorFor(ace.name)};">${t('insightAceOfDayDesc', ace.name, ace.hole+1)}</div>
         </div>` : ''}
         <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
-          ${scoreWinner ? `<div style="text-align:center; min-width:130px;">
-            <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightDayWinnerScore')}</div>
-            <div style="font-size:18px; font-weight:900; color:${colorFor(scoreWinner.name)};">${scoreWinner.name}</div>
-            <div style="font-size:13px; color:#555;">${scoreWinner.tot}</div>
-          </div>` : ''}
-          ${puttsWinner ? `<div style="text-align:center; min-width:130px;">
-            <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightDayWinnerPutts')}</div>
-            <div style="font-size:18px; font-weight:900; color:${colorFor(puttsWinner.name)};">${puttsWinner.name}</div>
-            <div style="font-size:13px; color:#555;">${puttsWinner.tot} putts</div>
-          </div>` : ''}
+          ${podiumColumnHTML(t('insightDayWinnerScore'), scorePodium, '')}
+          ${podiumColumnHTML(t('insightDayWinnerPutts'), puttsPodium, ' putts')}
         </div>
         <div id="insightLongestShotDayBox"></div>
         ${eclecticInfo ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
@@ -4898,8 +4898,9 @@
       }
     }
     if (podiumDate){
-      let dayScoreWinner = null, dayPuttsWinner = null, dayPenaltyLoser = null;
+      let dayPenaltyLoser = null;
       let dayAce = null, dayPersonalBest = null, dayPlayerCount = 0;
+      const dayScoresList = [], dayPuttsList = [];
       const holeDiffSums = Array(18).fill(0), holeDiffCounts = Array(18).fill(0);
       players.forEach(name => {
         let playedToday = false;
@@ -4908,10 +4909,10 @@
           if (date !== podiumDate) return;
           playedToday = true;
           const tot = scores.reduce((a,b)=>a+b,0);
-          if (dayScoreWinner === null || tot < dayScoreWinner.tot) dayScoreWinner = {name, tot};
+          dayScoresList.push({name, tot});
           const puttsArr = roundPutts(round);
           const puttsTot = puttsArr.reduce((a,b)=>a+b,0);
-          if (puttsTot > 0 && (dayPuttsWinner === null || puttsTot < dayPuttsWinner.tot)) dayPuttsWinner = {name, tot: puttsTot};
+          if (puttsTot > 0) dayPuttsList.push({name, tot: puttsTot});
           // "Malchanceux du jour" : le plus de pénalités sur cette manche — juste pour rire, ça ne
           // remplace ni ne concurrence les vrais faits marquants sportifs.
           const penaltiesTot = (round[2] || []).reduce((a,b)=>a+Number(b||0),0);
@@ -4940,6 +4941,12 @@
         });
         if (playedToday) dayPlayerCount++;
       });
+      // Podium à 3 places (score et putts), triés du meilleur au moins bon — à la demande du
+      // Directeur de session, au lieu de juste afficher le vainqueur unique.
+      dayScoresList.sort((a,b) => a.tot - b.tot);
+      dayPuttsList.sort((a,b) => a.tot - b.tot);
+      const dayScorePodium = dayScoresList.slice(0, 3);
+      const dayPuttsPodium = dayPuttsList.slice(0, 3);
       // "Trou du jour" : la plus petite moyenne (score-par) parmi les trous joués par au moins un
       // joueur ce jour-là — celui où l'équipe s'en est collectivement le mieux sortie.
       let dayBestHole = null;
@@ -4948,7 +4955,7 @@
         const avgDiff = holeDiffSums[h] / count;
         if (dayBestHole === null || avgDiff < dayBestHole.avgDiff) dayBestHole = {hole: h, avgDiff};
       });
-      if (dayScoreWinner || dayPuttsWinner) html += honorCard(dayScoreWinner, dayPuttsWinner, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null, dayPenaltyLoser, dayAce, dayPersonalBest, dayBestHole, dayPlayerCount);
+      if (dayScorePodium.length || dayPuttsPodium.length) html += honorCard(dayScorePodium, dayPuttsPodium, podiumDate, !!insightsSelectedDate, (newEclecticRecord && newEclecticRecord.date === podiumDate) ? newEclecticRecord : null, dayPenaltyLoser, dayAce, dayPersonalBest, dayBestHole, dayPlayerCount);
     }
     if (newTeamEclecticRecord) html += `
       <div class="team-record-blink" style="border-left:4px solid #B8860B; border-radius:6px; padding:10px 14px; margin-bottom:10px;">
