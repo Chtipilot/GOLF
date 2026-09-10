@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.052";
+  const APP_VERSION = "SuarPark - V02.001.053";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2081,21 +2081,21 @@
     return labels[clubKeyForHole(holeIdx, tee)];
   }
 
-  const COLORS = {"ALAN":"#2E86AB","LOUIS":"#A23B72","MARCUS":"#F18F01","PATRICK":"#3B7A57","MARTIN":"#1ABC9C"};
+  const COLORS = {"ALAN":"#2E86AB","LOUIS":"#A23B72","MARCUS":"#F18F01","PATRICK":"#3B7A57","MARTIN":"#1ABC9C","JOHN":"#E74C3C","KENT":"#8E44AD"};
 
-  // Registre des joueurs : ID stable (0000–XXXX) → {name, color} — ajouté à la demande du
-  // Directeur de session pour identifier chaque joueur par un ID fixe, indépendant du nom.
-  // Tous les accès internes (historique, stats, GPS) continuent d'utiliser le nom comme clé
-  // (refactoring complet des clés = risque trop élevé) ; le registre sert de référence stable
-  // pour les exports, l'affichage et les intégrations futures.
+  // Registre des joueurs : ID stable (0000–XXXX) → {name, nationality, color}
+  // La nationalité permet de distinguer des joueurs homonymes.
+  // Tous les accès internes continuent d'utiliser le nom comme clé.
   const PLAYER_REGISTRY = {
-    "0000": {name: "Claude Caddie Assistant", color: "#888888"},
-    "0001": {name: "LOUIS",   color: "#A23B72"},
-    "0002": {name: "ALAN",    color: "#2E86AB"},
-    "0003": {name: "PATRICK", color: "#3B7A57"},
-    "0004": {name: "MARCUS",  color: "#F18F01"},
-    "0005": {name: "SANDY",   color: "#E67E22"},
-    "0006": {name: "MARTIN",  color: "#1ABC9C"},
+    "0000": {name: "Claude Caddie Assistant", nationality: "apatride", color: "#888888"},
+    "0001": {name: "LOUIS",   nationality: "FR",  color: "#A23B72"},
+    "0002": {name: "ALAN",    nationality: "EN",  color: "#2E86AB"},
+    "0003": {name: "PATRICK", nationality: "FR",  color: "#3B7A57"},
+    "0004": {name: "MARCUS",  nationality: "DE",  color: "#F18F01"},
+    "0005": {name: "SANDY",   nationality: "SW",  color: "#E67E22"},
+    "0006": {name: "MARTIN",  nationality: "AUT", color: "#1ABC9C"},
+    "0007": {name: "JOHN",    nationality: "EN",  color: "#E74C3C"},
+    "0008": {name: "KENT",    nationality: "ND",  color: "#8E44AD"},
   };
   function playerById(id){ return PLAYER_REGISTRY[id] || null; }
   function playerIdByName(name){ return Object.keys(PLAYER_REGISTRY).find(k => PLAYER_REGISTRY[k].name === name) || null; }
@@ -3474,7 +3474,7 @@
   const DEFAULT_DATA = {
     // "Claude Caddie Assistant" : identité dédiée aux essais/tests du site (remplace LOUIS, utilisé
     // précédemment pour les créneaux de test), clairement distincte des 5 vrais joueurs de l'équipe.
-    players: ["LOUIS","ALAN","PATRICK","MARCUS","SANDY","MARTIN","Claude Caddie Assistant"],
+    players: ["LOUIS","ALAN","PATRICK","MARCUS","SANDY","MARTIN","JOHN","KENT","Claude Caddie Assistant"],
     history: {
       SANDY: [
         ["16/04/2026",[7,6,7,6,5,7,6,4,6,5,6,4,8,5,5,8,6,6]],
@@ -3488,6 +3488,12 @@
       ],
       MARTIN: [
         // Nouveau membre — ID 0006 — intégré en V02.001.051 (aucune manche encore enregistrée).
+      ],
+      JOHN: [
+        // Nouveau membre — ID 0007 — intégré en V02.001.053 (aucune manche encore enregistrée).
+      ],
+      KENT: [
+        // Nouveau membre — ID 0008 — intégré en V02.001.053 (aucune manche encore enregistrée).
       ],
       // "Claude Caddie Assistant" — identité dédiée aux essais/tests du site (remplace LOUIS,
       // précédemment utilisé pour ça). Historique volontairement VIDE (V02.000.010, à la demande du
