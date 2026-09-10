@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.045";
+  const APP_VERSION = "SuarPark - V02.001.046";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5665,7 +5665,9 @@
       const holesLabel = `${chunk.chunkHoles[0]+1}-${chunk.chunkHoles[2]+1}`;
       text += `==================== BLOC ${chunk.chunkPart}/${chunk.chunkTotal} — ${t('blankCardChunkHolesLabel')} ${holesLabel} ====================\n${code}\n\n`;
     });
-    const filename = `SuarPark_GPS_${name.replace(/[^a-zA-Z0-9]/g,'')}_${date.replace(/\//g,'-')}.txt`;
+    const now = new Date();
+    const hhmm = String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0');
+    const filename = `SuarPark_GPS_${name.replace(/[^a-zA-Z0-9]/g,'')}_${date.replace(/\//g,'-')}_${hhmm}.txt`;
     return {text, filename, name, date};
   }
   function blankCardDownloadChunksFile(){
