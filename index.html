@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.050";
+  const APP_VERSION = "SuarPark - V02.001.052";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2081,7 +2081,24 @@
     return labels[clubKeyForHole(holeIdx, tee)];
   }
 
-  const COLORS = {"ALAN":"#2E86AB","LOUIS":"#A23B72","MARCUS":"#F18F01","PATRICK":"#3B7A57"};
+  const COLORS = {"ALAN":"#2E86AB","LOUIS":"#A23B72","MARCUS":"#F18F01","PATRICK":"#3B7A57","MARTIN":"#1ABC9C"};
+
+  // Registre des joueurs : ID stable (0000–XXXX) → {name, color} — ajouté à la demande du
+  // Directeur de session pour identifier chaque joueur par un ID fixe, indépendant du nom.
+  // Tous les accès internes (historique, stats, GPS) continuent d'utiliser le nom comme clé
+  // (refactoring complet des clés = risque trop élevé) ; le registre sert de référence stable
+  // pour les exports, l'affichage et les intégrations futures.
+  const PLAYER_REGISTRY = {
+    "0000": {name: "Claude Caddie Assistant", color: "#888888"},
+    "0001": {name: "LOUIS",   color: "#A23B72"},
+    "0002": {name: "ALAN",    color: "#2E86AB"},
+    "0003": {name: "PATRICK", color: "#3B7A57"},
+    "0004": {name: "MARCUS",  color: "#F18F01"},
+    "0005": {name: "SANDY",   color: "#E67E22"},
+    "0006": {name: "MARTIN",  color: "#1ABC9C"},
+  };
+  function playerById(id){ return PLAYER_REGISTRY[id] || null; }
+  function playerIdByName(name){ return Object.keys(PLAYER_REGISTRY).find(k => PLAYER_REGISTRY[k].name === name) || null; }
   const PALETTE = ["#2E86AB","#A23B72","#F18F01","#3B7A57","#7A5195","#EF5675","#665191","#B0A160"];
 
   const LANG_STORAGE_KEY = "suarpark-lang";
@@ -3457,7 +3474,7 @@
   const DEFAULT_DATA = {
     // "Claude Caddie Assistant" : identité dédiée aux essais/tests du site (remplace LOUIS, utilisé
     // précédemment pour les créneaux de test), clairement distincte des 5 vrais joueurs de l'équipe.
-    players: ["ALAN","LOUIS","MARCUS","PATRICK","SANDY","Claude Caddie Assistant"],
+    players: ["LOUIS","ALAN","PATRICK","MARCUS","SANDY","MARTIN","Claude Caddie Assistant"],
     history: {
       SANDY: [
         ["16/04/2026",[7,6,7,6,5,7,6,4,6,5,6,4,8,5,5,8,6,6]],
@@ -3468,6 +3485,9 @@
         ["26/08/2026",[10,5,5,6,5,9,7,7,7,7,6,4,7,3,7,8,7,6],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,2,1,2,2,2,3,2,2,2,2,2,2,1,2,3,2,3],"white","41"],
         ["02/09/2026",[7,6,6,4,5,9,8,6,8,7,7,3,9,4,6,10,7,7],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,1,2,2,2,2,3,3,3,3,3,1,2,2,2,3,2,2],"white","41"],
         ["09/09/2026",[9,7,5,3,8,6,6,5,7,6,9,5,9,4,5,10,5,6],[0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0],[3,1,2,1,3,2,0,2,2,2,2,1,1,2,1,2,2,2],"white","41"]
+      ],
+      MARTIN: [
+        // Nouveau membre — ID 0006 — intégré en V02.001.051 (aucune manche encore enregistrée).
       ],
       // "Claude Caddie Assistant" — identité dédiée aux essais/tests du site (remplace LOUIS,
       // précédemment utilisé pour ça). Historique volontairement VIDE (V02.000.010, à la demande du
