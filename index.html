@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.044";
+  const APP_VERSION = "SuarPark - V02.001.045";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2200,6 +2200,17 @@
       blankCardBtnShareGPS: "Envoyer le GPS (1 clic)",
       blankCardChunkFileIntro: "Fichier avec le GPS complet en 6 blocs indépendants — envoie-le en pièce jointe (Messenger, mail, etc.).",
       blankCardEmailGPSNote: (f) => `Joindre le fichier GPS téléchargé automatiquement : ${f}`,
+      blankCardSendPanelTitle: "Transmettre ma carte",
+      blankCardSendStep1Title: "Copier le texte lisible",
+      blankCardSendStep1Hint: "Score · putts · pénalités",
+      blankCardSendStep2Title: "Télécharger le fichier GPS",
+      blankCardSendStep3Title: "Ouvrir le mail",
+      blankCardSendStep3Attach: "Joindre le fichier GPS ② avant d'envoyer",
+      blankCardSendCopy: "Copier",
+      blankCardSendCopied: "Copié !",
+      blankCardSendDownload: "Télécharger",
+      blankCardSendDownloaded: "Téléchargé !",
+      blankCardSendMail: "Mail",
       blankCardChunkHolesLabel: "trous",
       blankCardChunkTitle: (part, total, holes) => `🧩 Bloc ${part}/${total} — trous ${holes}`,
       blankCardChunkHint: "Envoie-moi ce bloc, puis passe au suivant avec « Suivant › ». L'ordre d'arrivée n'a pas d'importance, je les reconstitue ensuite.",
@@ -2509,6 +2520,17 @@
       blankCardBtnShareGPS: "Send GPS (1 tap)",
       blankCardChunkFileIntro: "File with the full GPS data in 6 independent chunks — send it as an attachment (Messenger, email, etc.).",
       blankCardEmailGPSNote: (f) => `Please attach the GPS file downloaded automatically: ${f}`,
+      blankCardSendPanelTitle: "Send my card",
+      blankCardSendStep1Title: "Copy readable text",
+      blankCardSendStep1Hint: "Score · putts · penalties",
+      blankCardSendStep2Title: "Download GPS file",
+      blankCardSendStep3Title: "Open email",
+      blankCardSendStep3Attach: "Attach GPS file ② before sending",
+      blankCardSendCopy: "Copy",
+      blankCardSendCopied: "Copied!",
+      blankCardSendDownload: "Download",
+      blankCardSendDownloaded: "Downloaded!",
+      blankCardSendMail: "Mail",
       blankCardChunkHolesLabel: "holes",
       blankCardChunkTitle: (part, total, holes) => `🧩 Chunk ${part}/${total} — holes ${holes}`,
       blankCardChunkHint: "Send me this chunk, then move to the next with \"Next ›\". Order doesn't matter, I'll reassemble them afterwards.",
@@ -2818,6 +2840,17 @@
       blankCardBtnShareGPS: "GPS senden (1 Tipp)",
       blankCardChunkFileIntro: "Datei mit den vollständigen GPS-Daten in 6 unabhängigen Blöcken — als Anhang senden (Messenger, E-Mail usw.).",
       blankCardEmailGPSNote: (f) => `Bitte die automatisch heruntergeladene GPS-Datei anhängen: ${f}`,
+      blankCardSendPanelTitle: "Karte übermitteln",
+      blankCardSendStep1Title: "Lesbaren Text kopieren",
+      blankCardSendStep1Hint: "Score · Putts · Strafen",
+      blankCardSendStep2Title: "GPS-Datei herunterladen",
+      blankCardSendStep3Title: "E-Mail öffnen",
+      blankCardSendStep3Attach: "GPS-Datei ② anhängen vor dem Senden",
+      blankCardSendCopy: "Kopieren",
+      blankCardSendCopied: "Kopiert!",
+      blankCardSendDownload: "Herunterladen",
+      blankCardSendDownloaded: "Heruntergeladen!",
+      blankCardSendMail: "Mail",
       blankCardChunkHolesLabel: "Löcher",
       blankCardChunkTitle: (part, total, holes) => `🧩 Block ${part}/${total} — Löcher ${holes}`,
       blankCardChunkHint: "Sende mir diesen Block, dann weiter mit „Weiter ›“. Die Reihenfolge spielt keine Rolle, ich setze sie danach zusammen.",
@@ -3127,6 +3160,17 @@
       blankCardBtnShareGPS: "ส่ง GPS (แตะเดียว)",
       blankCardChunkFileIntro: "ไฟล์ข้อมูล GPS ครบถ้วนแบ่งเป็น 6 ส่วนอิสระ — ส่งเป็นไฟล์แนบ (Messenger, อีเมล ฯลฯ)",
       blankCardEmailGPSNote: (f) => `กรุณาแนบไฟล์ GPS ที่ดาวน์โหลดอัตโนมัติ: ${f}`,
+      blankCardSendPanelTitle: "ส่งการ์ดของฉัน",
+      blankCardSendStep1Title: "คัดลอกข้อความ",
+      blankCardSendStep1Hint: "สกอร์ · พัตต์ · เพนัลตี้",
+      blankCardSendStep2Title: "ดาวน์โหลดไฟล์ GPS",
+      blankCardSendStep3Title: "เปิดอีเมล",
+      blankCardSendStep3Attach: "แนบไฟล์ GPS ② ก่อนส่ง",
+      blankCardSendCopy: "คัดลอก",
+      blankCardSendCopied: "คัดลอกแล้ว!",
+      blankCardSendDownload: "ดาวน์โหลด",
+      blankCardSendDownloaded: "ดาวน์โหลดแล้ว!",
+      blankCardSendMail: "อีเมล",
       blankCardChunkHolesLabel: "หลุม",
       blankCardChunkTitle: (part, total, holes) => `🧩 ส่วนที่ ${part}/${total} — หลุม ${holes}`,
       blankCardChunkHint: "ส่งส่วนนี้ให้ฉัน แล้วไปส่วนถัดไปด้วย \"ถัดไป ›\" ลำดับไม่สำคัญ ฉันจะรวมให้ภายหลัง",
@@ -5820,22 +5864,85 @@
   // avec un message clair expliquant les deux actions.
   const SUARPARK_EMAIL = 'golfsuarpark@gmail.com';
 
-  async function blankCardExportCombined(){
+  // Panneau "tout en main" pour l'envoi de la carte — 3 boutons dans l'ordre logique, sur un seul
+  // écran, pour guider le joueur sans qu'il cherche. Contrainte technique incontournable : mailto:
+  // ne peut pas joindre de fichier en HTML, donc les 3 étapes restent séparées mais regroupées.
+  function blankCardShowSendPanel(){
     const readable = buildBlankCardReadableText();
-    const {filename} = blankCardBuildChunksFile();
     const draft = collectBlankCardDraftFromDOM();
     const name = draft.header.playerName || draft.header.playerNameOther || '?';
     const date = draft.header.date || '';
-    // 1 — Télécharge le fichier GPS automatiquement (mailto: ne peut pas joindre de fichier)
-    blankCardDownloadChunksFile();
-    // 2 — Ouvre directement un mail vers golfsuarpark@gmail.com, texte lisible dans le corps,
-    //     note demandant de joindre le fichier GPS qui vient d'être téléchargé.
+    const {filename} = blankCardBuildChunksFile();
     const subject = encodeURIComponent(`SuarPark — ${name} — ${date}`);
-    const body = encodeURIComponent(
-      readable +
-      `\n\n---\n📎 ${t('blankCardEmailGPSNote', filename)}`
-    );
-    window.location.href = `mailto:${SUARPARK_EMAIL}?subject=${subject}&body=${body}`;
+    const mailBody = encodeURIComponent(readable);
+    const mailtoLink = `mailto:${SUARPARK_EMAIL}?subject=${subject}&body=${mailBody}`;
+    const panel = document.getElementById('scanReadyPanel');
+    panel.style.display = 'block';
+    panel.innerHTML = `
+      <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:10000; display:flex; align-items:flex-end; justify-content:center;">
+        <div style="background:#fff; width:100%; max-width:480px; border-radius:18px 18px 0 0; padding:20px 18px 32px; box-shadow:0 -4px 24px rgba(0,0,0,0.2);">
+          <div style="font-family:var(--font-display); font-weight:800; font-size:16px; color:#1a3c34; margin-bottom:4px; text-align:center;">📤 ${t('blankCardSendPanelTitle')}</div>
+          <div style="font-size:11px; color:#888; text-align:center; margin-bottom:18px;">${name} · ${date}</div>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <!-- Étape 1 : Copier le texte -->
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+              <div style="font-size:28px; flex-shrink:0;">①</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:13px; color:#1a3c34; margin-bottom:2px;">${t('blankCardSendStep1Title')}</div>
+                <div style="font-size:11px; color:#888;">${t('blankCardSendStep1Hint')}</div>
+              </div>
+              <button type="button" id="btnSendPanelCopy" style="flex-shrink:0; background:#2E7D32; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer;">📋 ${t('blankCardSendCopy')}</button>
+            </div>
+
+            <!-- Étape 2 : Télécharger le GPS -->
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+              <div style="font-size:28px; flex-shrink:0;">②</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:13px; color:#1a3c34; margin-bottom:2px;">${t('blankCardSendStep2Title')}</div>
+                <div style="font-size:11px; color:#888; word-break:break-all;">${filename}</div>
+              </div>
+              <button type="button" id="btnSendPanelGPS" style="flex-shrink:0; background:#0d47a1; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer;">📎 ${t('blankCardSendDownload')}</button>
+            </div>
+
+            <!-- Étape 3 : Ouvrir le mail -->
+            <div style="border:2px solid #c9a668; border-radius:12px; padding:12px 14px; background:#fffdf5; display:flex; align-items:center; gap:12px;">
+              <div style="font-size:28px; flex-shrink:0;">③</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:13px; color:#8a6d1f; margin-bottom:2px;">${t('blankCardSendStep3Title')}</div>
+                <div style="font-size:11px; color:#a68a3d;">${SUARPARK_EMAIL}</div>
+                <div style="font-size:11px; color:#c0392b; font-weight:600; margin-top:3px;">⬆️ ${t('blankCardSendStep3Attach')}</div>
+              </div>
+              <a href="${mailtoLink}" id="btnSendPanelMail" style="flex-shrink:0; background:#c9a668; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block;">📧 ${t('blankCardSendMail')}</a>
+            </div>
+          </div>
+
+          <button type="button" id="btnSendPanelClose" style="width:100%; margin-top:16px; background:#f0f0f0; color:#555; border:none; border-radius:10px; padding:10px; font-size:13px; font-weight:600; cursor:pointer;">${t('scanReadyClose')}</button>
+        </div>
+      </div>`;
+
+    document.getElementById('btnSendPanelClose').addEventListener('click', () => {
+      panel.style.display = 'none'; panel.innerHTML = '';
+    });
+    document.getElementById('btnSendPanelCopy').addEventListener('click', () => {
+      const btn = document.getElementById('btnSendPanelCopy');
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(readable).then(() => {
+          if (btn){ btn.textContent = '✅ ' + t('blankCardSendCopied'); btn.style.background = '#1b5e20'; }
+        }).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), readable));
+      } else {
+        window.prompt(t('blankCardExportTextFallbackTitle'), readable);
+      }
+    });
+    document.getElementById('btnSendPanelGPS').addEventListener('click', () => {
+      blankCardDownloadChunksFile();
+      const btn = document.getElementById('btnSendPanelGPS');
+      if (btn){ btn.textContent = '✅ ' + t('blankCardSendDownloaded'); btn.style.background = '#1565C0'; }
+    });
+  }
+
+  async function blankCardExportCombined(){
+    blankCardShowSendPanel();
   }
 
   function blankCardExportText(){
