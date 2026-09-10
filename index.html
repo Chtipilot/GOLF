@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.048";
+  const APP_VERSION = "SuarPark - V02.001.049";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7228,7 +7228,10 @@
       <div style="position:fixed; inset:0; z-index:0; display:flex; flex-direction:column; background:#0a1914;">
 
         <div style="flex:0 0 auto; z-index:2; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.55);">
-          <button type="button" id="btnHoleViewBack" class="btn no-print" style="background:rgba(255,255,255,0.92); color:var(--green-deep); font-weight:700; margin:0; box-shadow:0 2px 6px rgba(0,0,0,0.35);">${t('holeViewBtnBack')}</button>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button type="button" id="btnHoleViewBack" class="btn no-print" style="background:rgba(255,255,255,0.92); color:var(--green-deep); font-weight:700; margin:0; box-shadow:0 2px 6px rgba(0,0,0,0.35);">${t('holeViewBtnBack')}</button>
+            <div id="holeViewGpsBadge" style="background:rgba(0,0,0,0.5); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:12px; pointer-events:none; white-space:nowrap;">⏳ GPS…</div>
+          </div>
           <div style="display:flex; align-items:center; gap:8px; background:${penalty ? 'rgba(74,32,32,0.85)' : 'rgba(10,25,20,0.55)'}; backdrop-filter:blur(2px); border-radius:20px; padding:4px 6px 4px 14px; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.35); border:${penalty ? '2px solid #dc3545' : 'none'};">
             <div style="text-align:right; line-height:1.15;">
               <div style="font-size:20px; font-weight:900;">${t('blankCardHoleLabel')} ${holeIdx+1}${penalty ? ` ${holePenaltyTriangleHTML(16)}` : ''}</div>
@@ -7279,8 +7282,6 @@
               ${greenReached ? holeViewPuttCounterHTML(holeIdx, currentPutts) : ''}
             </div>
             <p id="holeViewShotsHint" style="pointer-events:none; font-size:10.5px; opacity:.85; text-align:center; margin:6px 0 0; color:#fff; display:${(holeViewShotPoints.length===0 && !greenReached) ? 'block':'none'};">${t('holeViewNoShots')}</p>
-            <!-- Badge GPS en direct — mis à jour par holeViewUpdateGpsBadge() via watchPosition -->
-            <div id="holeViewGpsBadge" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.5); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:12px; pointer-events:none; z-index:5;">⏳ GPS…</div>
             ${(!teeIsSet || holeViewTeeArmed) ? `<div style="text-align:center; margin-top:4px;">
               <button type="button" id="btnHoleViewRecaptureTee" class="btn ${holeViewTeeArmed ? '' : 'btn-secondary'} no-print" style="font-size:10.5px; padding:4px 10px; margin:0; ${holeViewTeeArmed ? 'background:#dc3545; color:#fff;' : ''}">${t('holeViewBtnRecaptureTee')}</button>
             </div>` : ''}
