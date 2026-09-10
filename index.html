@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.046";
+  const APP_VERSION = "SuarPark - V02.001.047";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2203,7 +2203,10 @@
       blankCardSendPanelTitle: "Transmettre ma carte",
       blankCardSendStep1Title: "Copier le texte lisible",
       blankCardSendStep1Hint: "Score · putts · pénalités",
-      blankCardSendStep2Title: "Télécharger le fichier GPS",
+      blankCardSendStep2Title: "Partager le fichier GPS",
+      blankCardSendRecommended: "Recommandé",
+      blankCardSendShare: "Partager",
+      blankCardSendShared: "Envoyé !",
       blankCardSendStep3Title: "Ouvrir le mail",
       blankCardSendStep3Attach: "Joindre le fichier GPS ② avant d'envoyer",
       blankCardSendCopy: "Copier",
@@ -2523,7 +2526,10 @@
       blankCardSendPanelTitle: "Send my card",
       blankCardSendStep1Title: "Copy readable text",
       blankCardSendStep1Hint: "Score · putts · penalties",
-      blankCardSendStep2Title: "Download GPS file",
+      blankCardSendStep2Title: "Share GPS file",
+      blankCardSendRecommended: "Recommended",
+      blankCardSendShare: "Share",
+      blankCardSendShared: "Shared!",
       blankCardSendStep3Title: "Open email",
       blankCardSendStep3Attach: "Attach GPS file ② before sending",
       blankCardSendCopy: "Copy",
@@ -2843,7 +2849,10 @@
       blankCardSendPanelTitle: "Karte übermitteln",
       blankCardSendStep1Title: "Lesbaren Text kopieren",
       blankCardSendStep1Hint: "Score · Putts · Strafen",
-      blankCardSendStep2Title: "GPS-Datei herunterladen",
+      blankCardSendStep2Title: "GPS-Datei teilen",
+      blankCardSendRecommended: "Empfohlen",
+      blankCardSendShare: "Teilen",
+      blankCardSendShared: "Geteilt!",
       blankCardSendStep3Title: "E-Mail öffnen",
       blankCardSendStep3Attach: "GPS-Datei ② anhängen vor dem Senden",
       blankCardSendCopy: "Kopieren",
@@ -3163,7 +3172,10 @@
       blankCardSendPanelTitle: "ส่งการ์ดของฉัน",
       blankCardSendStep1Title: "คัดลอกข้อความ",
       blankCardSendStep1Hint: "สกอร์ · พัตต์ · เพนัลตี้",
-      blankCardSendStep2Title: "ดาวน์โหลดไฟล์ GPS",
+      blankCardSendStep2Title: "แชร์ไฟล์ GPS",
+      blankCardSendRecommended: "แนะนำ",
+      blankCardSendShare: "แชร์",
+      blankCardSendShared: "ส่งแล้ว!",
       blankCardSendStep3Title: "เปิดอีเมล",
       blankCardSendStep3Attach: "แนบไฟล์ GPS ② ก่อนส่ง",
       blankCardSendCopy: "คัดลอก",
@@ -5874,22 +5886,25 @@
     const draft = collectBlankCardDraftFromDOM();
     const name = draft.header.playerName || draft.header.playerNameOther || '?';
     const date = draft.header.date || '';
-    const {filename} = blankCardBuildChunksFile();
-    const subject = encodeURIComponent(`SuarPark — ${name} — ${date}`);
-    const mailBody = encodeURIComponent(readable);
-    const mailtoLink = `mailto:${SUARPARK_EMAIL}?subject=${subject}&body=${mailBody}`;
+    const {text: gpsText, filename} = blankCardBuildChunksFile();
     const panel = document.getElementById('scanReadyPanel');
     panel.style.display = 'block';
     panel.innerHTML = `
       <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:10000; display:flex; align-items:flex-end; justify-content:center;">
         <div style="background:#fff; width:100%; max-width:480px; border-radius:18px 18px 0 0; padding:20px 18px 32px; box-shadow:0 -4px 24px rgba(0,0,0,0.2);">
           <div style="font-family:var(--font-display); font-weight:800; font-size:16px; color:#1a3c34; margin-bottom:4px; text-align:center;">📤 ${t('blankCardSendPanelTitle')}</div>
-          <div style="font-size:11px; color:#888; text-align:center; margin-bottom:18px;">${name} · ${date}</div>
+          <div style="font-size:11px; color:#888; text-align:center; margin-bottom:12px;">${name} · ${date}</div>
+
+          <!-- Recommandation adresse -->
+          <div style="background:#e8f5e9; border:1.5px solid #2E7D32; border-radius:10px; padding:8px 12px; margin-bottom:14px; text-align:center;">
+            <span style="font-size:11px; color:#1b5e20; font-weight:700;">📧 ${t('blankCardSendRecommended')} : </span>
+            <span style="font-size:12px; color:#1b5e20; font-weight:900;">${SUARPARK_EMAIL}</span>
+          </div>
 
           <div style="display:flex; flex-direction:column; gap:10px;">
             <!-- Étape 1 : Copier le texte -->
             <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
-              <div style="font-size:28px; flex-shrink:0;">①</div>
+              <div style="font-size:24px; flex-shrink:0;">①</div>
               <div style="flex:1; min-width:0;">
                 <div style="font-weight:700; font-size:13px; color:#1a3c34; margin-bottom:2px;">${t('blankCardSendStep1Title')}</div>
                 <div style="font-size:11px; color:#888;">${t('blankCardSendStep1Hint')}</div>
@@ -5897,25 +5912,14 @@
               <button type="button" id="btnSendPanelCopy" style="flex-shrink:0; background:#2E7D32; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer;">📋 ${t('blankCardSendCopy')}</button>
             </div>
 
-            <!-- Étape 2 : Télécharger le GPS -->
-            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
-              <div style="font-size:28px; flex-shrink:0;">②</div>
+            <!-- Étape 2 : Partager le fichier GPS -->
+            <div style="border:2px solid #0d47a1; border-radius:12px; padding:12px 14px; background:#f0f4ff; display:flex; align-items:center; gap:12px;">
+              <div style="font-size:24px; flex-shrink:0;">②</div>
               <div style="flex:1; min-width:0;">
-                <div style="font-weight:700; font-size:13px; color:#1a3c34; margin-bottom:2px;">${t('blankCardSendStep2Title')}</div>
-                <div style="font-size:11px; color:#888; word-break:break-all;">${filename}</div>
+                <div style="font-weight:700; font-size:13px; color:#0d47a1; margin-bottom:2px;">${t('blankCardSendStep2Title')}</div>
+                <div style="font-size:11px; color:#1565C0;">WhatsApp · Messenger · Gmail · …</div>
               </div>
-              <button type="button" id="btnSendPanelGPS" style="flex-shrink:0; background:#0d47a1; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer;">📎 ${t('blankCardSendDownload')}</button>
-            </div>
-
-            <!-- Étape 3 : Ouvrir le mail -->
-            <div style="border:2px solid #c9a668; border-radius:12px; padding:12px 14px; background:#fffdf5; display:flex; align-items:center; gap:12px;">
-              <div style="font-size:28px; flex-shrink:0;">③</div>
-              <div style="flex:1; min-width:0;">
-                <div style="font-weight:700; font-size:13px; color:#8a6d1f; margin-bottom:2px;">${t('blankCardSendStep3Title')}</div>
-                <div style="font-size:11px; color:#a68a3d;">${SUARPARK_EMAIL}</div>
-                <div style="font-size:11px; color:#c0392b; font-weight:600; margin-top:3px;">⬆️ ${t('blankCardSendStep3Attach')}</div>
-              </div>
-              <a href="${mailtoLink}" id="btnSendPanelMail" style="flex-shrink:0; background:#c9a668; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block;">📧 ${t('blankCardSendMail')}</a>
+              <button type="button" id="btnSendPanelGPS" style="flex-shrink:0; background:#0d47a1; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer;">📎 ${t('blankCardSendShare')}</button>
             </div>
           </div>
 
@@ -5936,9 +5940,19 @@
         window.prompt(t('blankCardExportTextFallbackTitle'), readable);
       }
     });
-    document.getElementById('btnSendPanelGPS').addEventListener('click', () => {
-      blankCardDownloadChunksFile();
+    document.getElementById('btnSendPanelGPS').addEventListener('click', async () => {
       const btn = document.getElementById('btnSendPanelGPS');
+      // Web Share API avec fichier — ouvre le sélecteur natif (WhatsApp, Messenger, Gmail...)
+      try {
+        const file = new File([gpsText], filename, {type: 'text/plain'});
+        if (navigator.canShare && navigator.canShare({files: [file]})){
+          await navigator.share({files: [file], title: `SuarPark GPS — ${name} — ${date}`});
+          if (btn){ btn.textContent = '✅ ' + t('blankCardSendShared'); btn.style.background = '#1565C0'; }
+          return;
+        }
+      } catch(e){ /* annulé ou non supporté — repli sur téléchargement */ }
+      // Repli : téléchargement simple si Web Share non disponible
+      blankCardDownloadChunksFile();
       if (btn){ btn.textContent = '✅ ' + t('blankCardSendDownloaded'); btn.style.background = '#1565C0'; }
     });
   }
