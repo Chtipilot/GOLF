@@ -1909,7 +1909,12 @@
   //   V02.001.043 — Sur la photo du trou, les coups en pénalité affichent maintenant ⚠️ au-dessus
   //                 de la balle (au lieu des triangles CSS jugés peu lisibles) — à la demande du
   //                 Directeur de session.
-  const APP_VERSION = "SuarPark - V02.001.043";
+  //   V02.001.044 — "📝 Transmettre ma carte" ouvre maintenant directement un mail vers
+  //                 golfsuarpark@gmail.com (sujet et texte lisible pré-remplis), à la demande du
+  //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
+  //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
+  //                 du mail demandant de le joindre manuellement.
+  const APP_VERSION = "SuarPark - V02.001.044";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2194,6 +2199,7 @@
       blankCardBtnExportChunked: "GPS en 6 blocs (pas-à-pas)",
       blankCardBtnShareGPS: "Envoyer le GPS (1 clic)",
       blankCardChunkFileIntro: "Fichier avec le GPS complet en 6 blocs indépendants — envoie-le en pièce jointe (Messenger, mail, etc.).",
+      blankCardEmailGPSNote: (f) => `Joindre le fichier GPS téléchargé automatiquement : ${f}`,
       blankCardChunkHolesLabel: "trous",
       blankCardChunkTitle: (part, total, holes) => `🧩 Bloc ${part}/${total} — trous ${holes}`,
       blankCardChunkHint: "Envoie-moi ce bloc, puis passe au suivant avec « Suivant › ». L'ordre d'arrivée n'a pas d'importance, je les reconstitue ensuite.",
@@ -2502,6 +2508,7 @@
       blankCardBtnExportChunked: "GPS in 6 chunks (step by step)",
       blankCardBtnShareGPS: "Send GPS (1 tap)",
       blankCardChunkFileIntro: "File with the full GPS data in 6 independent chunks — send it as an attachment (Messenger, email, etc.).",
+      blankCardEmailGPSNote: (f) => `Please attach the GPS file downloaded automatically: ${f}`,
       blankCardChunkHolesLabel: "holes",
       blankCardChunkTitle: (part, total, holes) => `🧩 Chunk ${part}/${total} — holes ${holes}`,
       blankCardChunkHint: "Send me this chunk, then move to the next with \"Next ›\". Order doesn't matter, I'll reassemble them afterwards.",
@@ -2810,6 +2817,7 @@
       blankCardBtnExportChunked: "GPS in 6 Blöcken (Schritt für Schritt)",
       blankCardBtnShareGPS: "GPS senden (1 Tipp)",
       blankCardChunkFileIntro: "Datei mit den vollständigen GPS-Daten in 6 unabhängigen Blöcken — als Anhang senden (Messenger, E-Mail usw.).",
+      blankCardEmailGPSNote: (f) => `Bitte die automatisch heruntergeladene GPS-Datei anhängen: ${f}`,
       blankCardChunkHolesLabel: "Löcher",
       blankCardChunkTitle: (part, total, holes) => `🧩 Block ${part}/${total} — Löcher ${holes}`,
       blankCardChunkHint: "Sende mir diesen Block, dann weiter mit „Weiter ›“. Die Reihenfolge spielt keine Rolle, ich setze sie danach zusammen.",
@@ -3118,6 +3126,7 @@
       blankCardBtnExportChunked: "GPS แบบ 6 ส่วน (ทีละขั้น)",
       blankCardBtnShareGPS: "ส่ง GPS (แตะเดียว)",
       blankCardChunkFileIntro: "ไฟล์ข้อมูล GPS ครบถ้วนแบ่งเป็น 6 ส่วนอิสระ — ส่งเป็นไฟล์แนบ (Messenger, อีเมล ฯลฯ)",
+      blankCardEmailGPSNote: (f) => `กรุณาแนบไฟล์ GPS ที่ดาวน์โหลดอัตโนมัติ: ${f}`,
       blankCardChunkHolesLabel: "หลุม",
       blankCardChunkTitle: (part, total, holes) => `🧩 ส่วนที่ ${part}/${total} — หลุม ${holes}`,
       blankCardChunkHint: "ส่งส่วนนี้ให้ฉัน แล้วไปส่วนถัดไปด้วย \"ถัดไป ›\" ลำดับไม่สำคัญ ฉันจะรวมให้ภายหลัง",
@@ -5809,25 +5818,24 @@
   // Web Share API texte+fichier ensemble quand disponible (un seul tap ouvre Messenger/mail avec les
   // deux déjà prêts) ; sinon, copie le texte dans le presse-papier ET télécharge le fichier GPS,
   // avec un message clair expliquant les deux actions.
+  const SUARPARK_EMAIL = 'golfsuarpark@gmail.com';
+
   async function blankCardExportCombined(){
     const readable = buildBlankCardReadableText();
-    const {text: gpsText, filename} = blankCardBuildChunksFile();
-    try {
-      const file = new File([gpsText], filename, {type: 'text/plain'});
-      if (navigator.canShare && navigator.canShare({files: [file]})){
-        await navigator.share({files: [file], text: readable, title: 'SuarPark'});
-        return;
-      }
-    } catch (e) { /* annulé par l'utilisateur ou non supporté — on tente le repli */ }
-    const showPreview = () => {
-      blankCardDownloadChunksFile();
-      blankCardShowCopiedPreview(readable);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(readable).then(showPreview).catch(() => window.prompt(t('blankCardExportTextFallbackTitle'), readable));
-    } else {
-      window.prompt(t('blankCardExportTextFallbackTitle'), readable);
-    }
+    const {filename} = blankCardBuildChunksFile();
+    const draft = collectBlankCardDraftFromDOM();
+    const name = draft.header.playerName || draft.header.playerNameOther || '?';
+    const date = draft.header.date || '';
+    // 1 — Télécharge le fichier GPS automatiquement (mailto: ne peut pas joindre de fichier)
+    blankCardDownloadChunksFile();
+    // 2 — Ouvre directement un mail vers golfsuarpark@gmail.com, texte lisible dans le corps,
+    //     note demandant de joindre le fichier GPS qui vient d'être téléchargé.
+    const subject = encodeURIComponent(`SuarPark — ${name} — ${date}`);
+    const body = encodeURIComponent(
+      readable +
+      `\n\n---\n📎 ${t('blankCardEmailGPSNote', filename)}`
+    );
+    window.location.href = `mailto:${SUARPARK_EMAIL}?subject=${subject}&body=${body}`;
   }
 
   function blankCardExportText(){
