@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.053";
+  const APP_VERSION = "SuarPark - V02.001.054";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2099,6 +2099,20 @@
   };
   function playerById(id){ return PLAYER_REGISTRY[id] || null; }
   function playerIdByName(name){ return Object.keys(PLAYER_REGISTRY).find(k => PLAYER_REGISTRY[k].name === name) || null; }
+
+  const FLAG_BY_NATIONALITY = {
+    "FR": "🇫🇷", "EN": "🇬🇧", "DE": "🇩🇪",
+    "SW": "🇸🇪", "AUT": "🇦🇹", "ND": "🇳🇱",
+    "apatride": "🌐"
+  };
+  function flagFor(name){
+    const entry = Object.values(PLAYER_REGISTRY).find(p => p.name === name);
+    if (!entry) return '';
+    return FLAG_BY_NATIONALITY[entry.nationality] || '';
+  }
+  // Nom affiché = drapeau + prénom — utilisé dans les tableaux, podiums, faits du jour, etc.
+  // N'est PAS utilisé comme clé de données (l'historique reste indexé par nom brut).
+  function displayName(name){ const f = flagFor(name); return f ? `${f} ${name}` : name; }
   const PALETTE = ["#2E86AB","#A23B72","#F18F01","#3B7A57","#7A5195","#EF5675","#665191","#B0A160"];
 
   const LANG_STORAGE_KEY = "suarpark-lang";
@@ -4277,7 +4291,7 @@
     </p>`;
     state.players.forEach(name => {
       const rounds = state.history[name] || [];
-      html += `<p class="sub" style="margin-top:10px; font-weight:bold; color:${colorFor(name)};">${name} — ${t('roundsCount', rounds.length)}</p>`;
+      html += `<p class="sub" style="margin-top:10px; font-weight:bold; color:${colorFor(name)};">${displayName(name)} — ${t('roundsCount', rounds.length)}</p>`;
       if (rounds.length === 0){
         html += `<p class="sub">${t('noRoundsRecorded')}</p>`;
         return;
@@ -4503,7 +4517,7 @@
       });
       if (rounds.length === 0){
         rows += `<tr style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
-          <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${name}</td>
+          <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${displayName(name)}</td>
           ${Array(18).fill('<td>—</td>').join("")}
           <td style="background:#e8f0ee;">—</td><td style="background:#e8f0ee;">—</td><td style="background:#e8f0ee;">—</td>
         </tr>`;
@@ -4511,7 +4525,7 @@
       }
       const {out, inn, tot} = computeOutInTot(best);
       rows += `<tr style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
-        <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${name}</td>
+        <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${displayName(name)}</td>
         ${best.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
         <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
         <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
@@ -4525,7 +4539,7 @@
         <td style="text-align:left; padding-left:4px; font-weight:900; color:#8a6d1f;">${t('eclecticTeamRow')}</td>
         ${teamBest.map((s,h)=>{ const c=scoreColor(s,h); const who = teamBestBy[h]; return `<td style="background:${c.bg}; color:${c.fg}; font-weight:900; padding:3px 1px; vertical-align:top;">
           <div>${scoreDisplayHTML(s,h)}</div>
-          ${who ? `<div style="writing-mode:vertical-rl; font-size:10px; font-weight:700; letter-spacing:0.5px; color:${colorFor(who)}; margin:3px auto 0; line-height:1.05; max-height:70px; overflow:hidden;">${who}</div>` : ''}
+          ${who ? `<div style="writing-mode:vertical-rl; font-size:10px; font-weight:700; letter-spacing:0.5px; color:${colorFor(who)}; margin:3px auto 0; line-height:1.05; max-height:70px; overflow:hidden;">${displayName(who)}</div>` : ''}
         </td>`; }).join("")}
         <td style="font-weight:900; background:#f1e6cc;">${out}</td>
         <td style="font-weight:900; background:#f1e6cc;">${inn}</td>
@@ -5025,7 +5039,7 @@
         const x = slotX[i];
         svg += `<rect x="${x}" y="${topY}" width="${blockW}" height="${h}" rx="4" fill="${PODIUM_COLORS[i]}" stroke="rgba(0,0,0,0.15)" stroke-width="0.5"/>
           <text x="${x+blockW/2}" y="${topY+h/2}" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="900" fill="rgba(0,0,0,0.55)">${i+1}</text>
-          <text x="${x+blockW/2}" y="${topY-22}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="900" fill="${colorFor(p.name)}">${p.name}</text>
+          <text x="${x+blockW/2}" y="${topY-22}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="900" fill="${colorFor(p.name)}">${displayName(p.name)}</text>
           <text x="${x+blockW/2}" y="${topY-6}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#555">${p.tot}${unit}</text>`;
       });
       return `<div style="text-align:center;">
@@ -5280,7 +5294,7 @@
       teamRed.push(...s.red);
       teamWhite.push(...s.white);
       rows += `<tr>
-        <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${name}</td>
+        <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${displayName(name)}</td>
         <td style="background:#f4f7f6;">${s.whiteCount}</td><td style="background:#f4f7f6; font-weight:bold;">${fmt(s.whiteAvg)}</td><td style="background:#f4f7f6;">${s.whiteBest===null?'—':s.whiteBest}</td>
         <td style="background:#fdecea;">${s.redCount}</td><td style="background:#fdecea; font-weight:bold;">${fmt(s.redAvg)}</td><td style="background:#fdecea;">${s.redBest===null?'—':s.redBest}</td>
         <td style="font-weight:bold;">${fmtDiff(s.redAvg, s.whiteAvg)}</td>
@@ -7803,7 +7817,7 @@
       </tr>`;
 
     const playerOptions = [`<option value="">${t('blankCardChoosePlayer')}</option>`]
-      .concat(state.players.map(p => `<option value="${p}">${p}</option>`))
+      .concat(state.players.map(p => `<option value="${p}">${displayName(p)}</option>`))
       .concat([`<option value="${BLANKCARD_OTHER_VALUE}">${t('blankCardOtherPlayer')}</option>`])
       .join("");
 
