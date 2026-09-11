@@ -1915,7 +1915,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.063";
+  const APP_VERSION = "SuarPark - V02.001.064";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7636,66 +7636,87 @@
       const area = document.getElementById('holeViewImageArea');
       const layer = document.getElementById('holeViewZoomLayer');
       if (!area || !layer) return;
-      let scale = 1, lastScale = 1;
-      let tx = 0, ty = 0;          // translation courante
+      let scale = 1;
+      let tx = 0, ty = 0;
       let lastTap = 0;
 
       function applyTransform(){
         layer.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
       }
       function clampTranslation(){
-        // Empêche de sortir des bords : à scale=1 → pas de déplacement possible
         const maxTx = area.offsetWidth  * (scale - 1) / 2;
         const maxTy = area.offsetHeight * (scale - 1) / 2;
         tx = Math.max(-maxTx, Math.min(maxTx, tx));
         ty = Math.max(-maxTy, Math.min(maxTy, ty));
       }
 
+      // État pinch
       let initDist = 0, initScale = 1, initTx = 0, initTy = 0;
       let midX0 = 0, midY0 = 0;
+
+      // État pan (1 doigt)
+      let panStartX = 0, panStartY = 0, panTxStart = 0, panTyStart = 0;
+      let isPanning = false;
 
       area.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2){
           e.preventDefault();
+          isPanning = false;
           const t0 = e.touches[0], t1 = e.touches[1];
-          initDist = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
+          initDist  = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
           initScale = scale; initTx = tx; initTy = ty;
-          const r = area.getBoundingClientRect();
-          midX0 = (t0.clientX + t1.clientX)/2 - r.left - r.width/2;
-          midY0 = (t0.clientY + t1.clientY)/2 - r.top  - r.height/2;
+          const r  = area.getBoundingClientRect();
+          midX0 = (t0.clientX+t1.clientX)/2 - r.left - r.width/2;
+          midY0 = (t0.clientY+t1.clientY)/2 - r.top  - r.height/2;
         } else if (e.touches.length === 1){
-          // Détecte le double-tap pour reset
+          // Double-tap → reset
           const now = Date.now();
           if (now - lastTap < 280){
             scale = 1; tx = 0; ty = 0;
             applyTransform();
             e.preventDefault();
+            isPanning = false;
+            lastTap = 0;
+            return;
           }
           lastTap = now;
+          // Démarre le pan si on est zoomé
+          if (scale > 1){
+            isPanning = true;
+            panStartX  = e.touches[0].clientX;
+            panStartY  = e.touches[0].clientY;
+            panTxStart = tx;
+            panTyStart = ty;
+          }
         }
       }, {passive: false});
 
       area.addEventListener('touchmove', (e) => {
         if (e.touches.length === 2){
           e.preventDefault();
+          isPanning = false;
           const t0 = e.touches[0], t1 = e.touches[1];
           const dist = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
           scale = Math.max(1, Math.min(5, initScale * dist / initDist));
-          // Compense le déplacement du centre du pinch
-          const r = area.getBoundingClientRect();
-          const midX = (t0.clientX + t1.clientX)/2 - r.left - r.width/2;
-          const midY = (t0.clientY + t1.clientY)/2 - r.top  - r.height/2;
+          const r   = area.getBoundingClientRect();
+          const midX = (t0.clientX+t1.clientX)/2 - r.left - r.width/2;
+          const midY = (t0.clientY+t1.clientY)/2 - r.top  - r.height/2;
           tx = initTx + (midX - midX0);
           ty = initTy + (midY - midY0);
           clampTranslation();
           applyTransform();
-        } else if (e.touches.length === 1 && scale > 1){
-          // Pan quand zoomé
+        } else if (e.touches.length === 1 && isPanning && scale > 1){
           e.preventDefault();
+          tx = panTxStart + (e.touches[0].clientX - panStartX);
+          ty = panTyStart + (e.touches[0].clientY - panStartY);
+          clampTranslation();
+          applyTransform();
         }
       }, {passive: false});
 
-      area.addEventListener('touchend', () => { lastScale = scale; });
+      area.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) isPanning = false;
+      });
     })();
   }
 
