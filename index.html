@@ -1915,7 +1915,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.060";
+  const APP_VERSION = "SuarPark - V02.001.061";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2309,7 +2309,8 @@
       holeViewGeoPending: "Localisation en cours…",
       holeViewGeoUnavailable: "GPS indisponible pour ce coup",
       gpsWarnTitle: "⚠️ Signal GPS faible",
-      holeViewGpsGreenHint: "Bon signal — tapez sur la carte !",
+      holeViewGpsWaitHint: "Attends — GPS en acquisition…",
+      holeViewGpsWarnHint: (acc) => `Signal faible (${acc}m) — attends avant de taper`,
       gpsWarnNote: (acc) => `Précision : ${acc}m — le point GPS peut être approximatif. Tu peux appuyer à nouveau sur la photo pour recapturer.`,
       holeViewBtnRecaptureTee: "📍 Clique sur la carte à l'endroit du départ",
       holeViewTeeArmedHint: "Touche la photo à l'endroit du départ pour poser la punaise.",
@@ -2635,7 +2636,8 @@
       holeViewGeoPending: "Locating…",
       holeViewGeoUnavailable: "GPS unavailable for this shot",
       gpsWarnTitle: "⚠️ Weak GPS signal",
-      holeViewGpsGreenHint: "Good signal — tap on the map!",
+      holeViewGpsWaitHint: "Wait — GPS acquiring…",
+      holeViewGpsWarnHint: (acc) => `Weak signal (${acc}m) — wait before tapping`,
       gpsWarnNote: (acc) => `Accuracy: ${acc}m — GPS point may be approximate. You can tap the photo again to re-capture.`,
       holeViewBtnRecaptureTee: "📍 Tap the map at the tee location",
       holeViewTeeArmedHint: "Tap the photo where the tee is to drop the pin.",
@@ -2961,7 +2963,8 @@
       holeViewGeoPending: "Standort wird ermittelt…",
       holeViewGeoUnavailable: "GPS für diesen Schlag nicht verfügbar",
       gpsWarnTitle: "⚠️ Schwaches GPS-Signal",
-      holeViewGpsGreenHint: "Gutes Signal — auf die Karte tippen!",
+      holeViewGpsWaitHint: "Warten — GPS wird erfasst…",
+      holeViewGpsWarnHint: (acc) => `Schwaches Signal (${acc}m) — warte vor dem Tippen`,
       gpsWarnNote: (acc) => `Genauigkeit: ${acc}m — GPS-Punkt möglicherweise ungenau. Nochmal auf das Foto tippen zum Neuerfassen.`,
       holeViewBtnRecaptureTee: "📍 Auf die Karte am Abschlag tippen",
       holeViewTeeArmedHint: "Auf das Foto tippen, wo der Abschlag ist, um die Nadel zu setzen.",
@@ -3287,7 +3290,8 @@
       holeViewGeoPending: "กำลังระบุตำแหน่ง…",
       holeViewGeoUnavailable: "ไม่มีสัญญาณ GPS สำหรับช็อตนี้",
       gpsWarnTitle: "⚠️ สัญญาณ GPS อ่อน",
-      holeViewGpsGreenHint: "สัญญาณดี — แตะที่แผนที่!",
+      holeViewGpsWaitHint: "รอสักครู่ — GPS กำลังจับสัญญาณ…",
+      holeViewGpsWarnHint: (acc) => `สัญญาณอ่อน (${acc}m) — รอก่อนแตะ`,
       gpsWarnNote: (acc) => `ความแม่นยำ: ${acc}m — ตำแหน่ง GPS อาจไม่แม่นยำ แตะภาพอีกครั้งเพื่อบันทึกใหม่`,
       holeViewBtnRecaptureTee: "📍 แตะที่แผนที่ตรงจุดทีออฟ",
       holeViewTeeArmedHint: "แตะที่ภาพตรงจุดทีออฟเพื่อปักหมุด",
@@ -6839,55 +6843,49 @@
     holeViewLiveAccuracy = null;
   }
   let holeViewGpsGreenHintTimer = null;
-  let holeViewGpsWasGreen = false;
 
   function holeViewUpdateGpsBadge(){
     const el = document.getElementById('holeViewGpsBadge');
     if (!el) return;
-    const wasGreen = holeViewGpsWasGreen;
     if (holeViewLiveAccuracy === null){
       el.textContent = 'GPS ⏳'; el.style.background = 'rgba(0,0,0,0.5)';
-      holeViewGpsWasGreen = false;
+      holeViewShowGpsWarnOverlay('⏳', t('holeViewGpsWaitHint'));
     } else if (holeViewLiveAccuracy <= 10){
       el.textContent = `GPS 🟢 ${holeViewLiveAccuracy}m`; el.style.background = 'rgba(27,94,32,0.82)';
-      // Affiche le conseil "tapez maintenant" la première fois qu'on passe au vert
-      if (!wasGreen){ holeViewShowGpsGreenHint(); }
-      holeViewGpsWasGreen = true;
+      holeViewHideGpsWarnOverlay();
     } else if (holeViewLiveAccuracy <= 30){
       el.textContent = `GPS 🟡 ${holeViewLiveAccuracy}m`; el.style.background = 'rgba(130,100,0,0.82)';
-      holeViewGpsWasGreen = false;
+      holeViewShowGpsWarnOverlay('🟡', t('holeViewGpsWarnHint', holeViewLiveAccuracy));
     } else {
       el.textContent = `GPS 🔴 ${holeViewLiveAccuracy}m`; el.style.background = 'rgba(183,28,28,0.82)';
-      holeViewGpsWasGreen = false;
+      holeViewShowGpsWarnOverlay('🔴', t('holeViewGpsWarnHint', holeViewLiveAccuracy));
     }
   }
 
-  function holeViewShowGpsGreenHint(){
+  function holeViewShowGpsWarnOverlay(icon, msg){
     const area = document.getElementById('holeViewImageArea');
     if (!area) return;
-    // Retire l'éventuel conseil précédent
-    const old = document.getElementById('holeViewGpsGreenHint');
-    if (old) old.remove();
-    if (holeViewGpsGreenHintTimer) clearTimeout(holeViewGpsGreenHintTimer);
-    const hint = document.createElement('div');
-    hint.id = 'holeViewGpsGreenHint';
-    hint.style.cssText = `
-      position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
-      background:rgba(27,94,32,0.90); color:#fff;
-      font-size:13px; font-weight:700; padding:8px 16px;
-      border-radius:20px; pointer-events:none; z-index:10;
-      box-shadow:0 2px 8px rgba(0,0,0,0.4); white-space:nowrap;
-      animation: fadeInUp .25s ease;
-    `;
-    hint.textContent = `🟢 ${t('holeViewGpsGreenHint')}`;
-    area.appendChild(hint);
-    // Disparaît après 3 secondes
-    holeViewGpsGreenHintTimer = setTimeout(() => {
-      hint.style.transition = 'opacity .4s';
-      hint.style.opacity = '0';
-      setTimeout(() => hint.remove(), 400);
-    }, 3000);
+    let warn = document.getElementById('holeViewGpsWarnOverlay');
+    if (!warn){
+      warn = document.createElement('div');
+      warn.id = 'holeViewGpsWarnOverlay';
+      warn.style.cssText = `position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+        color:#fff; font-size:13px; font-weight:700; padding:8px 16px;
+        border-radius:20px; pointer-events:none; z-index:10;
+        box-shadow:0 2px 8px rgba(0,0,0,0.4); white-space:nowrap;`;
+      area.appendChild(warn);
+    }
+    warn.style.background = icon === '🔴' ? 'rgba(183,28,28,0.90)' : 'rgba(100,80,0,0.90)';
+    warn.textContent = `${icon} ${msg}`;
+    warn.style.display = 'block';
   }
+
+  function holeViewHideGpsWarnOverlay(){
+    const warn = document.getElementById('holeViewGpsWarnOverlay');
+    if (warn) warn.style.display = 'none';
+  }
+
+  function holeViewShowGpsGreenHint(){ /* supprimé — on n'affiche plus de conseil vert */ }
 
   // Capture GPS améliorée : 3 lectures espacées de 700ms, moyennées, lecture fraîche forcée,
   // alerte si la précision reste >30m après la moyenne.
