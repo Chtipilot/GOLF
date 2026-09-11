@@ -1914,7 +1914,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.001.057";
+  const APP_VERSION = "SuarPark - V02.001.058";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7345,7 +7345,10 @@
       penaltyEl.textContent = penaltyCount > 0 ? t('holeViewPenaltyCount', penaltyCount) : '';
     }
     const undoBtn = document.getElementById('btnHoleViewUndo');
-    if (undoBtn) undoBtn.disabled = holeViewShotPoints.length === 0;
+    if (undoBtn){
+      const teeIsSetNow = !!((blankCardTeeGeoByHole || [])[holeIdx] && (blankCardTeeGeoByHole || [])[holeIdx].x !== undefined);
+      undoBtn.disabled = holeViewShotPoints.length === 0 && !teeIsSetNow;
+    }
     const validateBtn = document.getElementById('btnHoleViewValidate');
     if (validateBtn) validateBtn.disabled = holeViewShotPoints.length === 0;
     const penaltyBtn = document.getElementById('btnHoleViewPenalty');
