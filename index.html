@@ -204,10 +204,6 @@
   }
   body.blankcard-open { overflow:hidden; }
 
-  /* Bandeau "tourne le téléphone" — visible uniquement en portrait quand la carte est ouverte */
-  @media (orientation: portrait) {
-    body.blankcard-open #rotateHint { display: flex !important; }
-  }
   #rotateHint {
     display: none;
     position: fixed; inset: 0; z-index: 99999;
@@ -1938,7 +1934,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.011";
+  const APP_VERSION = "SuarPark - V02.002.012";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7941,6 +7937,15 @@
     });
   }
 
+  function updateRotateHint(){
+    const hint = document.getElementById('rotateHint');
+    if (!hint) return;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    hint.style.display = (blankCardVisible && isPortrait) ? 'flex' : 'none';
+  }
+  window.addEventListener('resize', updateRotateHint);
+  window.addEventListener('orientationchange', () => setTimeout(updateRotateHint, 100));
+
   function setBlankCardVisible(visible){
     blankCardVisible = visible;
     const section = document.getElementById('blankCardSection');
@@ -7948,6 +7953,7 @@
     document.body.classList.toggle('blankcard-open', blankCardVisible);
     document.getElementById('tileBlankCardLabel').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
     if (blankCardVisible){ renderBlankCard(); wireLangSelectors(); }
+    updateRotateHint();
   }
 
   function renderBlankCard(){
