@@ -1915,7 +1915,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.005";
+  const APP_VERSION = "SuarPark - V02.002.006";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5082,7 +5082,6 @@
         </div>` : ''}
         ${podiumSVGHTML(t('insightDayWinnerScore'), scorePodium, '')}
         ${podiumSVGHTML(t('insightDayWinnerPutts'), puttsPodium, ' putts')}
-        <div id="insightLongestShotDayBox"></div>
         ${eclecticInfo ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightBestEclecticEver')}</div>
           <div style="font-size:13.5px; font-weight:700; color:${colorFor(eclecticInfo.name)};">${t('insightNewEclecticRecordDesc', eclecticInfo.name, eclecticInfo.hole+1, eclecticInfo.oldScore, eclecticInfo.newScore, eclecticInfo.date)}</div>
@@ -5249,34 +5248,10 @@
     html += card(t('costTotalTitle'), t('costTotalDesc', teamCostTotal.toLocaleString('fr-FR'), costLines), '#B8860B');
 
     html += card(t('insightTeamTotal'), t('insightTeamTotalDesc', totalRounds), '#1a3c34');
-    html += `<div id="insightLongestShotBox"></div>`;
 
     container.innerHTML = html;
-    // Plus long coup (généralement le drive), calculé à partir des données GPS officielles —
-    // chargées à la demande seulement (jamais au démarrage), donc ce fait marquant apparaît avec
-    // un léger différé une fois le fichier récupéré. "Claude Caddie Assistant" (identité de test)
-    // reste exclu, comme toutes les autres statistiques d'équipe.
-    loadShotHistoryData().then(data => {
-      const box = document.getElementById('insightLongestShotBox');
-      if (box){
-        const rec = computeLongestShotRecord(data);
-        box.outerHTML = rec
-          ? card(t('insightLongestShot'), t('insightLongestShotDesc', rec.name, rec.yards, rec.hole+1, rec.date), '#B8860B')
-          : '<div id="insightLongestShotBox"></div>';
-      }
-      // Même chose mais limité à la dernière manche jouée (podiumDate) — "du jour", pas all-time —
-      // affiché DANS l'encadré doré, pas en dehors (voir placeholder posé dans honorCard).
-      const boxDay = document.getElementById('insightLongestShotDayBox');
-      if (boxDay && podiumDate){
-        const recDay = computeLongestShotRecord(data, podiumDate);
-        boxDay.outerHTML = recDay
-          ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
-              <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightLongestShotDay')}</div>
-              <div style="font-size:13.5px; font-weight:700; color:${colorFor(recDay.name)};">${t('insightLongestShotDesc', recDay.name, recDay.yards, recDay.hole+1, recDay.date)}</div>
-            </div>`
-          : '<div id="insightLongestShotDayBox"></div>';
-      }
-    });
+    // (Plus long coup supprimé — trop d'erreurs GPS pour être fiable)
+
     const resetBtn = document.getElementById('btnInsightsResetDate');
     if (resetBtn) resetBtn.addEventListener('click', () => {
       insightsSelectedDate = null;
