@@ -19,10 +19,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet">
 </head>
 <body style="margin:0; padding:12px; background:#f7f3ea;" ontouchstart="">
-<div id="rotateHint" aria-hidden="true">
-  <div class="ri-icon">📱</div>
-  <div class="ri-text">Tourne le téléphone<br>pour la carte de score</div>
-</div>
 <div id="app" style="width:100%; max-width:100%; overflow-x:hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing:border-box; color:#1a1a1a;">
 
 <style>
@@ -203,20 +199,6 @@
     padding:14px;
   }
   body.blankcard-open { overflow:hidden; }
-
-  #rotateHint {
-    display: none;
-    position: fixed; inset: 0; z-index: 99999;
-    background: rgba(26,60,52,0.93);
-    align-items: center; justify-content: center; flex-direction: column; gap: 12px;
-    color: #fff; text-align: center; pointer-events: none;
-  }
-  #rotateHint .ri-icon { font-size: 52px; animation: rotatePulse 1.5s ease-in-out infinite; }
-  #rotateHint .ri-text { font-size: 16px; font-weight: 700; }
-  @keyframes rotatePulse {
-    0%,100% { transform: rotate(0deg); }
-    50%      { transform: rotate(90deg); }
-  }
 
   /* Récapitulatif d'équipe : même principe plein écran que la carte vierge */
   #teamRecapSection { display:none; }
@@ -1934,7 +1916,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.012";
+  const APP_VERSION = "SuarPark - V02.002.013";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7937,15 +7919,6 @@
     });
   }
 
-  function updateRotateHint(){
-    const hint = document.getElementById('rotateHint');
-    if (!hint) return;
-    const isPortrait = window.innerHeight > window.innerWidth;
-    hint.style.display = (blankCardVisible && isPortrait) ? 'flex' : 'none';
-  }
-  window.addEventListener('resize', updateRotateHint);
-  window.addEventListener('orientationchange', () => setTimeout(updateRotateHint, 100));
-
   function setBlankCardVisible(visible){
     blankCardVisible = visible;
     const section = document.getElementById('blankCardSection');
@@ -7953,7 +7926,6 @@
     document.body.classList.toggle('blankcard-open', blankCardVisible);
     document.getElementById('tileBlankCardLabel').textContent = blankCardVisible ? t('btnHideBlankCard') : t('btnShowBlankCard');
     if (blankCardVisible){ renderBlankCard(); wireLangSelectors(); }
-    updateRotateHint();
   }
 
   function renderBlankCard(){
