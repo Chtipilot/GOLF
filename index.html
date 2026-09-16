@@ -340,9 +340,9 @@
 <div style="overflow-x:hidden;">
   <table class="scorecard-table" id="entryTable">
     <colgroup>
-      <col style="width:11%;">
-      <col span="18" style="width:3.5%;">
-      <col style="width:4.5%;"><col style="width:4.5%;"><col style="width:5%;">
+      <col style="width:8%;">
+      <col span="18" style="width:3.6%;">
+      <col style="width:4%;"><col style="width:4%;"><col style="width:4.5%;">
       <col style="width:3%;">
     </colgroup>
     <thead>
@@ -350,13 +350,13 @@
         <th id="thHole">Trou</th>
         <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
         <th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th>
-        <th>Out</th><th>In</th><th>Tot</th><th></th>
+        <th style="font-size:9px;">Out</th><th style="font-size:9px;">In</th><th style="font-size:9px;">Tot</th><th></th>
       </tr>
       <tr style="background:#e8f0ee; color:#1a3c34; font-weight:bold;">
         <th>Par</th>
         <th>5</th><th>4</th><th>4</th><th>3</th><th>4</th><th>4</th><th>5</th><th>3</th><th>4</th>
         <th>4</th><th>4</th><th>3</th><th>5</th><th>3</th><th>4</th><th>5</th><th>4</th><th>4</th>
-        <th>36</th><th>36</th><th>72</th><th></th>
+        <th style="font-size:9px;">36</th><th style="font-size:9px;">36</th><th style="font-size:9px;">72</th><th></th>
       </tr>
       <tr style="background:#f4f7f6; color:#1a3c34; font-weight:bold;">
         <th>Dist. (yd)</th>
@@ -1916,7 +1916,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.007";
+  const APP_VERSION = "SuarPark - V02.002.008";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -7970,14 +7970,14 @@
         <td style="background:#e8f0ee; color:#666; font-size:11px;" id="bcPuttTot"></td>
       </tr>
       <tr id="bcPenaltyRow" style="background:#fdf1f1;">
-        <td style="text-align:left; padding-left:4px; color:#a23b3b; font-size:11px;">${t('blankCardPenaltyRowLabel')}</td>
+        <td style="text-align:left; padding-left:2px; color:#a23b3b; font-size:10px;">Pén.</td>
         ${Array.from({length:18}, (_,h) => `<td id="bcPenalty-${h}" style="font-size:11px; color:#a23b3b;"></td>`).join("")}
         <td style="background:#f7dcdc; color:#a23b3b; font-size:11px;" id="bcPenaltyOut"></td>
         <td style="background:#f7dcdc; color:#a23b3b; font-size:11px;" id="bcPenaltyIn"></td>
         <td style="background:#f7dcdc; color:#a23b3b; font-size:11px;" id="bcPenaltyTot"></td>
       </tr>
       <tr id="bcEclecticRow" style="background:#fff9e6;">
-        <td style="text-align:left; padding-left:4px; color:#8a6d00; font-size:11px; font-weight:bold;">${t('blankCardEclecticLabel')}</td>
+        <td style="text-align:left; padding-left:2px; color:#8a6d00; font-size:10px; font-weight:bold;">Écl.</td>
         ${Array.from({length:18}, (_,h) => `<td id="bcEclHole-${h}" style="font-size:11px;">—</td>`).join("")}
         <td style="font-weight:bold; background:#f0e6c0; font-size:11px;" id="bcEclOut">—</td>
         <td style="font-weight:bold; background:#f0e6c0; font-size:11px;" id="bcEclIn">—</td>
