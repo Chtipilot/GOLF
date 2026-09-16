@@ -1915,7 +1915,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.004";
+  const APP_VERSION = "SuarPark - V02.002.005";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -8275,6 +8275,7 @@
       setAppMode('history');
       insightsVisible = true;
       document.getElementById('insightsSection').style.display = 'block';
+      document.getElementById('btnToggleInsights').textContent = t('btnHideInsights');
       renderInsights();
       setToggleBtnOpen('btnToggleInsights', true);
     });
