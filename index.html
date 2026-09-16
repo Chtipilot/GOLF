@@ -96,6 +96,7 @@
   #app .sub { font-size:11px; color:#666; margin:0 0 10px 0; }
   #app .toolbar { margin-bottom:10px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
   #app .scorecard-table { font-size: clamp(7px, 0.95vw, 10.5px); }
+  #app .scorecard-table td, #app .scorecard-table th { overflow: visible; }
   #app .history-scroll { max-height:260px; overflow-y:auto; border:1px solid var(--line); border-radius:4px; }
   #app .date-slider-row { display:flex; align-items:center; gap:8px; margin:4px 0 6px 0; }
   #app .date-slider-row input[type=range] { flex:1; accent-color:var(--green-deep); }
@@ -137,7 +138,7 @@
     #app .btn { min-height:44px; padding:10px 14px; font-size:13px; }
     #app .toolbar { gap:8px; }
     #app input[type=number] { padding:6px 0; }
-    #app .blankcard-score-input { padding:8px 0 !important; font-size:14px !important; }
+    #app .blankcard-score-input { padding:8px 0 !important; font-size:clamp(11px,1.4vw,14px) !important; }
   }
 
   /* --- Optimisations mode Paysage (téléphone) --- */
@@ -177,7 +178,7 @@
   #app .blankcard-header-cell label { font-size:12px; white-space:nowrap; color:#1a3c34; font-weight:bold; }
   #app .blankcard-name-input { border:1px solid #b8c4c1; border-radius:3px; background:#fff; font-size:11px; width:100%; text-align:left; padding:3px 4px; }
   #app .blankcard-name-input:focus { outline:none; border-color:#1a3c34; background:#fff3cd; }
-  #app .blankcard-score-input { width:100%; border:1px solid #b8c4c1; border-radius:3px; background:#fff; text-align:center; font-size:12px; padding:4px 0; -moz-appearance:textfield; }
+  #app .blankcard-score-input { width:100%; border:1px solid #b8c4c1; border-radius:3px; background:#fff; text-align:center; font-size:clamp(9px,2.2vw,12px); padding:4px 0; -moz-appearance:textfield; overflow:visible; min-width:0; }
   #app .blankcard-score-input:focus { outline:none; border-color:#1a3c34; background:#fff3cd; }
 
   /* Marquage façon carte de score papier : rond noir = par, double rond noir = eagle (ou mieux) */
@@ -1915,7 +1916,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.006";
+  const APP_VERSION = "SuarPark - V02.002.007";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
