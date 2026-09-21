@@ -1916,7 +1916,7 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.015";
+  const APP_VERSION = "SuarPark - V02.002.017";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -8383,40 +8383,121 @@
 
   init();
 
-  // ─── MODE TV (?mode=tv) ────────────────────────────────────────────────────
-  // Activé en ajoutant ?mode=tv à l'URL — affiche l'éclectique en plein écran,
-  // grands caractères, sans boutons ni navigation, idéal pour une projection TV.
-  // L'année peut être précisée : ?mode=tv&year=2026
+  // ─── FIREBASE CONFIG ──────────────────────────────────────────────────────
+  // Remplacer ces valeurs par celles de ton projet Firebase :
+  // console.firebase.google.com → Paramètres du projet → Vos applications → SDK
+  const FIREBASE_CFG = {
+    apiKey:            "AIzaSyB6Vi80Wo3ScuaRg6QPrwISqvr461mh-Eg",
+    authDomain:        "suarpark-50d9a.firebaseapp.com",
+    databaseURL:       "https://suarpark-50d9a-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "suarpark-50d9a",
+    storageBucket:     "suarpark-50d9a.firebasestorage.app",
+    messagingSenderId: "514104394009",
+    appId:             "1:514104394009:web:63830ce613fd284d1a4588"
+  };
+  const FIREBASE_PATH = '/suarpark-remote'; // chemin dans la base de données
+
+  // ─── MODE TV (?mode=tv) ───────────────────────────────────────────────────
   if (new URLSearchParams(window.location.search).get('mode') === 'tv'){
     const yearParam = new URLSearchParams(window.location.search).get('year');
     if (yearParam) eclecticSelectedYear = yearParam === 'all' ? null : Number(yearParam);
+
+    function renderTV(year){
+      eclecticSelectedYear = year;
+      const {rows} = buildEclecticRows(eclecticSelectedYear);
+      const yearLabel = eclecticSelectedYear ? eclecticSelectedYear : t('eclecticAllTime');
+      document.getElementById('tvTable').innerHTML = parHeaderRowDarkWithHcp() + rows;
+      document.getElementById('tvYear').textContent = yearLabel;
+      document.getElementById('tvDot').style.background = '#2ecc71';
+      setTimeout(() => { const d = document.getElementById('tvDot'); if(d) d.style.background='rgba(255,255,255,0.2)'; }, 600);
+    }
+
     const {rows} = buildEclecticRows(eclecticSelectedYear);
     const yearLabel = eclecticSelectedYear ? eclecticSelectedYear : t('eclecticAllTime');
-    const tvHTML = `
+    document.body.innerHTML = `
       <style>
-        body, html { margin:0; padding:0; background:#0d2a20; }
-        #tvMode {
-          min-height:100vh; padding:20px 28px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          color:#fff; box-sizing:border-box;
-        }
-        #tvMode h1 { margin:0 0 6px; font-size:clamp(22px,3.2vw,38px); color:#c9a668; letter-spacing:1px; }
-        #tvMode .tv-sub { font-size:clamp(12px,1.5vw,18px); color:#9dbfb3; margin:0 0 18px; }
-        #tvMode table { width:100%; border-collapse:collapse; font-size:clamp(13px,1.8vw,22px); }
-        #tvMode th { background:#1a3c34; color:#c9a668; padding:8px 4px; text-align:center; font-size:clamp(11px,1.4vw,17px); }
-        #tvMode td { padding:7px 4px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08); }
-        #tvMode tr:nth-child(even) td { background:rgba(255,255,255,0.04); }
-        #tvMode td:first-child { text-align:left; padding-left:10px; font-weight:700; font-size:clamp(14px,2vw,24px); }
-        #tvMode .tv-version { position:fixed; bottom:10px; right:16px; font-size:11px; color:rgba(255,255,255,0.25); }
+        body,html{margin:0;padding:0;background:#0d2a20;}
+        #tvMode{min-height:100vh;padding:20px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff;box-sizing:border-box;}
+        #tvMode h1{margin:0 0 6px;font-size:clamp(22px,3.2vw,38px);color:#c9a668;letter-spacing:1px;}
+        #tvMode .tv-sub{font-size:clamp(12px,1.5vw,18px);color:#9dbfb3;margin:0 0 18px;}
+        #tvMode table{width:100%;border-collapse:collapse;font-size:clamp(13px,1.8vw,22px);}
+        #tvMode th{background:#1a3c34;color:#c9a668;padding:8px 4px;text-align:center;font-size:clamp(11px,1.4vw,17px);}
+        #tvMode td{padding:7px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.08);}
+        #tvMode tr:nth-child(even) td{background:rgba(255,255,255,0.04);}
+        #tvMode td:first-child{text-align:left;padding-left:10px;font-weight:700;font-size:clamp(14px,2vw,24px);}
+        .tv-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.2);display:inline-block;margin-left:10px;vertical-align:middle;transition:background .3s;}
+        .tv-ver{position:fixed;bottom:10px;right:16px;font-size:11px;color:rgba(255,255,255,0.2);}
       </style>
       <div id="tvMode">
-        <h1>⛳ SuarPark — Éclectique ${yearLabel}</h1>
+        <h1>⛳ SuarPark — Éclectique <span id="tvYear">${yearLabel}</span><span class="tv-dot" id="tvDot"></span></h1>
         <p class="tv-sub">${t('eclecticSubtitle')}</p>
-        <table>${parHeaderRowDarkWithHcp()}${rows}</table>
-        <div class="tv-version">${APP_VERSION}</div>
+        <table id="tvTable">${parHeaderRowDarkWithHcp()}${rows}</table>
+        <div class="tv-ver">${APP_VERSION}</div>
       </div>`;
-    document.body.innerHTML = tvHTML;
+
+    // Connexion Firebase pour recevoir les commandes du téléphone-télécommande
+    if (!FIREBASE_CFG.apiKey.includes('VOTRE')){
+      Promise.all([
+        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js')
+      ]).then(([{initializeApp},{getDatabase,ref,onValue}]) => {
+        const app = initializeApp(FIREBASE_CFG);
+        const db  = getDatabase(app);
+        onValue(ref(db, FIREBASE_PATH), snap => {
+          const val = snap.val();
+          if (!val) return;
+          const yr = val.year === 'all' ? null : Number(val.year);
+          renderTV(yr);
+        });
+      }).catch(() => {});
+    }
   }
+
+  // ─── MODE TÉLÉCOMMANDE (?mode=remote) ─────────────────────────────────────
+  else if (new URLSearchParams(window.location.search).get('mode') === 'remote'){
+    const years = [null, 2024, 2025, 2026, 2027];
+    let currentYear = null;
+
+    function remoteSetYear(yr){
+      currentYear = yr;
+      document.querySelectorAll('.rem-btn').forEach(b => {
+        b.style.opacity = (String(b.dataset.year) === String(yr ?? 'all')) ? '1' : '0.45';
+        b.style.transform = (String(b.dataset.year) === String(yr ?? 'all')) ? 'scale(1.08)' : 'scale(1)';
+      });
+      if (!FIREBASE_CFG.apiKey.includes('VOTRE')){
+        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js').then(async ({initializeApp}) => {
+          const {getDatabase,ref,set} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+          const db = getDatabase(initializeApp(FIREBASE_CFG, 'remote'));
+          set(ref(db, FIREBASE_PATH), {year: yr === null ? 'all' : String(yr), ts: Date.now()});
+          document.getElementById('remStatus').textContent = '✅ TV mise à jour';
+          setTimeout(() => { const s = document.getElementById('remStatus'); if(s) s.textContent = ''; }, 2000);
+        }).catch(() => { document.getElementById('remStatus').textContent = '⚠️ Erreur connexion'; });
+      } else {
+        document.getElementById('remStatus').textContent = '⚠️ Firebase non configuré';
+      }
+    }
+
+    document.body.innerHTML = `
+      <style>
+        body,html{margin:0;padding:0;background:#0d2a20;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+        #remote{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;}
+        #remote h2{color:#c9a668;margin:0;font-size:22px;text-align:center;}
+        #remote .rem-sub{color:#9dbfb3;font-size:13px;margin:0;text-align:center;}
+        .rem-btn{padding:22px 36px;font-size:22px;font-weight:800;border:none;border-radius:16px;background:#1a3c34;color:#c9a668;cursor:pointer;transition:all .15s;width:240px;letter-spacing:1px;}
+        #remStatus{color:#2ecc71;font-size:14px;font-weight:700;min-height:22px;}
+      </style>
+      <div id="remote">
+        <h2>📺 Télécommande SuarPark</h2>
+        <p class="rem-sub">Choisir l'année à afficher sur la TV</p>
+        ${years.map(y => `<button class="rem-btn" data-year="${y??'all'}" onclick="remoteSetYear(${y===null?'null':y})">${y===null?'Toutes années':y}</button>`).join('')}
+        <div id="remStatus"></div>
+      </div>`;
+
+    // Expose la fonction pour les onclick
+    window.remoteSetYear = remoteSetYear;
+    remoteSetYear(null); // sélectionne "Toutes années" par défaut
+  }
+
 })();
 </script>
 </body></html>
