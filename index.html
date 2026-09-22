@@ -254,6 +254,16 @@
 <div id="homeScreen" style="display:flex; flex-direction:column; gap:16px; margin:18px 0;">
   <button type="button" class="btn no-print" id="btnHomeHistory" style="margin:0; padding:38px 20px; font-size:clamp(20px,5vw,28px); font-weight:900; border-radius:16px; background:var(--green-deep); box-shadow:0 4px 0 rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.25);">📜 Consulter l'historique</button>
   <button type="button" class="btn no-print" id="btnHomeGolf" style="margin:0; padding:38px 20px; font-size:clamp(20px,5vw,28px); font-weight:900; border-radius:16px; background:#2E7D32; box-shadow:0 4px 0 rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.25);">⛳ Jouer au golf</button>
+  <button type="button" class="btn no-print" id="btnHomeCoach" style="margin:0; padding:38px 20px; font-size:clamp(20px,5vw,28px); font-weight:900; border-radius:16px; background:#B8860B; box-shadow:0 4px 0 rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; gap:14px;">
+    <svg width="0.9em" height="0.9em" viewBox="0 0 48 48" aria-hidden="true" style="flex:0 0 auto;">
+      <circle cx="19" cy="8" r="4" fill="#fff"/>
+      <path d="M19,12 C19,18 23,21 21,28" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M19,14 L34,9 M34,9 L38,34" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21,28 L13,44 M21,28 L30,42" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="38" cy="36" r="2.2" fill="#fff"/>
+    </svg>
+    <span id="btnHomeCoachLabel">Le coach</span>
+  </button>
 </div>
 
 <div id="noticeSection" style="display:none; margin:6px 0 12px 0; background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.6; color:#1a3c34;"></div>
@@ -403,6 +413,18 @@
   <div id="statsSection" style="display:none; margin-top:10px;"></div>
   <div id="insightsSection" style="display:none; margin-top:10px;"></div>
   <div id="teeCompareSection" style="display:none; margin-top:10px;"></div>
+</div>
+
+<div id="coachModeSection" style="display:none;">
+  <button type="button" class="btn btn-secondary no-print" id="btnBackHomeCoach" style="margin-bottom:8px;">← Retour à l'accueil</button>
+  <h2 id="coachSectionTitle">🎯 Le coach — conseils pratiques</h2>
+  <div class="toolbar" style="margin:0 0 10px 0;">
+    <button class="btn btn-secondary" id="btnCoachClub" data-topic="club"></button>
+    <button class="btn btn-secondary" id="btnCoachTerrain" data-topic="terrain"></button>
+    <button class="btn btn-secondary" id="btnCoachBunker" data-topic="bunker"></button>
+    <button class="btn btn-secondary" id="btnCoachPutting" data-topic="putting"></button>
+  </div>
+  <div id="coachTipContent" style="background:#f4f7f6; border:1px solid #d5e4e0; border-radius:8px; padding:12px 14px; font-size:13px; line-height:1.6; color:#1a3c34;"></div>
 </div>
 
 </div>
@@ -1927,7 +1949,15 @@
   //   V02.002.021 — La version et "🤖 Claude Caddie Assistant", sous "GOLF_TEAM", sont désormais
   //                 centrées horizontalement par rapport au titre, à la demande du Directeur de
   //                 session.
-  const APP_VERSION = "SuarPark - V02.002.021";
+  //   V02.002.022 — Nouveau bouton d'accueil "🎯 Le coach", au même niveau que "📜 Consulter
+  //                 l'historique" et "⛳ Jouer au golf". Ouvre un menu de 4 thèmes (position balle
+  //                 selon le club, position balle selon le terrain, sortie de bunker, lecture du
+  //                 green), chacun affichant une courte liste de conseils pratiques. Contenu
+  //                 traduit dans les 4 langues du site (FR/EN/DE/TH), à la demande du Directeur de
+  //                 session.
+  //   V02.002.023 — L'emoji 🎯 du bouton "Le coach" est remplacé par une silhouette de golfeur en
+  //                 SVG (mi-swing, club et balle), à la demande du Directeur de session.
+  const APP_VERSION = "SuarPark - V02.002.023";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2143,6 +2173,41 @@
       btnHomeHistory: "📜 Consulter l'historique",
       btnHomeGolf: "⛳ Jouer au golf",
       btnBackHome: "← Retour à l'accueil",
+      btnHomeCoach: "Le coach",
+      coachSectionTitle: "🎯 Le coach — conseils pratiques",
+      coachBtnClub: "🏌️ Position balle / club",
+      coachBtnTerrain: "🌱 Position balle / terrain",
+      coachBtnBunker: "⛱️ Sortie de bunker",
+      coachBtnPutting: "⛳ Lecture du green",
+      coachPlaceholder: "👆 Choisissez un thème ci-dessus pour afficher les conseils.",
+      coachTipClub: [
+        "Plus le club est long, plus la balle se place vers le pied avant (gauche pour un droitier).",
+        "Driver : balle alignée avec le talon du pied avant, pour un angle d'attaque légèrement ascendant.",
+        "Bois de parcours et hybrides : juste en arrière du talon avant, vers le centre-avant du stance.",
+        "Fers moyens et longs : au centre du stance, ou légèrement en avant du centre.",
+        "Fers courts et wedges : au centre, voire légèrement en arrière, pour un contact « balle puis gazon » net et précis."
+      ],
+      coachTipTerrain: [
+        "Lie favorable (fairway souple, tee) : balle légèrement avancée pour balayer le sol.",
+        "Lie serré ou terrain ferme : balle légèrement reculée pour un contact plus net et descendant.",
+        "En descente : reculer légèrement la balle dans le stance pour la toucher avant le sol.",
+        "En montée : avancer légèrement la balle, le corps épouse naturellement la pente.",
+        "Balle sous les pieds ou au-dessus : fléchir davantage les genoux si la balle est en dessous, garder l'équilibre au centre."
+      ],
+      coachTipBunker: [
+        "Ouvrir légèrement la face du wedge avant de prendre le grip.",
+        "Viser 3 à 5 cm derrière la balle : le club doit « prendre » le sable sous elle, pas la balle directement.",
+        "Stance légèrement ouvert, poids réparti environ 60 % sur le pied avant.",
+        "Accélérer dans le sable jusqu'au bout du swing — ne jamais décélérer à l'impact.",
+        "Finir le mouvement complètement, comme pour « arroser » le sable vers la cible."
+      ],
+      coachTipPutting: [
+        "Observer la pente depuis derrière la balle, puis depuis derrière le trou, pour croiser les informations.",
+        "Repérer les zones plus foncées (herbe plus haute ou humide, green plus lent) et plus claires (plus rapide).",
+        "Tenir compte de la pente générale du terrain autour du green — souvent, l'eau la plus proche indique le sens de la pente.",
+        "Sur les putts courts, faire confiance à l'instinct ; sur les longs putts, prioriser la vitesse plutôt que la ligne exacte.",
+        "S'accroupir à mi-chemin entre la balle et le trou pour évaluer la pente latérale."
+      ],
       btnHideHistory: "📜 Masquer l'historique",
       btnShowEclectic: "🏆 Afficher l'éclectique",
       btnHideEclectic: "🏆 Masquer l'éclectique",
@@ -2471,6 +2536,41 @@
       btnHomeHistory: "📜 View history",
       btnHomeGolf: "⛳ Play golf",
       btnBackHome: "← Back to home",
+      btnHomeCoach: "The coach",
+      coachSectionTitle: "🎯 The coach — practical tips",
+      coachBtnClub: "🏌️ Ball position / club",
+      coachBtnTerrain: "🌱 Ball position / lie",
+      coachBtnBunker: "⛱️ Bunker escape",
+      coachBtnPutting: "⛳ Reading the green",
+      coachPlaceholder: "👆 Pick a topic above to see the tips.",
+      coachTipClub: [
+        "The longer the club, the more forward the ball sits toward your lead foot.",
+        "Driver: ball aligned with the lead heel, for a slightly upward angle of attack.",
+        "Fairway woods and hybrids: just behind the lead heel, toward the front-centre of your stance.",
+        "Mid and long irons: centred in your stance, or slightly ahead of centre.",
+        "Short irons and wedges: centred, or even slightly back, for a clean ball-then-turf contact."
+      ],
+      coachTipTerrain: [
+        "Good lie (soft fairway, tee): ball slightly forward to sweep it off the turf.",
+        "Tight or firm lie: ball slightly back for a cleaner, descending strike.",
+        "Downhill lie: move the ball slightly back in your stance to catch it before the ground.",
+        "Uphill lie: move the ball slightly forward, your body naturally follows the slope.",
+        "Ball below or above your feet: flex your knees more if the ball is below you, keep your balance centred."
+      ],
+      coachTipBunker: [
+        "Open the wedge face slightly before taking your grip.",
+        "Aim 3–5 cm behind the ball — the club should take the sand under it, not the ball directly.",
+        "Slightly open stance, about 60% of your weight on your lead foot.",
+        "Accelerate through the sand all the way — never decelerate at impact.",
+        "Finish the swing fully, as if splashing the sand toward the target."
+      ],
+      coachTipPutting: [
+        "Read the slope from behind the ball, then from behind the hole, to cross-check.",
+        "Look for darker patches (longer or damp grass, slower green) and lighter ones (faster).",
+        "Consider the overall slope of the land around the green — water is usually the low point.",
+        "On short putts, trust your instinct; on long putts, prioritise speed over the exact line.",
+        "Crouch halfway between ball and hole to judge the sideways slope."
+      ],
       btnHideHistory: "📜 Hide history",
       btnShowEclectic: "🏆 Show eclectic",
       btnHideEclectic: "🏆 Hide eclectic",
@@ -2799,6 +2899,41 @@
       btnHomeHistory: "📜 Verlauf ansehen",
       btnHomeGolf: "⛳ Golf spielen",
       btnBackHome: "← Zurück zur Startseite",
+      btnHomeCoach: "Der Coach",
+      coachSectionTitle: "🎯 Der Coach — praktische Tipps",
+      coachBtnClub: "🏌️ Ballposition / Schläger",
+      coachBtnTerrain: "🌱 Ballposition / Lage",
+      coachBtnBunker: "⛱️ Bunkerschlag",
+      coachBtnPutting: "⛳ Grünlesen",
+      coachPlaceholder: "👆 Wähle oben ein Thema, um die Tipps zu sehen.",
+      coachTipClub: [
+        "Je länger der Schläger, desto weiter vorne (Richtung Standbein) liegt der Ball.",
+        "Driver: Ball auf Höhe der vorderen Ferse, für einen leicht aufsteigenden Schwung.",
+        "Fairwayhölzer und Hybriden: knapp hinter der vorderen Ferse, Richtung vordere Standmitte.",
+        "Mittlere und lange Eisen: mittig im Stand, oder leicht vor der Mitte.",
+        "Kurze Eisen und Wedges: mittig, eventuell leicht dahinter, für sauberen Ball-dann-Rasen-Kontakt."
+      ],
+      coachTipTerrain: [
+        "Gute Lage (weiches Fairway, Tee): Ball leicht vorne, um ihn sauber vom Boden zu holen.",
+        "Enge oder feste Lage: Ball leicht hinten für einen saubereren, absteigenden Treffer.",
+        "Bergab-Lage: Ball im Stand leicht nach hinten, um ihn vor dem Boden zu treffen.",
+        "Bergauf-Lage: Ball leicht nach vorne, der Körper folgt natürlich der Neigung.",
+        "Ball unter oder über den Füßen: Bei Ball unterhalb mehr in die Knie gehen, Gleichgewicht mittig halten."
+      ],
+      coachTipBunker: [
+        "Schlagfläche des Wedges vor dem Griff leicht öffnen.",
+        "3–5 cm hinter dem Ball anvisieren — der Schläger soll den Sand unter dem Ball nehmen, nicht den Ball direkt.",
+        "Leicht offener Stand, etwa 60 % des Gewichts auf dem vorderen Fuß.",
+        "Im Sand durchgehend beschleunigen — beim Treffmoment niemals abbremsen.",
+        "Den Schwung ganz zu Ende führen, als würde man den Sand Richtung Ziel spritzen."
+      ],
+      coachTipPutting: [
+        "Das Gefälle zuerst hinter dem Ball, dann hinter dem Loch betrachten, um beide Eindrücke zu vergleichen.",
+        "Auf dunklere Flecken (höheres oder feuchtes Gras, langsamer) und hellere (schneller) achten.",
+        "Die allgemeine Neigung des Geländes rund um das Grün beachten — meist liegt das tiefste Wasser in Gefällerichtung.",
+        "Bei kurzen Putts auf das Gefühl vertrauen; bei langen Putts eher auf die Geschwindigkeit als die exakte Linie achten.",
+        "Auf halbem Weg zwischen Ball und Loch in die Hocke gehen, um die seitliche Neigung einzuschätzen."
+      ],
       btnHideHistory: "📜 Verlauf ausblenden",
       btnShowEclectic: "🏆 Eclectic anzeigen",
       btnHideEclectic: "🏆 Eclectic ausblenden",
@@ -3127,6 +3262,41 @@
       btnHomeHistory: "📜 ดูประวัติ",
       btnHomeGolf: "⛳ เล่นกอล์ฟ",
       btnBackHome: "← กลับหน้าแรก",
+      btnHomeCoach: "โค้ช",
+      coachSectionTitle: "🎯 โค้ช — เคล็ดลับปฏิบัติ",
+      coachBtnClub: "🏌️ ตำแหน่งลูก/ไม้กอล์ฟ",
+      coachBtnTerrain: "🌱 ตำแหน่งลูก/พื้นสนาม",
+      coachBtnBunker: "⛱️ ตีออกจากบังเกอร์",
+      coachBtnPutting: "⛳ การอ่านกรีน",
+      coachPlaceholder: "👆 เลือกหัวข้อด้านบนเพื่อดูเคล็ดลับ",
+      coachTipClub: [
+        "ไม้ยิ่งยาว ตำแหน่งลูกยิ่งอยู่ไปทางเท้าหน้ามากขึ้น",
+        "ไดรเวอร์: วางลูกตรงส้นเท้าหน้า เพื่อมุมปะทะที่ยกขึ้นเล็กน้อย",
+        "ไม้ฟาร์เวย์และไฮบริด: ค่อนไปทางหลังส้นเท้าหน้าเล็กน้อย บริเวณกลางค่อนหน้าของสแตนซ์",
+        "เหล็กกลางและเหล็กยาว: กึ่งกลางสแตนซ์ หรือค่อนไปข้างหน้าเล็กน้อย",
+        "เหล็กสั้นและเวดจ์: กึ่งกลาง หรือค่อนไปข้างหลังเล็กน้อย เพื่อสัมผัส 'ลูกก่อนแล้วจึงพื้นหญ้า' ที่แม่นยำ"
+      ],
+      coachTipTerrain: [
+        "พื้นดี (แฟร์เวย์นุ่ม, บนที) : วางลูกไปข้างหน้าเล็กน้อยเพื่อกวาดลูกออก",
+        "พื้นแน่นหรือหญ้าสั้นชิด: วางลูกไปข้างหลังเล็กน้อยเพื่อการปะทะที่คมชัดและกดลง",
+        "ทางลาดลง: ขยับลูกไปข้างหลังในสแตนซ์เล็กน้อยเพื่อปะทะก่อนถึงพื้น",
+        "ทางลาดขึ้น: ขยับลูกไปข้างหน้าเล็กน้อย ร่างกายจะปรับตามความลาดชันโดยธรรมชาติ",
+        "ลูกอยู่ต่ำกว่าหรือสูงกว่าเท้า: งอเข่ามากขึ้นถ้าลูกอยู่ต่ำกว่า รักษาสมดุลไว้ตรงกลาง"
+      ],
+      coachTipBunker: [
+        "เปิดหน้าไม้เวดจ์เล็กน้อยก่อนจับกริป",
+        "เล็งจุดห่างจากลูกไปทางด้านหลังประมาณ 3-5 ซม. ให้ไม้ตักทรายใต้ลูก ไม่ใช่โดนลูกโดยตรง",
+        "ยืนเปิดสแตนซ์เล็กน้อย น้ำหนักตัวประมาณ 60% อยู่ที่เท้าหน้า",
+        "เร่งความเร็วต่อเนื่องในทราย อย่าลดความเร็วตอนปะทะ",
+        "สวิงให้จบท่าเต็มที่ เหมือนกำลัง 'สาดทราย' ไปทางเป้าหมาย"
+      ],
+      coachTipPutting: [
+        "อ่านความลาดชันจากด้านหลังลูกก่อน แล้วจากด้านหลังหลุม เพื่อเปรียบเทียบข้อมูล",
+        "สังเกตบริเวณที่สีเข้มกว่า (หญ้าสูงหรือชื้นกว่า กรีนช้ากว่า) และสีอ่อนกว่า (เร็วกว่า)",
+        "พิจารณาความลาดชันโดยรวมของพื้นที่รอบกรีน — มักจะลาดไปทางแหล่งน้ำที่ใกล้ที่สุด",
+        "พัตต์ระยะสั้น ให้เชื่อสัญชาตญาณ ส่วนพัตต์ระยะไกล ให้ให้ความสำคัญกับความเร็วมากกว่าเส้นทางที่แน่นอน",
+        "ย่อตัวลงครึ่งทางระหว่างลูกกับหลุม เพื่อประเมินความลาดด้านข้าง"
+      ],
       btnHideHistory: "📜 ซ่อนประวัติ",
       btnShowEclectic: "🏆 แสดง Eclectic",
       btnHideEclectic: "🏆 ซ่อน Eclectic",
@@ -3458,6 +3628,11 @@
     document.getElementById('siteVersionLine').textContent = APP_VERSION.replace(/^SuarPark\s*-\s*/, "");
     document.getElementById('btnHomeHistory').textContent = t('btnHomeHistory');
     document.getElementById('btnHomeGolf').textContent = t('btnHomeGolf');
+    document.getElementById('btnHomeCoachLabel').textContent = t('btnHomeCoach');
+    document.getElementById('coachSectionTitle').textContent = t('coachSectionTitle');
+    document.getElementById('btnBackHomeCoach').textContent = t('btnBackHome');
+    renderCoachButtons();
+    renderCoachTip();
     document.getElementById('btnBackHomeGolf').textContent = t('btnBackHome');
     document.getElementById('btnBackHomeHistory').textContent = t('btnBackHome');
     document.getElementById('lblSessionDate').textContent = t('sessionDateLabel');
@@ -3509,6 +3684,35 @@
     container.innerHTML = `<strong>${t('noticeTitle')}</strong>
       <ul style="margin:8px 0 0 0; padding-left:18px;">
         ${items.map(li => `<li>${li}</li>`).join("")}
+      </ul>`;
+  }
+
+  // "Le coach" : 4 thèmes de conseils pratiques (position balle/club, position balle/terrain,
+  // sortie de bunker, lecture du green), affichés un à la fois façon accordéon. La touche active
+  // est mise en évidence visuellement (classe "is-open"), et le contenu se redessine à chaque
+  // changement de langue (voir changeLanguage()).
+  const COACH_TOPICS = ['club','terrain','bunker','putting'];
+  function renderCoachButtons(){
+    document.getElementById('btnCoachClub').textContent = t('coachBtnClub');
+    document.getElementById('btnCoachTerrain').textContent = t('coachBtnTerrain');
+    document.getElementById('btnCoachBunker').textContent = t('coachBtnBunker');
+    document.getElementById('btnCoachPutting').textContent = t('coachBtnPutting');
+    COACH_TOPICS.forEach(topic => {
+      const btn = document.getElementById('btnCoach' + topic.charAt(0).toUpperCase() + topic.slice(1));
+      if (btn) btn.classList.toggle('is-open', coachTopic === topic);
+    });
+  }
+  function renderCoachTip(){
+    const container = document.getElementById('coachTipContent');
+    if (!container) return;
+    if (!coachTopic){
+      container.innerHTML = t('coachPlaceholder');
+      return;
+    }
+    const key = 'coachTip' + coachTopic.charAt(0).toUpperCase() + coachTopic.slice(1);
+    const items = t(key) || [];
+    container.innerHTML = `<ul style="margin:0; padding-left:18px;">
+        ${items.map(li => `<li style="margin-bottom:6px;">${li}</li>`).join("")}
       </ul>`;
   }
 
@@ -3765,6 +3969,7 @@
   let guideVisible = false;
   let detailsVisible = false;
   let noticeVisible = false;
+  let coachTopic = null;
   let teeCompareVisible = false;
   let caddiesVisible = false;
   let blankCardVisible = false;
@@ -4152,6 +4357,8 @@
     if (caddiesVisible) renderCaddies();
     if (blankCardVisible) renderBlankCard();
     if (teamRecapVisible) renderTeamRecap();
+    renderCoachButtons();
+    renderCoachTip();
     wireLangSelectors();
   }
 
@@ -8222,6 +8429,7 @@
     document.getElementById('headerSeparator').style.display = mode === 'home' ? 'none' : 'block';
     document.getElementById('golfModeSection').style.display = mode === 'golf' ? 'block' : 'none';
     document.getElementById('historyModeSection').style.display = mode === 'history' ? 'block' : 'none';
+    document.getElementById('coachModeSection').style.display = mode === 'coach' ? 'block' : 'none';
     if (mode !== 'golf'){
       document.getElementById('noticeSection').style.display = 'none';
       document.getElementById('guideSection').style.display = 'none';
@@ -8274,6 +8482,20 @@
     });
     document.getElementById('btnBackHomeGolf').addEventListener('click', () => setAppMode('home'));
     document.getElementById('btnBackHomeHistory').addEventListener('click', () => setAppMode('home'));
+    document.getElementById('btnHomeCoach').addEventListener('click', () => {
+      setAppMode('coach');
+      renderCoachButtons();
+      renderCoachTip();
+    });
+    document.getElementById('btnBackHomeCoach').addEventListener('click', () => setAppMode('home'));
+    COACH_TOPICS.forEach(topic => {
+      const btn = document.getElementById('btnCoach' + topic.charAt(0).toUpperCase() + topic.slice(1));
+      if (btn) btn.addEventListener('click', () => {
+        coachTopic = (coachTopic === topic) ? null : topic;
+        renderCoachButtons();
+        renderCoachTip();
+      });
+    });
 
     document.getElementById('btnDateUp').addEventListener('click', () => goToDateIndex(dateNavIndex + 1));
     document.getElementById('btnDateDown').addEventListener('click', () => goToDateIndex(dateNavIndex - 1));
