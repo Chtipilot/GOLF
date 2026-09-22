@@ -1997,7 +1997,38 @@
   //                 Fer moyen ≈130 yd, Fer court ≈110 yd, Wedge ≈90 yd, Putter sur le green), avec
   //                 illustration en forme de règle graduée (style gazon/néon), traduit dans les 4
   //                 langues du site.
-  const APP_VERSION = "SuarPark - V02.002.035";
+  //   V02.002.036 — Le schéma "Position balle / club" affiche désormais aussi la distance
+  //                 approximative de l'équipe pour chaque groupe de clubs (≈180 yd pour le Driver,
+  //                 150-170 yd pour bois/3-4 fers, 110-130 yd pour 5-6-7 fers, ≈90 yd pour
+  //                 8-9 fers/wedges), en plus des positions de balle déjà indiquées — fusion
+  //                 position + distance demandée par le Directeur de session.
+  //   V02.002.037 — Correction : la 2e ligne de texte du schéma "Position balle / club" affichait
+  //                 la distance de coup (yards) au lieu de la position de la balle par rapport au
+  //                 pied gauche. Remplacée par la distance en cm depuis le pied gauche (0 cm pour
+  //                 le Driver, ≈5/10/15 cm pour les groupes suivants), avec une légende explicite,
+  //                 dans les 4 langues du site.
+  //   V02.002.038 — Schéma "Position balle / club" transformé en véritable diagramme technique :
+  //                 une ligne verticale pointillée de référence (0 cm, pied gauche/Driver) et des
+  //                 lignes horizontales de cotation (avec taquets) reliant chaque position à cette
+  //                 référence, valeurs en cm affichées sur les lignes horizontales, lignes
+  //                 verticales vertes descendant jusqu'à chaque balle — à la demande du Directeur
+  //                 de session (diagramme avec lignes horizontales ET verticales).
+  //   V02.002.039 — Les balles reposent désormais visuellement SUR le gazon (légèrement au-dessus
+  //                 de la ligne de cotation, avec une ombre portée), comme en position d'adresse
+  //                 avant la frappe, plutôt que fondues dans la ligne elle-même, à la demande du
+  //                 Directeur de session.
+  //   V02.002.040 — Correction du diagramme "Position balle / club" : chaque balle est désormais
+  //                 positionnée au SOMMET de son trait vertical (sa position réelle avant le coup),
+  //                 relié en dessous jusqu'à la ligne des pieds. Plus de pointillés pour le Driver
+  //                 (trait plein comme les autres, partant directement de la balle), à la demande
+  //                 du Directeur de session.
+  //   V02.002.041 — Correction : les balles sont replacées au SOL (position réelle avant la
+  //                 frappe, comme demandé), et non plus en l'air au sommet des lignes. Les traits
+  //                 verts descendent des cotations en cm jusqu'à chaque balle posée sur la ligne
+  //                 des pieds. Le Driver conserve son trait plein (sans pointillés).
+  //   V02.002.042 — Retour à la disposition de la V02.002.040 : chaque balle au sommet de son
+  //                 trait (à la demande du Directeur de session, qui préférait cette version).
+  const APP_VERSION = "SuarPark - V02.002.042";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2224,6 +2255,15 @@
       coachClubLabelWoods: "Fers 3 & 4 et bois de parcours",
       coachClubLabelMid: "Fers 5, 6 & 7",
       coachClubLabelWedge: "Fers 8 & 9 et wedges",
+      coachClubDistDriver: "0 cm (pied gauche)",
+      coachClubDistWoods: "≈5 cm",
+      coachClubDistMid: "≈10 cm",
+      coachClubDistWedge: "≈15 cm",
+      coachClubDistCaption: "Distance de la balle depuis le pied gauche",
+      coachClubShortDriver: "Driver",
+      coachClubShortWoods: "Bois/3-4",
+      coachClubShortMid: "5-6-7",
+      coachClubShortWedge: "8-9+W",
       coachTerrainLabelFlat: "Plat",
       coachTerrainLabelDown: "Descente",
       coachTerrainLabelUp: "Montée",
@@ -2604,6 +2644,15 @@
       coachClubLabelWoods: "3 & 4 iron and fairway woods",
       coachClubLabelMid: "5, 6 & 7 iron",
       coachClubLabelWedge: "8 & 9 iron and wedges",
+      coachClubDistDriver: "0 cm (left foot)",
+      coachClubDistWoods: "≈5 cm",
+      coachClubDistMid: "≈10 cm",
+      coachClubDistWedge: "≈15 cm",
+      coachClubDistCaption: "Ball distance from the left foot",
+      coachClubShortDriver: "Driver",
+      coachClubShortWoods: "Wood/3-4",
+      coachClubShortMid: "5-6-7",
+      coachClubShortWedge: "8-9+W",
       coachTerrainLabelFlat: "Flat",
       coachTerrainLabelDown: "Downhill",
       coachTerrainLabelUp: "Uphill",
@@ -2984,6 +3033,15 @@
       coachClubLabelWoods: "3. & 4. Eisen und Fairwayhölzer",
       coachClubLabelMid: "5., 6. & 7. Eisen",
       coachClubLabelWedge: "8. & 9. Eisen und Wedges",
+      coachClubDistDriver: "0 cm (linker Fuß)",
+      coachClubDistWoods: "≈5 cm",
+      coachClubDistMid: "≈10 cm",
+      coachClubDistWedge: "≈15 cm",
+      coachClubDistCaption: "Ballabstand vom linken Fuß",
+      coachClubShortDriver: "Driver",
+      coachClubShortWoods: "Holz/3-4",
+      coachClubShortMid: "5-6-7",
+      coachClubShortWedge: "8-9+W",
       coachTerrainLabelFlat: "Eben",
       coachTerrainLabelDown: "Bergab",
       coachTerrainLabelUp: "Bergauf",
@@ -3364,6 +3422,15 @@
       coachClubLabelWoods: "เหล็ก 3 และ 4 กับไม้ฟาร์เวย์",
       coachClubLabelMid: "เหล็ก 5, 6 และ 7",
       coachClubLabelWedge: "เหล็ก 8 และ 9 กับเวดจ์",
+      coachClubDistDriver: "0 ซม. (เท้าซ้าย)",
+      coachClubDistWoods: "≈5 ซม.",
+      coachClubDistMid: "≈10 ซม.",
+      coachClubDistWedge: "≈15 ซม.",
+      coachClubDistCaption: "ระยะของลูกจากเท้าซ้าย",
+      coachClubShortDriver: "ไดรเวอร์",
+      coachClubShortWoods: "ไม้/3-4",
+      coachClubShortMid: "5-6-7",
+      coachClubShortWedge: "8-9+W",
       coachTerrainLabelFlat: "พื้นราบ",
       coachTerrainLabelDown: "ทางลาดลง",
       coachTerrainLabelUp: "ทางลาดขึ้น",
@@ -3804,7 +3871,7 @@
   // logique que les autres icônes de l'appli (silhouette du golfeur, etc.).
   const COACH_TOPICS = ['club','terrain','bunker','putting','distance'];
   const COACH_ILLUSTRATIONS = {
-    club: () => `<svg viewBox="0 0 380 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:380px; height:auto;">
+    club: () => `<svg viewBox="0 0 380 185" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:380px; height:auto;">
       <defs>
         <linearGradient id="coachGrassGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#2f7a35"/>
@@ -3815,23 +3882,34 @@
           <line x1="7" y1="14" x2="7" y2="3" stroke="#164a1d" stroke-width="1.4" opacity="0.4"/>
         </pattern>
       </defs>
-      <rect width="380" height="170" rx="10" fill="url(#coachGrassGrad)"/>
-      <rect width="380" height="170" rx="10" fill="url(#coachGrassTex)"/>
-      <line x1="30" y1="142" x2="355" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="60" y1="45" x2="60" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="115" y1="70" x2="115" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="175" y1="95" x2="175" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="235" y1="118" x2="235" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="60" cy="45" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
-      <circle cx="115" cy="70" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
-      <circle cx="175" cy="95" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
-      <circle cx="235" cy="118" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
-      <text x="76" y="49" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelDriver')}</text>
-      <text x="131" y="74" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelWoods')}</text>
-      <text x="191" y="99" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelMid')}</text>
-      <text x="251" y="122" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelWedge')}</text>
-      <path d="M15,150 Q25,140 45,144 Q55,146 55,155 L55,163 L9,163 Q5,156 15,150 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
-      <path d="M365,150 Q355,140 335,144 Q325,146 325,155 L325,163 L371,163 Q375,156 365,150 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
+      <rect width="380" height="185" rx="10" fill="url(#coachGrassGrad)"/>
+      <rect width="380" height="185" rx="10" fill="url(#coachGrassTex)"/>
+      <text x="190" y="12" font-size="8.5" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubDistCaption')}</text>
+      <text x="60" y="18" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#c9ffcf" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">0 cm</text>
+      <line x1="60" y1="25" x2="60" y2="150" stroke="#39ff6a" stroke-width="3" stroke-linecap="round"/>
+      <line x1="60" y1="40" x2="115" y2="40" stroke="#ffd76a" stroke-width="1.5"/>
+      <line x1="60" y1="36" x2="60" y2="44" stroke="#ffd76a" stroke-width="1.5"/>
+      <text x="87" y="35" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#ffd76a" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubDistWoods')}</text>
+      <line x1="60" y1="60" x2="175" y2="60" stroke="#ffd76a" stroke-width="1.5"/>
+      <line x1="60" y1="56" x2="60" y2="64" stroke="#ffd76a" stroke-width="1.5"/>
+      <text x="117" y="55" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#ffd76a" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubDistMid')}</text>
+      <line x1="60" y1="80" x2="235" y2="80" stroke="#ffd76a" stroke-width="1.5"/>
+      <line x1="60" y1="76" x2="60" y2="84" stroke="#ffd76a" stroke-width="1.5"/>
+      <text x="147" y="75" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#ffd76a" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubDistWedge')}</text>
+      <line x1="115" y1="40" x2="115" y2="150" stroke="#39ff6a" stroke-width="3" stroke-linecap="round"/>
+      <line x1="175" y1="60" x2="175" y2="150" stroke="#39ff6a" stroke-width="3" stroke-linecap="round"/>
+      <line x1="235" y1="80" x2="235" y2="150" stroke="#39ff6a" stroke-width="3" stroke-linecap="round"/>
+      <line x1="30" y1="150" x2="355" y2="150" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="60" cy="25" r="7" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="115" cy="40" r="7" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="175" cy="60" r="7" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="235" cy="80" r="7" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <text x="60" y="163" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubShortDriver')}</text>
+      <text x="115" y="163" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubShortWoods')}</text>
+      <text x="175" y="163" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubShortMid')}</text>
+      <text x="235" y="163" font-size="8" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachClubShortWedge')}</text>
+      <path d="M15,158 Q25,148 45,152 Q55,154 55,163 L55,171 L9,171 Q5,164 15,158 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
+      <path d="M365,158 Q355,148 335,152 Q325,154 325,163 L325,171 L371,171 Q375,164 365,158 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
     </svg>`,
     terrain: () => `<svg viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:340px; height:auto;">
       <defs>
