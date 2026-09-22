@@ -1976,7 +1976,14 @@
   //                 d'une photo de référence choisie par le Directeur de session : fond gazon vert
   //                 (texture SVG), lignes néon vertes reliant 4 positions de balle en escalier,
   //                 balles blanches, chaussures au sol.
-  const APP_VERSION = "SuarPark - V02.002.030";
+  //   V02.002.031 — Ajout des libellés de numéros de club (Driver / 3 & 4 fers-bois / 5,6,7 fers /
+  //                 8,9 fers-wedges) sur le schéma "Position balle / club", traduits dans les 4
+  //                 langues du site, à la demande du Directeur de session.
+  //   V02.002.032 — Les 3 autres schémas d'ensemble du "Coach" (terrain, bunker, lecture du green)
+  //                 sont harmonisés dans le même style que "Position balle / club" : fond gazon
+  //                 texturé, accents vert néon. Le schéma "terrain" reçoit aussi 3 libellés
+  //                 traduits (Plat / Descente / Montée), à la demande du Directeur de session.
+  const APP_VERSION = "SuarPark - V02.002.032";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2199,6 +2206,13 @@
       coachBtnBunker: "⛱️ Sortie de bunker",
       coachBtnPutting: "⛳ Lecture du green",
       coachPlaceholder: "👆 Choisissez un thème ci-dessus pour afficher les conseils.",
+      coachClubLabelDriver: "Driver",
+      coachClubLabelWoods: "Fers 3 & 4 et bois de parcours",
+      coachClubLabelMid: "Fers 5, 6 & 7",
+      coachClubLabelWedge: "Fers 8 & 9 et wedges",
+      coachTerrainLabelFlat: "Plat",
+      coachTerrainLabelDown: "Descente",
+      coachTerrainLabelUp: "Montée",
       coachTipClub: [
         "Plus le club est long, plus la balle se place vers le pied avant (gauche pour un droitier).",
         "Driver : balle alignée avec le talon du pied avant, pour un angle d'attaque légèrement ascendant.",
@@ -2562,6 +2576,13 @@
       coachBtnBunker: "⛱️ Bunker escape",
       coachBtnPutting: "⛳ Reading the green",
       coachPlaceholder: "👆 Pick a topic above to see the tips.",
+      coachClubLabelDriver: "Driver",
+      coachClubLabelWoods: "3 & 4 iron and fairway woods",
+      coachClubLabelMid: "5, 6 & 7 iron",
+      coachClubLabelWedge: "8 & 9 iron and wedges",
+      coachTerrainLabelFlat: "Flat",
+      coachTerrainLabelDown: "Downhill",
+      coachTerrainLabelUp: "Uphill",
       coachTipClub: [
         "The longer the club, the more forward the ball sits toward your lead foot.",
         "Driver: ball aligned with the lead heel, for a slightly upward angle of attack.",
@@ -2925,6 +2946,13 @@
       coachBtnBunker: "⛱️ Bunkerschlag",
       coachBtnPutting: "⛳ Grünlesen",
       coachPlaceholder: "👆 Wähle oben ein Thema, um die Tipps zu sehen.",
+      coachClubLabelDriver: "Driver",
+      coachClubLabelWoods: "3. & 4. Eisen und Fairwayhölzer",
+      coachClubLabelMid: "5., 6. & 7. Eisen",
+      coachClubLabelWedge: "8. & 9. Eisen und Wedges",
+      coachTerrainLabelFlat: "Eben",
+      coachTerrainLabelDown: "Bergab",
+      coachTerrainLabelUp: "Bergauf",
       coachTipClub: [
         "Je länger der Schläger, desto weiter vorne (Richtung Standbein) liegt der Ball.",
         "Driver: Ball auf Höhe der vorderen Ferse, für einen leicht aufsteigenden Schwung.",
@@ -3288,6 +3316,13 @@
       coachBtnBunker: "⛱️ ตีออกจากบังเกอร์",
       coachBtnPutting: "⛳ การอ่านกรีน",
       coachPlaceholder: "👆 เลือกหัวข้อด้านบนเพื่อดูเคล็ดลับ",
+      coachClubLabelDriver: "ไดรเวอร์",
+      coachClubLabelWoods: "เหล็ก 3 และ 4 กับไม้ฟาร์เวย์",
+      coachClubLabelMid: "เหล็ก 5, 6 และ 7",
+      coachClubLabelWedge: "เหล็ก 8 และ 9 กับเวดจ์",
+      coachTerrainLabelFlat: "พื้นราบ",
+      coachTerrainLabelDown: "ทางลาดลง",
+      coachTerrainLabelUp: "ทางลาดขึ้น",
       coachTipClub: [
         "ไม้ยิ่งยาว ตำแหน่งลูกยิ่งอยู่ไปทางเท้าหน้ามากขึ้น",
         "ไดรเวอร์: วางลูกตรงส้นเท้าหน้า เพื่อมุมปะทะที่ยกขึ้นเล็กน้อย",
@@ -3715,7 +3750,7 @@
   // logique que les autres icônes de l'appli (silhouette du golfeur, etc.).
   const COACH_TOPICS = ['club','terrain','bunker','putting'];
   const COACH_ILLUSTRATIONS = {
-    club: `<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
+    club: () => `<svg viewBox="0 0 380 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:380px; height:auto;">
       <defs>
         <linearGradient id="coachGrassGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#2f7a35"/>
@@ -3726,51 +3761,90 @@
           <line x1="7" y1="14" x2="7" y2="3" stroke="#164a1d" stroke-width="1.4" opacity="0.4"/>
         </pattern>
       </defs>
-      <rect width="320" height="170" rx="10" fill="url(#coachGrassGrad)"/>
-      <rect width="320" height="170" rx="10" fill="url(#coachGrassTex)"/>
-      <line x1="30" y1="142" x2="290" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="70" y1="45" x2="70" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="130" y1="70" x2="130" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="190" y1="95" x2="190" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <line x1="250" y1="118" x2="250" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="70" cy="45" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
-      <circle cx="130" cy="70" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
-      <circle cx="190" cy="95" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
-      <circle cx="250" cy="118" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <rect width="380" height="170" rx="10" fill="url(#coachGrassGrad)"/>
+      <rect width="380" height="170" rx="10" fill="url(#coachGrassTex)"/>
+      <line x1="30" y1="142" x2="355" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="60" y1="45" x2="60" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="115" y1="70" x2="115" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="175" y1="95" x2="175" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="235" y1="118" x2="235" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="60" cy="45" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="115" cy="70" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="175" cy="95" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="235" cy="118" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <text x="76" y="49" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelDriver')}</text>
+      <text x="131" y="74" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelWoods')}</text>
+      <text x="191" y="99" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelMid')}</text>
+      <text x="251" y="122" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="start">${t('coachClubLabelWedge')}</text>
       <path d="M15,150 Q25,140 45,144 Q55,146 55,155 L55,163 L9,163 Q5,156 15,150 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
-      <path d="M305,150 Q295,140 275,144 Q265,146 265,155 L265,163 L311,163 Q315,156 305,150 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
+      <path d="M365,150 Q355,140 335,144 Q325,146 325,155 L325,163 L371,163 Q375,156 365,150 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
     </svg>`,
-    terrain: `<svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
-      <rect width="300" height="130" rx="10" fill="#e8f0ee"/>
-      <line x1="20" y1="90" x2="90" y2="90" stroke="#2d5c4c" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="55" cy="83" r="5.5" fill="#fff" stroke="#1a3c34" stroke-width="1.5"/>
-      <line x1="115" y1="72" x2="185" y2="100" stroke="#2d5c4c" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="150" cy="85" r="5.5" fill="#fff" stroke="#1a3c34" stroke-width="1.5"/>
-      <line x1="210" y1="100" x2="280" y2="72" stroke="#2d5c4c" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="245" cy="85" r="5.5" fill="#fff" stroke="#1a3c34" stroke-width="1.5"/>
+    terrain: () => `<svg viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:340px; height:auto;">
+      <defs>
+        <linearGradient id="coachGrassGrad2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2f7a35"/>
+          <stop offset="100%" stop-color="#1f5c28"/>
+        </linearGradient>
+        <pattern id="coachGrassTex2" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+          <line x1="0" y1="14" x2="0" y2="5" stroke="#3d8a44" stroke-width="1.4" opacity="0.55"/>
+          <line x1="7" y1="14" x2="7" y2="3" stroke="#164a1d" stroke-width="1.4" opacity="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="340" height="160" rx="10" fill="url(#coachGrassGrad2)"/>
+      <rect width="340" height="160" rx="10" fill="url(#coachGrassTex2)"/>
+      <line x1="25" y1="100" x2="105" y2="100" stroke="#39ff6a" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="90" cy="94" r="7" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <line x1="125" y1="80" x2="210" y2="108" stroke="#39ff6a" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="175" cy="95" r="7" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <line x1="225" y1="108" x2="310" y2="80" stroke="#39ff6a" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="270" cy="95" r="7" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <text x="65" y="132" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachTerrainLabelFlat')}</text>
+      <text x="167" y="132" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachTerrainLabelDown')}</text>
+      <text x="267" y="132" font-size="10" font-family="Arial, sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="3" paint-order="stroke" text-anchor="middle">${t('coachTerrainLabelUp')}</text>
     </svg>`,
-    bunker: `<svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
-      <rect width="300" height="130" rx="10" fill="#f1e6cc"/>
-      <path d="M0,102 Q75,82 150,102 T300,102 V130 H0 Z" fill="#e4c98a"/>
-      <circle cx="45" cy="108" r="1.6" fill="#b8975a"/>
-      <circle cx="75" cy="114" r="1.6" fill="#b8975a"/>
-      <circle cx="110" cy="106" r="1.6" fill="#b8975a"/>
-      <circle cx="140" cy="115" r="1.6" fill="#b8975a"/>
-      <line x1="72" y1="42" x2="98" y2="94" stroke="#1a3c34" stroke-width="3.5" stroke-linecap="round"/>
-      <circle cx="103" cy="90" r="5.5" fill="#fff" stroke="#1a3c34" stroke-width="1.5"/>
-      <path d="M103,90 Q150,38 210,66" stroke="#8f2e2e" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
-      <line x1="250" y1="38" x2="250" y2="100" stroke="#1a3c34" stroke-width="2"/>
-      <path d="M250,38 L272,46 L250,54 Z" fill="#b23a3a"/>
+    bunker: `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
+      <defs>
+        <linearGradient id="coachGrassGrad3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2f7a35"/>
+          <stop offset="100%" stop-color="#1f5c28"/>
+        </linearGradient>
+        <pattern id="coachGrassTex3" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+          <line x1="0" y1="14" x2="0" y2="5" stroke="#3d8a44" stroke-width="1.4" opacity="0.55"/>
+          <line x1="7" y1="14" x2="7" y2="3" stroke="#164a1d" stroke-width="1.4" opacity="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="320" height="150" rx="10" fill="url(#coachGrassGrad3)"/>
+      <rect width="320" height="150" rx="10" fill="url(#coachGrassTex3)"/>
+      <path d="M0,108 Q75,86 150,108 T320,108 V150 H0 Z" fill="#e4c98a"/>
+      <circle cx="45" cy="115" r="1.6" fill="#b8975a"/>
+      <circle cx="75" cy="122" r="1.6" fill="#b8975a"/>
+      <circle cx="110" cy="112" r="1.6" fill="#b8975a"/>
+      <circle cx="140" cy="123" r="1.6" fill="#b8975a"/>
+      <line x1="72" y1="44" x2="98" y2="98" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="103" cy="94" r="6" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <path d="M103,94 Q150,40 212,68" stroke="#39ff6a" stroke-width="2.5" fill="none" stroke-dasharray="4,3"/>
+      <line x1="255" y1="40" x2="255" y2="104" stroke="#1a1a1a" stroke-width="2"/>
+      <path d="M255,40 L277,48 L255,56 Z" fill="#b23a3a"/>
     </svg>`,
     putting: `<svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
-      <rect width="300" height="130" rx="10" fill="#e8f0ee"/>
-      <ellipse cx="150" cy="72" rx="130" ry="52" fill="#cfe3d8"/>
-      <path d="M35,84 Q150,42 265,92" stroke="#2d5c4c" stroke-width="1.5" fill="none" opacity="0.55"/>
-      <path d="M45,98 Q150,62 255,104" stroke="#2d5c4c" stroke-width="1.5" fill="none" opacity="0.55"/>
-      <circle cx="55" cy="92" r="5.5" fill="#fff" stroke="#1a3c34" stroke-width="1.5"/>
-      <path d="M55,92 Q140,48 232,76" stroke="#8f2e2e" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
-      <circle cx="236" cy="77" r="4.5" fill="#1a3c34"/>
-      <line x1="236" y1="77" x2="236" y2="42" stroke="#1a3c34" stroke-width="2"/>
+      <defs>
+        <linearGradient id="coachGrassGrad4" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2f7a35"/>
+          <stop offset="100%" stop-color="#1f5c28"/>
+        </linearGradient>
+        <pattern id="coachGrassTex4" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+          <line x1="0" y1="14" x2="0" y2="5" stroke="#3d8a44" stroke-width="1.4" opacity="0.55"/>
+          <line x1="7" y1="14" x2="7" y2="3" stroke="#164a1d" stroke-width="1.4" opacity="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="300" height="130" rx="10" fill="url(#coachGrassGrad4)"/>
+      <rect width="300" height="130" rx="10" fill="url(#coachGrassTex4)"/>
+      <path d="M35,84 Q150,42 265,92" stroke="#39ff6a" stroke-width="1.5" fill="none" opacity="0.65"/>
+      <path d="M45,98 Q150,62 255,104" stroke="#39ff6a" stroke-width="1.5" fill="none" opacity="0.65"/>
+      <circle cx="55" cy="92" r="6" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <path d="M55,92 Q140,48 232,76" stroke="#f5f2ea" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
+      <circle cx="236" cy="77" r="4.5" fill="#1a1a1a"/>
+      <line x1="236" y1="77" x2="236" y2="42" stroke="#1a1a1a" stroke-width="2"/>
       <path d="M236,42 L256,49 L236,56 Z" fill="#b23a3a"/>
     </svg>`
   };
@@ -3831,7 +3905,8 @@
     const key = 'coachTip' + coachTopic.charAt(0).toUpperCase() + coachTopic.slice(1);
     const items = t(key) || [];
     const icons = COACH_TIP_ICONS[coachTopic] || [];
-    const illu = COACH_ILLUSTRATIONS[coachTopic] || '';
+    const illuRaw = COACH_ILLUSTRATIONS[coachTopic];
+    const illu = typeof illuRaw === 'function' ? illuRaw() : (illuRaw || '');
     container.innerHTML = `
       <div style="text-align:center; margin-bottom:14px;">${illu}</div>
       <ul style="list-style:none; margin:0; padding:0;">
