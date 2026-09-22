@@ -78,7 +78,7 @@
   #app .btn:disabled { box-shadow:0 1px 2px rgba(0,0,0,0.1); transform:none; opacity:0.55; cursor:default; }
   /* État "enfoncé" PERSISTANT (pas juste au clic) pour les boutons Afficher/Masquer, tant que la
      section correspondante reste ouverte — indicateur visuel d'état, pas un défaut à corriger. */
-  #app .btn.is-open, #app .btn-secondary.is-open { transform:translateY(3px) !important; box-shadow:0 0 0 rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15) inset, 0 1px 2px rgba(0,0,0,0.15) !important; }
+  #app .btn.is-open, #app .btn-secondary.is-open, #app .lang-flag-btn.is-open { transform:translateY(3px) !important; box-shadow:inset 0 3px 6px rgba(0,0,0,0.35), inset 0 1px 3px rgba(0,0,0,0.2) !important; }
   #app .btn-secondary:hover { background:#d5e4e0; }
   #app .btn-danger { background:var(--flag-red); }
   #app .btn-danger:hover { background:var(--flag-red-dark); }
@@ -1957,7 +1957,15 @@
   //                 session.
   //   V02.002.023 — L'emoji 🎯 du bouton "Le coach" est remplacé par une silhouette de golfeur en
   //                 SVG (mi-swing, club et balle), à la demande du Directeur de session.
-  const APP_VERSION = "SuarPark - V02.002.023";
+  //   V02.002.024 — Les 3 boutons "← Retour à l'accueil" (golf, historique, coach) affichent
+  //                 désormais une icône porte 🚪 au lieu de la flèche ←. Les icônes drapeaux du
+  //                 sélecteur de langue sont maintenant des boutons 3D avec fond blanc et ombre
+  //                 portée (même style que les autres boutons de l'appli), le drapeau actif
+  //                 apparaissant "enfoncé", à la demande du Directeur de session.
+  //   V02.002.025 — Effet "bouton enfoncé" (drapeau actif, boutons ouverts) renforcé avec une
+  //                 vraie ombre portée inverse (inset), plus marquée, à la demande du Directeur
+  //                 de session.
+  const APP_VERSION = "SuarPark - V02.002.025";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2172,7 +2180,7 @@
       btnShowHistory: "📜 Afficher l'historique",
       btnHomeHistory: "📜 Consulter l'historique",
       btnHomeGolf: "⛳ Jouer au golf",
-      btnBackHome: "← Retour à l'accueil",
+      btnBackHome: "🚪 Retour à l'accueil",
       btnHomeCoach: "Le coach",
       coachSectionTitle: "🎯 Le coach — conseils pratiques",
       coachBtnClub: "🏌️ Position balle / club",
@@ -2535,7 +2543,7 @@
       btnShowHistory: "📜 Show history",
       btnHomeHistory: "📜 View history",
       btnHomeGolf: "⛳ Play golf",
-      btnBackHome: "← Back to home",
+      btnBackHome: "🚪 Back to home",
       btnHomeCoach: "The coach",
       coachSectionTitle: "🎯 The coach — practical tips",
       coachBtnClub: "🏌️ Ball position / club",
@@ -2898,7 +2906,7 @@
       btnShowHistory: "📜 Verlauf anzeigen",
       btnHomeHistory: "📜 Verlauf ansehen",
       btnHomeGolf: "⛳ Golf spielen",
-      btnBackHome: "← Zurück zur Startseite",
+      btnBackHome: "🚪 Zurück zur Startseite",
       btnHomeCoach: "Der Coach",
       coachSectionTitle: "🎯 Der Coach — praktische Tipps",
       coachBtnClub: "🏌️ Ballposition / Schläger",
@@ -3261,7 +3269,7 @@
       btnShowHistory: "📜 แสดงประวัติ",
       btnHomeHistory: "📜 ดูประวัติ",
       btnHomeGolf: "⛳ เล่นกอล์ฟ",
-      btnBackHome: "← กลับหน้าแรก",
+      btnBackHome: "🚪 กลับหน้าแรก",
       btnHomeCoach: "โค้ช",
       coachSectionTitle: "🎯 โค้ช — เคล็ดลับปฏิบัติ",
       coachBtnClub: "🏌️ ตำแหน่งลูก/ไม้กอล์ฟ",
@@ -4335,7 +4343,7 @@
 
   function pageSubtitleRowHTML(groupId){
     const flagsHTML = ['fr','en','de','th'].map(code => `
-        <button type="button" class="lang-flag-btn" data-lang="${code}" aria-label="${code}" title="${code}" style="border:2px solid ${lang===code?'#1a3c34':'transparent'}; background:none; padding:2px; border-radius:5px; cursor:pointer; line-height:0; margin:0 7px; display:inline-flex;">${LANG_FLAG_SVG[code]}</button>`).join('');
+        <button type="button" class="lang-flag-btn${lang===code?' is-open':''}" data-lang="${code}" aria-label="${code}" title="${code}" style="border:none; background:#fff; padding:5px 7px; border-radius:8px; cursor:pointer; line-height:0; margin:0 6px; display:inline-flex; box-shadow:0 3px 0 rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.2); transition:transform 0.08s ease, box-shadow 0.08s ease;">${LANG_FLAG_SVG[code]}</button>`).join('');
     return `
       <span class="brand-mark">SuarPark</span>
       <span id="${groupId}" class="lang-flags" style="display:inline-flex; align-items:center; margin-left:2px;">${flagsHTML}</span>`;
@@ -4364,7 +4372,7 @@
 
   function wireLangSelectors(){
     document.querySelectorAll('.lang-flag-btn').forEach(btn => {
-      btn.style.borderColor = (btn.dataset.lang === lang) ? '#1a3c34' : 'transparent';
+      btn.classList.toggle('is-open', btn.dataset.lang === lang);
       btn.addEventListener('click', () => changeLanguage(btn.dataset.lang));
     });
   }
