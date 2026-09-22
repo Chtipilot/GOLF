@@ -1968,7 +1968,15 @@
   //   V02.002.028 — Chaque conseil du "Coach" (5 par thème) a désormais son propre petit pictogramme
   //                 (badge rond illustrant le point précis), en plus du schéma d'ensemble déjà
   //                 présent — soit 6 illustrations par thème, à la demande du Directeur de session.
-  const APP_VERSION = "SuarPark - V02.002.028";
+  //   V02.002.029 — Schéma d'ensemble du thème "Position balle / club" redessiné (vue de dessus :
+  //                 pieds, ligne de balle, 4 têtes de club différenciées par silhouette — wedge,
+  //                 fer, bois de parcours, driver), pour un rendu plus lisible et réaliste, à la
+  //                 demande du Directeur de session.
+  //   V02.002.030 — Schéma d'ensemble du thème "Position balle / club" restylé dans les couleurs
+  //                 d'une photo de référence choisie par le Directeur de session : fond gazon vert
+  //                 (texture SVG), lignes néon vertes reliant 4 positions de balle en escalier,
+  //                 balles blanches, chaussures au sol.
+  const APP_VERSION = "SuarPark - V02.002.030";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3707,15 +3715,30 @@
   // logique que les autres icônes de l'appli (silhouette du golfeur, etc.).
   const COACH_TOPICS = ['club','terrain','bunker','putting'];
   const COACH_ILLUSTRATIONS = {
-    club: `<svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
-      <rect width="300" height="130" rx="10" fill="#f1e6cc"/>
-      <line x1="30" y1="90" x2="270" y2="90" stroke="#c9a668" stroke-width="3" stroke-linecap="round"/>
-      <ellipse cx="60" cy="106" rx="18" ry="8" fill="#1a3c34"/>
-      <ellipse cx="240" cy="106" rx="18" ry="8" fill="#1a3c34"/>
-      <circle cx="95" cy="90" r="6.5" fill="#8f2e2e" stroke="#fff" stroke-width="1.5"/>
-      <circle cx="150" cy="90" r="6.5" fill="#c9a668" stroke="#fff" stroke-width="1.5"/>
-      <circle cx="210" cy="90" r="6.5" fill="#2d5c4c" stroke="#fff" stroke-width="1.5"/>
-      <line x1="150" y1="90" x2="185" y2="30" stroke="#1a3c34" stroke-width="3" stroke-linecap="round"/>
+    club: `<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
+      <defs>
+        <linearGradient id="coachGrassGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2f7a35"/>
+          <stop offset="100%" stop-color="#1f5c28"/>
+        </linearGradient>
+        <pattern id="coachGrassTex" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+          <line x1="0" y1="14" x2="0" y2="5" stroke="#3d8a44" stroke-width="1.4" opacity="0.55"/>
+          <line x1="7" y1="14" x2="7" y2="3" stroke="#164a1d" stroke-width="1.4" opacity="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="320" height="170" rx="10" fill="url(#coachGrassGrad)"/>
+      <rect width="320" height="170" rx="10" fill="url(#coachGrassTex)"/>
+      <line x1="30" y1="142" x2="290" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="70" y1="45" x2="70" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="130" y1="70" x2="130" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="190" y1="95" x2="190" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <line x1="250" y1="118" x2="250" y2="142" stroke="#39ff6a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="70" cy="45" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="130" cy="70" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="190" cy="95" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <circle cx="250" cy="118" r="8" fill="#f5f2ea" stroke="#cfcabb" stroke-width="1"/>
+      <path d="M15,150 Q25,140 45,144 Q55,146 55,155 L55,163 L9,163 Q5,156 15,150 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
+      <path d="M305,150 Q295,140 275,144 Q265,146 265,155 L265,163 L311,163 Q315,156 305,150 Z" fill="#f5f2ea" stroke="#1a1a1a" stroke-width="1"/>
     </svg>`,
     terrain: `<svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; height:auto;">
       <rect width="300" height="130" rx="10" fill="#e8f0ee"/>
