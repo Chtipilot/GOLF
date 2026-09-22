@@ -241,7 +241,7 @@
 
 <div style="background-image: linear-gradient(rgba(26,60,52,0.55), rgba(26,60,52,0.8)), url('golf-course.jpg'); background-size:cover; background-position:center 65%; border-radius:12px; padding:16px 18px; margin-bottom:6px;">
   <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
-    <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;"><span id="neonTitle">GOLF_TEAM</span> <span id="siteVersionLine" style="font-size:0.36em; font-weight:700; opacity:.75; letter-spacing:0.3px; display:block; margin-top:3px;"></span><span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
+    <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px; text-align:center;"><span id="neonTitle">GOLF_TEAM</span> <span id="siteVersionLine" style="font-size:0.36em; font-weight:700; opacity:.75; letter-spacing:0.3px; display:block; margin-top:3px;"></span><span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
     <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
     <button class="btn btn-secondary info-ref" id="btnEvolutions" style="font-size:11px; padding:4px 8px;">📖 Historique du projet</button>
   </div>
@@ -1924,7 +1924,10 @@
   //                 demande du Directeur de session.
   //   V02.002.020 — Espacement augmenté entre les icônes drapeaux du sélecteur de langue (marge
   //                 3px → 7px), à la demande du Directeur de session.
-  const APP_VERSION = "SuarPark - V02.002.020";
+  //   V02.002.021 — La version et "🤖 Claude Caddie Assistant", sous "GOLF_TEAM", sont désormais
+  //                 centrées horizontalement par rapport au titre, à la demande du Directeur de
+  //                 session.
+  const APP_VERSION = "SuarPark - V02.002.021";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
