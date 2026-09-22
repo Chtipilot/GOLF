@@ -155,7 +155,6 @@
     #app .history-scroll { max-height: 38vh; }
     #app input[type=text], #app input[type=date] { padding:2px 5px; font-size:11px; }
     #app .date-slider-label { min-width:70px; font-size:10px; }
-    #app select#langSelect { padding:2px 6px !important; font-size:11px !important; }
   }
   @media (orientation: landscape) and (max-height: 500px) and (min-width: 700px) {
     #app .scorecard-table { font-size: clamp(9px, 1.1vw, 13px); }
@@ -242,13 +241,12 @@
 
 <div style="background-image: linear-gradient(rgba(26,60,52,0.55), rgba(26,60,52,0.8)), url('golf-course.jpg'); background-size:cover; background-position:center 65%; border-radius:12px; padding:16px 18px; margin-bottom:6px;">
   <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;">
-    <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;"><span id="neonTitle">GOLF_TEAM</span> <span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
+    <h1 id="siteTitle" style="margin:0; font-family:var(--font-display); font-weight:900; font-size:clamp(22px,3.4vw,30px); color:#fff; letter-spacing:0.5px;"><span id="neonTitle">GOLF_TEAM</span> <span id="siteVersionLine" style="font-size:0.36em; font-weight:700; opacity:.75; letter-spacing:0.3px; display:block; margin-top:3px;"></span><span style="font-size:0.42em; font-weight:700; opacity:.85; letter-spacing:0.3px; display:block; margin-top:2px;">🤖 Claude Caddie Assistant</span></h1>
     <button class="btn btn-secondary info-ref" id="btnBriefing" style="font-size:11px; padding:4px 8px;">🎓 Briefing Directeur</button>
     <button class="btn btn-secondary info-ref" id="btnEvolutions" style="font-size:11px; padding:4px 8px;">📖 Historique du projet</button>
   </div>
 </div>
 <div class="page-subtitle-row" id="homeSubtitleRow"></div>
-<p class="sub" id="appSubtitle">Départs rouges · Par 72 · 18 trous</p>
 
 <!-- Écran d'accueil : 2 grandes options plein écran, à la demande du Directeur de session
      (simplification de la page d'accueil — tout le reste devient accessible en sous-menu depuis
@@ -1916,7 +1914,17 @@
   //                 Directeur de session. Le fichier GPS est téléchargé automatiquement juste avant
   //                 (mailto: ne peut pas joindre de fichier en HTML), avec une note dans le corps
   //                 du mail demandant de le joindre manuellement.
-  const APP_VERSION = "SuarPark - V02.002.017";
+  //   V02.002.018 — Présentation de l'en-tête revue à la demande du Directeur de session : le numéro
+  //                 de version et "🤖 Claude Caddie Assistant" apparaissent désormais sous le titre
+  //                 "GOLF_TEAM" (au lieu d'être à côté de "SuarPark"). La ligne "Par 72 · 18 trous —
+  //                 Fichier de consultation (lecture seule)" est supprimée. Le sélecteur de langue
+  //                 (menu déroulant) est remplacé par 4 icônes drapeaux cliquables (FR/EN/DE/TH),
+  //                 affichées directement à côté de "SuarPark" sur chaque page.
+  //   V02.002.019 — Icônes drapeaux du sélecteur de langue agrandies (22×15 → 36×24 px), à la
+  //                 demande du Directeur de session.
+  //   V02.002.020 — Espacement augmenté entre les icônes drapeaux du sélecteur de langue (marge
+  //                 3px → 7px), à la demande du Directeur de session.
+  const APP_VERSION = "SuarPark - V02.002.020";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -3444,7 +3452,7 @@
 
   function applyStaticText(){
     document.getElementById('homeSubtitleRow').innerHTML = pageSubtitleRowHTML('langSelect');
-    document.getElementById('appSubtitle').textContent = t('subtitle');
+    document.getElementById('siteVersionLine').textContent = APP_VERSION.replace(/^SuarPark\s*-\s*/, "");
     document.getElementById('btnHomeHistory').textContent = t('btnHomeHistory');
     document.getElementById('btnHomeGolf').textContent = t('btnHomeGolf');
     document.getElementById('btnBackHomeGolf').textContent = t('btnBackHome');
@@ -4110,17 +4118,19 @@
   // langue soit présent en haut de CHAQUE page/section (accueil, carte de score vierge, récap
   // équipe...), et pas seulement sur la page d'accueil derrière laquelle les sections plein
   // écran le masquaient auparavant.
-  function pageSubtitleRowHTML(selectId){
+  const LANG_FLAG_SVG = {
+    fr: `<svg width="36" height="24" viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#fff"/><rect width="10" height="20" fill="#0055A4"/><rect x="20" width="10" height="20" fill="#EF4135"/></svg>`,
+    en: `<svg width="36" height="24" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="30" fill="#00247d"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#cf142b" stroke-width="2"/><path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10"/><path d="M30,0 V30 M0,15 H60" stroke="#cf142b" stroke-width="6"/></svg>`,
+    de: `<svg width="36" height="24" viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="6.67" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#D00"/><rect y="13.34" width="30" height="6.66" fill="#FFCE00"/></svg>`,
+    th: `<svg width="36" height="24" viewBox="0 0 30 18" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="18" fill="#fff"/><rect y="0" width="30" height="3" fill="#A51931"/><rect y="3" width="30" height="3" fill="#fff"/><rect y="6" width="30" height="6" fill="#2D2A4A"/><rect y="12" width="30" height="3" fill="#fff"/><rect y="15" width="30" height="3" fill="#A51931"/></svg>`
+  };
+
+  function pageSubtitleRowHTML(groupId){
+    const flagsHTML = ['fr','en','de','th'].map(code => `
+        <button type="button" class="lang-flag-btn" data-lang="${code}" aria-label="${code}" title="${code}" style="border:2px solid ${lang===code?'#1a3c34':'transparent'}; background:none; padding:2px; border-radius:5px; cursor:pointer; line-height:0; margin:0 7px; display:inline-flex;">${LANG_FLAG_SVG[code]}</button>`).join('');
     return `
       <span class="brand-mark">SuarPark</span>
-      <span class="sub" style="margin:0;">${APP_VERSION.replace(/^SuarPark\s*-\s*/, "")}</span>
-      <label style="font-size:12px;">🌐 ${t('langLabel')} :</label>
-      <select id="${selectId}" class="lang-select-clone" style="font-size:12px; padding:4px 8px; border-radius:4px; border:1px solid #ccc; background:#fff;">
-        <option value="fr"${lang==='fr'?' selected':''}>Français</option>
-        <option value="en"${lang==='en'?' selected':''}>English</option>
-        <option value="de"${lang==='de'?' selected':''}>Deutsch</option>
-        <option value="th"${lang==='th'?' selected':''}>ไทย</option>
-      </select>`;
+      <span id="${groupId}" class="lang-flags" style="display:inline-flex; align-items:center; margin-left:2px;">${flagsHTML}</span>`;
   }
 
   // Changement de langue centralisé : appelable depuis n'importe quel sélecteur de langue
@@ -4143,9 +4153,9 @@
   }
 
   function wireLangSelectors(){
-    document.querySelectorAll('.lang-select-clone').forEach(sel => {
-      sel.value = lang;
-      sel.addEventListener('change', (e) => changeLanguage(e.target.value));
+    document.querySelectorAll('.lang-flag-btn').forEach(btn => {
+      btn.style.borderColor = (btn.dataset.lang === lang) ? '#1a3c34' : 'transparent';
+      btn.addEventListener('click', () => changeLanguage(btn.dataset.lang));
     });
   }
 
