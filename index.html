@@ -2046,7 +2046,10 @@
   //                 désormais affiché sous le trou amélioré, avec l'ancien total entre parenthèses
   //                 (nouvelle clé insightEclecticTotalNow dans les 4 langues). Le record d'ÉQUIPE
   //                 affichait déjà son total.
-  const APP_VERSION = "SuarPark - V02.002.047";
+  //   V02.002.048 — Tableau éclectique (Tout / 2024 / 2025 / 2026 / 2027) : les joueurs sont désormais
+  //                 classés du meilleur total éclectique au moins bon (joueurs sans manche sur l'année
+  //                 en bas), la ligne ÉQUIPE restant en dernier.
+  const APP_VERSION = "SuarPark - V02.002.048";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5144,6 +5147,9 @@
   // sur une année précise. Factorisé pour être réutilisé identique quel que soit l'onglet actif.
   function buildEclecticRows(yearFilter){
     let rows = "";
+    // V02.002.048 : lignes joueurs triées du meilleur (plus petit) au moins bon total éclectique,
+    // joueurs sans manche sur la période en bas ; alternance de fond recalculée après le tri.
+    const playerRows = [];
     const teamBest = Array(18).fill(null);
     const teamBestBy = Array(18).fill(null);
     const teamBestDate = Array(18).fill(null);
@@ -5171,22 +5177,28 @@
         }
       });
       if (rounds.length === 0){
-        rows += `<tr style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
+        playerRows.push({tot: null, order: i, html: `<tr style="background:__ECL_BG__;">
           <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${displayName(name)}</td>
           ${Array(18).fill('<td>—</td>').join("")}
           <td style="background:#e8f0ee;">—</td><td style="background:#e8f0ee;">—</td><td style="background:#e8f0ee;">—</td>
-        </tr>`;
+        </tr>`});
         return;
       }
       const {out, inn, tot} = computeOutInTot(best);
-      rows += `<tr style="background:${i%2===0?'#f4f7f6':'#ffffff'};">
+      playerRows.push({tot: Number(tot), order: i, html: `<tr style="background:__ECL_BG__;">
         <td style="text-align:left; padding-left:4px; font-weight:bold; color:${colorFor(name)};">${displayName(name)}</td>
         ${best.map((s,h)=>{ const c=scoreColor(s,h); return `<td style="background:${c.bg}; color:${c.fg};">${scoreDisplayHTML(s,h)}</td>`; }).join("")}
         <td style="font-weight:bold; background:#e8f0ee;">${out}</td>
         <td style="font-weight:bold; background:#e8f0ee;">${inn}</td>
         <td style="font-weight:bold; background:#e8f0ee;">${tot}</td>
-      </tr>`;
+      </tr>`});
     });
+    playerRows.sort((x, y) => {
+      const xa = (x.tot === null || isNaN(x.tot)) ? Infinity : x.tot;
+      const ya = (y.tot === null || isNaN(y.tot)) ? Infinity : y.tot;
+      return xa !== ya ? xa - ya : x.order - y.order;
+    });
+    rows = playerRows.map((r, k) => r.html.replace('__ECL_BG__', k % 2 === 0 ? '#f4f7f6' : '#ffffff')).join('');
     const hasAnyTeamBest = teamBest.some(s => s !== null);
     if (hasAnyTeamBest){
       const {out, inn, tot} = computeOutInTot(teamBest);
