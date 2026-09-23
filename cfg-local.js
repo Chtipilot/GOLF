@@ -1,7 +1,7 @@
 // cfg-local.js — Données confidentielles des caddies (photos uniquement, pas de téléphones).
 // Fichier LOCAL : à ne PAS committer sur un dépôt GitHub PUBLIC.
 // Doit être déployé À CÔTÉ de index.html, sur le même hébergement.
-// Photos manquantes pour 2 (TITI), 45 (SOMCHAI), 9 (?) — à compléter si besoin.
+// Photos manquantes pour 2 (TITI), 45 (SOMCHAI), 9 (?), 102 (TIP, ajoutée le 23/09/2026) — à compléter si besoin.
 window.CADDIES_DATA = [
   {
     "number": "136",
@@ -36,6 +36,11 @@ window.CADDIES_DATA = [
   {
     "number": "9",
     "name": "",
+    "photo": ""
+  },
+  {
+    "number": "102",
+    "name": "TIP",
     "photo": ""
   }
 ];
