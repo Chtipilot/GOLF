@@ -2039,7 +2039,10 @@
   //                 38 putts, 8 pénalités : 2 au trou 6, 1 aux trous 7, 8, 9 et 10, 2 au trou 16,
   //                 départ blanc, caddie #136 YUI). Totaux recalculés trou par trou : conformes à la
   //                 carte transmise. Pas de GPS.
-  const APP_VERSION = "SuarPark - V02.002.045";
+  //   V02.002.046 — "Faits du jour" : le titre de chaque podium (score / putts) est rapproché de son
+  //                 podium (suppression de l'espace vide au-dessus des marches) et chaque podium est
+  //                 désormais encadré (titre + marches), à la demande du Directeur de session.
+  const APP_VERSION = "SuarPark - V02.002.046";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -5686,9 +5689,11 @@
           <text x="${x+blockW/2}" y="${topY-22}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="900" fill="${colorFor(p.name)}">${displayName(p.name)}</text>
           <text x="${x+blockW/2}" y="${topY-6}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#555">${p.tot}${unit}</text>`;
       });
-      return `<div style="text-align:center;">
-        <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:2px;">${title}</div>
-        <svg viewBox="0 0 310 172" style="width:100%; max-width:280px; height:auto;"><line x1="5" y1="170" x2="305" y2="170" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>${svg}</svg>
+      // V02.002.046 : titre collé au podium (viewBox rogné en haut : la zone vide au-dessus du nom
+      // du 1er n'est plus affichée) et chaque podium (titre + marches) encadré.
+      return `<div style="text-align:center; border:1.5px solid rgba(138,109,31,0.45); border-radius:8px; background:rgba(255,255,255,0.55); padding:6px 8px 4px; margin:8px auto 0; max-width:300px;">
+        <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:0;">${title}</div>
+        <svg viewBox="0 36 310 137" style="display:block; margin:0 auto; width:100%; max-width:280px; height:auto;"><line x1="5" y1="170" x2="305" y2="170" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>${svg}</svg>
       </div>`;
     };
     const honorCard = (scorePodium, puttsPodium, date, isCustomDate, eclecticInfo, penaltyLoser, ace, personalBest, bestHole, playerCount) => `
