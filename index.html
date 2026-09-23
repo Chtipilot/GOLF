@@ -2042,7 +2042,11 @@
   //   V02.002.046 — "Faits du jour" : le titre de chaque podium (score / putts) est rapproché de son
   //                 podium (suppression de l'espace vide au-dessus des marches) et chaque podium est
   //                 désormais encadré (titre + marches), à la demande du Directeur de session.
-  const APP_VERSION = "SuarPark - V02.002.046";
+  //   V02.002.047 — Nouveau record éclectique PERSONNEL : le nouveau total éclectique du joueur est
+  //                 désormais affiché sous le trou amélioré, avec l'ancien total entre parenthèses
+  //                 (nouvelle clé insightEclecticTotalNow dans les 4 langues). Le record d'ÉQUIPE
+  //                 affichait déjà son total.
+  const APP_VERSION = "SuarPark - V02.002.047";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -2565,6 +2569,7 @@
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Trou ${hole} : premier score enregistré (${newS}) le ${date}`
         : `${name} — Trou ${hole} : ${oldS} → ${newS} le ${date}`,
+      insightEclecticTotalNow: (tot, oldTot) => oldTot !== null && oldTot !== undefined ? `Nouveau total éclectique : ${tot} (avant : ${oldTot})` : `Total éclectique : ${tot}`,
       insightWorstPuttsEver: "😅 Pire total de putts",
       insightWorstRoundEver: "🥴 Manche la plus difficile",
       insightMostConsistent: "🎯 Joueur le plus régulier",
@@ -2954,6 +2959,7 @@
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Hole ${hole}: first score recorded (${newS}) on ${date}`
         : `${name} — Hole ${hole}: ${oldS} → ${newS} on ${date}`,
+      insightEclecticTotalNow: (tot, oldTot) => oldTot !== null && oldTot !== undefined ? `New eclectic total: ${tot} (was ${oldTot})` : `Eclectic total: ${tot}`,
       insightWorstPuttsEver: "😅 Worst putts total",
       insightWorstRoundEver: "🥴 Toughest round",
       insightMostConsistent: "🎯 Most consistent player",
@@ -3343,6 +3349,7 @@
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — Loch ${hole}: erster erfasster Score (${newS}) am ${date}`
         : `${name} — Loch ${hole}: ${oldS} → ${newS} am ${date}`,
+      insightEclecticTotalNow: (tot, oldTot) => oldTot !== null && oldTot !== undefined ? `Neuer Eklektik-Gesamtscore: ${tot} (vorher: ${oldTot})` : `Eklektik-Gesamtscore: ${tot}`,
       insightWorstPuttsEver: "😅 Schlechteste Putt-Summe",
       insightWorstRoundEver: "🥴 Schwierigste Runde",
       insightMostConsistent: "🎯 Konstantester Spieler",
@@ -3732,6 +3739,7 @@
       insightNewEclecticRecordDesc: (name, hole, oldS, newS, date) => oldS === null
         ? `${name} — หลุม ${hole}: บันทึกคะแนนแรก (${newS}) เมื่อ ${date}`
         : `${name} — หลุม ${hole}: ${oldS} → ${newS} เมื่อ ${date}`,
+      insightEclecticTotalNow: (tot, oldTot) => oldTot !== null && oldTot !== undefined ? `คะแนนเอคเลกติกรวมใหม่: ${tot} (เดิม: ${oldTot})` : `คะแนนเอคเลกติกรวม: ${tot}`,
       insightWorstPuttsEver: "😅 พัตต์รวมแย่ที่สุด",
       insightWorstRoundEver: "🥴 รอบที่ยากที่สุด",
       insightMostConsistent: "🎯 ผู้เล่นที่สม่ำเสมอที่สุด",
@@ -5560,7 +5568,16 @@
         }
       });
       if (bestGain && (newEclecticRecord === null || new Date(frToIso(lastDate)) > new Date(frToIso(newEclecticRecord.date)))){
-        newEclecticRecord = {name, date: lastDate, hole: bestGain.hole, oldScore: bestGain.oldScore, newScore: bestGain.newScore};
+        // V02.002.046→047 : total éclectique personnel avant/après cette manche (null si les 18 trous
+        // ne sont pas encore tous renseignés), affiché avec le record.
+        const after = before.map((b, h) => {
+          const n = Number(lastScores[h]);
+          const valid = lastScores[h] !== "" && lastScores[h] !== null && lastScores[h] !== undefined && !isNaN(n);
+          if (!valid) return b;
+          return (b === null || n < b) ? n : b;
+        });
+        const sumIfFull = arr => arr.every(v => v !== null) ? arr.reduce((a, v) => a + v, 0) : null;
+        newEclecticRecord = {name, date: lastDate, hole: bestGain.hole, oldScore: bestGain.oldScore, newScore: bestGain.newScore, oldTotal: sumIfFull(before), newTotal: sumIfFull(after)};
       }
     });
 
@@ -5710,6 +5727,7 @@
         ${eclecticInfo ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightBestEclecticEver')}</div>
           <div style="font-size:13.5px; font-weight:700; color:${colorFor(eclecticInfo.name)};">${t('insightNewEclecticRecordDesc', eclecticInfo.name, eclecticInfo.hole+1, eclecticInfo.oldScore, eclecticInfo.newScore, eclecticInfo.date)}</div>
+          ${eclecticInfo.newTotal !== null && eclecticInfo.newTotal !== undefined ? `<div style="font-size:12.5px; font-weight:700; color:#8a6d1f; margin-top:2px;">${t('insightEclecticTotalNow', eclecticInfo.newTotal, eclecticInfo.oldTotal)}</div>` : ''}
         </div>` : ''}
         ${personalBest ? `<div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(138,109,31,0.35); text-align:center;">
           <div style="font-size:11px; color:#8a6d1f; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">${t('insightPersonalBestOfDay')}</div>
@@ -5854,7 +5872,7 @@
       </div>`;
 
     // Faits marquants classés du plus positif au moins positif.
-    if (newEclecticRecord && newEclecticRecord.date !== podiumDate) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date), colorFor(newEclecticRecord.name));
+    if (newEclecticRecord && newEclecticRecord.date !== podiumDate) html += card(t('insightBestEclecticEver'), t('insightNewEclecticRecordDesc', newEclecticRecord.name, newEclecticRecord.hole+1, newEclecticRecord.oldScore, newEclecticRecord.newScore, newEclecticRecord.date) + (newEclecticRecord.newTotal !== null && newEclecticRecord.newTotal !== undefined ? ' — ' + t('insightEclecticTotalNow', newEclecticRecord.newTotal, newEclecticRecord.oldTotal) : ''), colorFor(newEclecticRecord.name));
     if (best) html += card(t('insightBestRoundEver'), `${best.name} — ${best.tot} (${best.date})`, colorFor(best.name));
     if (bestPutts) html += card(t('insightBestPuttsEver'), `${bestPutts.name} — ${bestPutts.tot} putts (${bestPutts.date})`, colorFor(bestPutts.name));
     if (mostConsistent) html += card(t('insightMostConsistent'), t('insightConsistentDesc', mostConsistent.name, mostConsistent.sd), colorFor(mostConsistent.name));
