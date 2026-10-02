@@ -2060,7 +2060,12 @@
   //   V02.002.051 — Manche de MARCUS du 30/09/2026 ajoutée à l'historique officiel (Score 60+63=123,
   //                 36 putts, 4 pénalités aux trous 3, 11, 16 et 18, départ blanc, caddie #20 CAT).
   //                 Totaux recalculés trou par trou : conformes à la carte transmise. Pas de GPS.
-  const APP_VERSION = "SuarPark - V02.002.051";
+  //   V02.002.052 — Replay GPS officiel de MARCUS du 30/09/2026 ajouté (clé dans SHOT_HISTORY_KEYS,
+  //                 données dans shot-history-data.js). Fichier reçu en 6 blocs, 18 départs GPS,
+  //                 marqueurs de pénalité conformes à la carte (trous 3, 11, 16, 18). Points GPS
+  //                 incomplets aux trous 12 à 15 (coups non tapés sur le terrain) : replay partiel
+  //                 sur ces trous, score officiel inchangé. Rétention 1 an : rien à retirer.
+  const APP_VERSION = "SuarPark - V02.002.052";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -6016,6 +6021,8 @@
     "LOUIS|16/09/2026", // Manche réelle, 18 trous complets avec GPS — V02.002.002
     "MARCUS|16/09/2026", // Manche réelle, 18 trous complets avec GPS — V02.002.003
     "SANDY|16/09/2026",  // Manche réelle, 18 trous complets avec GPS — V02.002.004
+    "MARCUS|30/09/2026", // Manche réelle avec GPS (reçu en 6 blocs) — V02.002.052 ; points
+                         // incomplets aux trous 12 (2/5), 13 (5/8), 14 (3/4) et 15 (3/5)
   ];
 
   let shotHistoryLoadPromise = null;
