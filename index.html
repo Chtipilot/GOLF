@@ -2068,7 +2068,16 @@
   //   V02.002.053 — Manche de SANDY du 07/10/2026 ajoutée à l'historique officiel (Score 59+53=112,
   //                 34 putts, 2 pénalités aux trous 3 et 9, départ blanc, caddie #41 NANG).
   //                 Totaux recalculés trou par trou : conformes à la carte transmise. Pas de GPS.
-  const APP_VERSION = "SuarPark - V02.002.053";
+  //   V02.002.054 — Manche de MARCUS du 07/10/2026 ajoutée à l'historique officiel (Score 63+60=123,
+  //                 30 putts, 6 pénalités : 1 aux trous 3, 5, 9 et 13, 2 au trou 6, caddie #20 CAT).
+  //                 Ligne "Abschlag" absente de la carte : départ blanc retenu (seul départ joué par
+  //                 Marcus dans tout l'historique). Totaux recalculés trou par trou : conformes.
+  //   V02.002.055 — Replay GPS officiel de MARCUS du 07/10/2026 ajouté (clé dans SHOT_HISTORY_KEYS,
+  //                 données dans shot-history-data.js). Fichier reçu en 6 blocs, 18 départs GPS,
+  //                 marqueurs de pénalité conformes à la carte (trous 3, 5, 6 ×2, 9, 13). Points
+  //                 GPS incomplets aux trous 6 (2 coups manquants) et 15 (1 coup manquant) : replay
+  //                 partiel sur ces trous, score officiel inchangé. Rétention 1 an : rien à retirer.
+  const APP_VERSION = "SuarPark - V02.002.055";
 
   const DIST = [485,378,292,111,322,329,502,140,377,355,394,112,440,114,301,532,406,395];
   const DIST_WHITE = [505,403,383,141,380,375,522,165,412,368,414,154,492,141,338,569,422,415];
@@ -4323,7 +4332,8 @@
         ["09/09/2026",[10,6,7,5,5,7,5,8,8,6,6,4,6,4,6,8,8,7],[1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],[2,1,1,2,2,2,1,3,3,2,2,2,2,2,2,1,2,2],"white","20"],
         ["16/09/2026",[9,8,12,3,6,7,8,7,6,6,7,3,9,4,8,9,7,5],[0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[2,3,2,2,3,3,3,3,2,1,1,2,1,2,3,1,2,1],"white","20_CAT"],
         ["23/09/2026",[9,6,9,4,7,7,7,5,8,8,6,5,10,5,7,10,8,8],[0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0],[2,2,2,3,2,1,1,1,3,2,3,2,3,2,2,3,2,3],"white","20_CAT"],
-        ["30/09/2026",[8,9,7,4,5,7,8,6,6,6,8,5,8,4,5,10,9,8],[0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],[3,2,2,2,2,3,1,2,1,2,4,2,2,1,1,2,3,1],"white","20_CAT"]
+        ["30/09/2026",[8,9,7,4,5,7,8,6,6,6,8,5,8,4,5,10,9,8],[0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],[3,2,2,2,2,3,1,2,1,2,4,2,2,1,1,2,3,1],"white","20_CAT"],
+        ["07/10/2026",[6,7,8,5,7,12,7,5,6,5,8,6,7,6,6,9,7,6],[0,0,1,0,1,2,0,0,1,0,0,0,1,0,0,0,0,0],[1,2,2,1,2,4,1,2,1,1,2,1,2,2,2,1,2,1],"white","20_CAT"]
       ],
       PATRICK: [
         ["01/12/2024",[9,6,8,5,6,7,12,6,7,9,11,5,8,6,9,12,8,7]],
@@ -6027,6 +6037,8 @@
     "SANDY|16/09/2026",  // Manche réelle, 18 trous complets avec GPS — V02.002.004
     "MARCUS|30/09/2026", // Manche réelle avec GPS (reçu en 6 blocs) — V02.002.052 ; points
                          // incomplets aux trous 12 (2/5), 13 (5/8), 14 (3/4) et 15 (3/5)
+    "MARCUS|07/10/2026", // Manche réelle avec GPS (reçu en 6 blocs) — V02.002.055 ; points
+                         // incomplets aux trous 6 (8/10 hors pénalités) et 15 (5/6)
   ];
 
   let shotHistoryLoadPromise = null;
